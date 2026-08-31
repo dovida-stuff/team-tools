@@ -102,6 +102,41 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
 #edit-token-input:focus{border-color:#5f0505}
 #edit-token-remember-row{display:flex;align-items:center;gap:7px;font-size:10px;color:#999;margin-bottom:12px;cursor:pointer}
 #edit-token-remember-row input{cursor:pointer}
+#office-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:3000;display:none;align-items:center;justify-content:center}
+#office-modal.visible{display:flex}
+#office-modal-box{background:#141414;border:1px solid #5f0505;border-radius:8px;width:440px;max-width:94vw;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.9)}
+#office-modal-head{background:#5f0505;padding:9px 14px;border-radius:7px 7px 0 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#office-modal-head h3{font-family:Georgia,serif;font-size:14px;color:#fff}
+#office-modal-close{cursor:pointer;color:#f7eee9;font-size:14px;line-height:1;opacity:.8}
+#office-modal-close:hover{opacity:1}
+#office-list-view,#office-form-view{padding:14px 16px;overflow-y:auto}
+#office-form-view{display:none}
+#office-list-view::-webkit-scrollbar,#office-rows::-webkit-scrollbar{width:5px}
+#office-list-view::-webkit-scrollbar-thumb,#office-rows::-webkit-scrollbar-thumb{background:#5f0505;border-radius:3px}
+.office-modal-help{font-size:10px;color:#888;line-height:1.6;margin-bottom:10px}
+#office-rows{max-height:46vh;overflow-y:auto;border:1px solid #262626;border-radius:5px;margin-bottom:10px}
+.office-row-state{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#666;background:#0d0d0d;padding:5px 10px;position:sticky;top:0}
+.office-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid #1e1e1e}
+.office-row:last-child{border-bottom:none}
+.office-row:hover{background:#1a1a1a}
+.office-row input[type=color]{width:26px;height:26px;padding:0;border:1px solid #3a3a3a;border-radius:4px;background:none;cursor:pointer;flex-shrink:0}
+.office-row-name{flex:1;min-width:0}
+.office-row-name b{display:block;font-size:11px;color:#ddd;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.office-row-name span{font-size:9px;color:#666}
+.office-row-edit{flex:0 0 auto;padding:4px 9px}
+#office-form-view h4{font-family:Georgia,serif;font-size:13px;color:#fff;margin-bottom:11px}
+.office-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
+#office-form-view label,.office-form-full{display:block;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:9px}
+#office-form-view input[type=text],#office-form-view select{display:block;width:100%;margin-top:3px;background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:6px 8px;font-size:11px;color:#ddd;font-family:Verdana,sans-serif;outline:none;letter-spacing:0;text-transform:none}
+#office-form-view input[type=text]:focus,#office-form-view select:focus{border-color:#5f0505}
+#office-form-view input:disabled{opacity:.5;cursor:not-allowed}
+#office-form-view input[type=color]{display:block;width:100%;height:30px;margin-top:3px;padding:0;border:1px solid #333;border-radius:4px;background:none;cursor:pointer}
+#office-f-pin{margin-top:3px;width:100%}
+#office-form-error{font-size:10px;color:#ff9c9c;min-height:14px;margin-bottom:7px;line-height:1.5}
+#edit-pin-bar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(15,15,15,.97);border:1px solid #5f0505;border-radius:20px;padding:8px 16px;z-index:1250;display:none;align-items:center;gap:10px;font-size:10px;color:#bbb;box-shadow:0 4px 20px rgba(0,0,0,.7);white-space:nowrap}
+#edit-pin-bar.visible{display:flex}
+#edit-pin-cancel{background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:4px 10px;font-size:10px;color:#bbb;cursor:pointer;font-family:Verdana,sans-serif}
+#edit-pin-cancel:hover{background:#3a1010;border-color:#8a2020;color:#ff9c9c}
 </style>
 </head>
 <body>
@@ -175,6 +210,9 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
         <div class="edit-row">
           <button class="edit-btn danger" id="edit-delete">Delete zone</button>
         </div>
+        <div class="edit-row">
+          <button class="edit-btn" id="edit-offices">&#9632; Offices &amp; colours</button>
+        </div>
         <div id="edit-count"></div>
         <div class="edit-row">
           <button class="edit-btn primary" id="edit-save">&#10003; Save to GitHub</button>
@@ -188,6 +226,47 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
           <button class="edit-btn danger" id="edit-discard">Discard all</button>
         </div>
         <div id="edit-status"></div>
+      </div>
+    </div>
+    <div id="edit-pin-bar">
+      Click the map to place the office pin.
+      <button id="edit-pin-cancel">Cancel</button>
+    </div>
+    <div id="office-modal">
+      <div id="office-modal-box">
+        <div id="office-modal-head">
+          <h3>Offices</h3>
+          <div id="office-modal-close" title="Close">&#10005;</div>
+        </div>
+        <div id="office-list-view">
+          <p class="office-modal-help">Change an office colour with its swatch &mdash; the map updates as you pick. Colours and new offices are saved with everything else.</p>
+          <div id="office-rows"></div>
+          <div class="edit-row">
+            <button class="edit-btn primary" id="office-add">&#43; New office</button>
+          </div>
+        </div>
+        <div id="office-form-view">
+          <h4 id="office-form-title">New office</h4>
+          <div class="office-form-grid">
+            <label>Code<input id="office-f-code" type="text" placeholder="CNS" autocomplete="off"/></label>
+            <label>State<select id="office-f-state"></select></label>
+          </div>
+          <label class="office-form-full">Name<input id="office-f-name" type="text" placeholder="Cairns &amp; Far North" autocomplete="off"/></label>
+          <label class="office-form-full">Address<input id="office-f-address" type="text" placeholder="12 Example St, Cairns QLD" autocomplete="off"/></label>
+          <div class="office-form-grid">
+            <label>Latitude<input id="office-f-lat" type="text" autocomplete="off"/></label>
+            <label>Longitude<input id="office-f-lng" type="text" autocomplete="off"/></label>
+          </div>
+          <div class="office-form-grid">
+            <label>Colour<input id="office-f-colour" type="color"/></label>
+            <label>Pin<button class="edit-btn" id="office-f-pin">Place on map</button></label>
+          </div>
+          <div id="office-form-error"></div>
+          <div class="edit-row">
+            <button class="edit-btn primary" id="office-form-save">Save office</button>
+            <button class="edit-btn" id="office-form-cancel">Back</button>
+          </div>
+        </div>
       </div>
     </div>
     <div id="edit-modal">
@@ -411,21 +490,52 @@ function createZonePoly(z, code, highlight) {
   return zoneRefs.get(z);
 }
 
-function addMarkers() {
-  Object.entries(OFFICES).forEach(([code, off]) => {
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">' +
-      '<path d="M14 0C6.27 0 0 6.27 0 14c0 9.75 14 22 14 22S28 23.75 28 14C28 6.27 21.73 0 14 0z" fill="' + off.color + '" stroke="#fff" stroke-width="2"/>' +
-      '<circle cx="14" cy="14" r="5" fill="rgba(255,255,255,0.9)"/></svg>';
+// Pin artwork, split out so a recoloured or newly added office can rebuild it.
+function officePinIcon(color) {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">' +
+    '<path d="M14 0C6.27 0 0 6.27 0 14c0 9.75 14 22 14 22S28 23.75 28 14C28 6.27 21.73 0 14 0z" fill="' + color + '" stroke="#fff" stroke-width="2"/>' +
+    '<circle cx="14" cy="14" r="5" fill="rgba(255,255,255,0.9)"/></svg>';
+  return {
+    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+    scaledSize: new google.maps.Size(28, 36),
+    anchor: new google.maps.Point(14, 36),
+  };
+}
 
+function secondaryPinIcon(color) {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="28" viewBox="0 0 28 36">' +
+    '<path d="M14 0C6.27 0 0 6.27 0 14c0 9.75 14 22 14 22S28 23.75 28 14C28 6.27 21.73 0 14 0z" fill="' + color + '" stroke="#fff" stroke-width="2.5"/>' +
+    '<circle cx="14" cy="14" r="6" fill="#1a1a1a"/>' +
+    '<circle cx="14" cy="14" r="3" fill="' + color + '"/></svg>';
+  return {
+    url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+    scaledSize: new google.maps.Size(22, 28),
+    anchor: new google.maps.Point(11, 28),
+  };
+}
+
+function addMarkers() {
+  Object.keys(OFFICES).forEach(code => createOfficeMarker(code));
+}
+
+// Removes an office's pins so they can be rebuilt (recolour, rename, moved pin).
+function removeOfficeMarkers(code) {
+  if (markersByOffice[code]) markersByOffice[code].setMap(null);
+  (markersByOffice[code + '_secondary'] || []).forEach(m => m.setMap(null));
+  delete markersByOffice[code];
+  delete markersByOffice[code + '_secondary'];
+}
+
+function createOfficeMarker(code) {
+  const off = OFFICES[code];
+  if (!off) return;
+  {
     const marker = new google.maps.Marker({
       position: { lat: off.lat, lng: off.lng },
       map: map,
+      visible: isStateVisible(code),
       title: off.name,
-      icon: {
-        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
-        scaledSize: new google.maps.Size(28, 36),
-        anchor: new google.maps.Point(14, 36),
-      },
+      icon: officePinIcon(off.color),
       zIndex: 20,
     });
 
@@ -449,20 +559,12 @@ function addMarkers() {
     if (off.secondaryLocations && off.secondaryLocations.length) {
       off.secondaryLocations.forEach(sec => {
         // Smaller, hollow-centre pin to distinguish from primary
-        const secSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="28" viewBox="0 0 28 36">' +
-          '<path d="M14 0C6.27 0 0 6.27 0 14c0 9.75 14 22 14 22S28 23.75 28 14C28 6.27 21.73 0 14 0z" fill="' + off.color + '" stroke="#fff" stroke-width="2.5"/>' +
-          '<circle cx="14" cy="14" r="6" fill="#1a1a1a"/>' +
-          '<circle cx="14" cy="14" r="3" fill="' + off.color + '"/></svg>';
-
         const secMarker = new google.maps.Marker({
           position: { lat: sec.lat, lng: sec.lng },
           map: map,
+          visible: isStateVisible(code),
           title: off.name + ' \u2014 ' + (sec.label || 'Satellite'),
-          icon: {
-            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(secSvg),
-            scaledSize: new google.maps.Size(22, 28),
-            anchor: new google.maps.Point(11, 28),
-          },
+          icon: secondaryPinIcon(off.color),
           zIndex: 18,
         });
 
@@ -485,7 +587,7 @@ function addMarkers() {
         markersByOffice[code + '_secondary'].push(secMarker);
       });
     }
-  });
+  }
 }
 
 function showInfoForSecondary(code, sec) {
@@ -715,9 +817,11 @@ function clearSearch() {
 
 function buildStateToggles() {
   const wrap = document.getElementById('state-toggles');
+  wrap.innerHTML = '';
   Object.keys(STATE_GROUPS).forEach(state => {
+    if (stateVisible[state] === undefined) stateVisible[state] = true;
     const btn = document.createElement('button');
-    btn.className = 'state-toggle on';
+    btn.className = 'state-toggle' + (stateVisible[state] ? ' on' : '');
     btn.textContent = state;
     btn.dataset.state = state;
     btn.onclick = () => {
@@ -742,6 +846,7 @@ function buildStateToggles() {
 
 function buildSidebar() {
   const list = document.getElementById('office-list');
+  list.innerHTML = '';
   Object.entries(STATE_GROUPS).forEach(([state, codes]) => {
     const stateDiv = document.createElement('div');
     stateDiv.className = 'state-group';
@@ -759,6 +864,7 @@ function buildSidebar() {
       item.style.setProperty('--oc', color);
       item.innerHTML = '<div class="office-dot" style="background:' + color + '"></div><div class="office-name">' + name + '</div><div class="zone-count">' + count + '</div>';
       item.onclick = () => { setActiveOffice(code); showInfo(code, ''); zoomToOffice(code); };
+      item.style.opacity = stateVisible[state] === false ? '0.35' : '1';
       stateDiv.appendChild(item);
     });
     list.appendChild(stateDiv);
@@ -791,6 +897,7 @@ const zoneBaseline = new Map();  // zone object -> its state as published in thi
 const editState = {
   on: false, selected: null, dirty: new Set(), deleted: new Map(),
   undo: [], lastSnap: 0, suspend: false, newSeq: 0, drawing: null, pass: null, token: null,
+  officesDirty: false, officeFormCode: null, placingPin: null,
 };
 
 async function zoneEditorHash(text) {
@@ -814,6 +921,16 @@ function initEditor() {
   document.getElementById('edit-token-save').onclick = submitToken;
   document.getElementById('edit-token-cancel').onclick = closeTokenModal;
   document.getElementById('edit-token-forget').onclick = forgetToken;
+  document.getElementById('edit-offices').onclick = openOfficeModal;
+  document.getElementById('office-modal-close').onclick = closeOfficeModal;
+  document.getElementById('office-add').onclick = () => openOfficeForm(null);
+  document.getElementById('office-form-save').onclick = submitOfficeForm;
+  document.getElementById('office-form-cancel').onclick = showOfficeList;
+  document.getElementById('office-f-pin').onclick = startPinPlacement;
+  document.getElementById('edit-pin-cancel').onclick = () => {
+    cancelPinPlacement();
+    document.getElementById('office-modal').classList.add('visible');
+  };
 
   document.getElementById('edit-f-name').onchange = applyZoneFields;
   document.getElementById('edit-f-label').onchange = applyZoneFields;
@@ -822,7 +939,12 @@ function initEditor() {
   document.addEventListener('keydown', e => {
     if (!editState.on || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undoEdit(); }
-    else if (e.key === 'Escape') { if (editState.drawing) cancelDrawingZone(); else selectZoneForEdit(null); }
+    else if (e.key === 'Escape') {
+      if (editState.placingPin) { cancelPinPlacement(); document.getElementById('office-modal').classList.add('visible'); }
+      else if (document.getElementById('office-modal').classList.contains('visible')) closeOfficeModal();
+      else if (editState.drawing) cancelDrawingZone();
+      else selectZoneForEdit(null);
+    }
   });
 
   window.addEventListener('hashchange', () => { if (location.hash === '#edit' && !editState.on) unlockEditor(); });
@@ -854,8 +976,9 @@ function enterEditMode() {
 }
 
 function exitEditMode() {
-  if (editState.dirty.size && !window.confirm(editState.dirty.size + ' zone(s) have unsaved changes.\n\nThey stay saved in this browser as a draft. Exit edit mode?')) return;
+  if (hasUnsavedChanges() && !window.confirm(changeSummary() + ' unsaved.\n\nThey stay saved in this browser as a draft. Exit edit mode?')) return;
   cancelDrawingZone();
+  closeOfficeModal();
   selectZoneForEdit(null);
   editState.on = false;
   editState.pass = null;
@@ -1263,7 +1386,9 @@ function saveDraft() {
       snap.baseName = base ? base.name : null;
       zones[key] = snap;
     });
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), zones: zones, deleted: [...editState.deleted.keys()] }));
+    const draft = { at: Date.now(), zones: zones, deleted: [...editState.deleted.keys()] };
+    if (editState.officesDirty) { const s = officesSnapshot(); draft.offices = s.offices; draft.states = s.states; }
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
   } catch (err) { setEditStatus('Draft could not be saved to this browser.'); }
 }
 
@@ -1276,7 +1401,7 @@ function restoreDraft() {
   let draft = null;
   try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (err) { draft = null; }
   if (!draft) return;
-  const count = Object.keys(draft.zones || {}).length + (draft.deleted || []).length;
+  const count = Object.keys(draft.zones || {}).length + (draft.deleted || []).length + (draft.offices ? 1 : 0);
   if (!count) return;
   const when = new Date(draft.at).toLocaleString();
   if (!window.confirm('Found unsaved zone edits from ' + when + ' (' + count + ' zone(s)).\n\nOK = reapply them.  Cancel = throw them away.')) {
@@ -1284,6 +1409,29 @@ function restoreDraft() {
     return;
   }
   let skipped = 0;
+
+  if (draft.offices && draft.states) {
+    Object.keys(OFFICES).forEach(c => delete OFFICES[c]);
+    Object.assign(OFFICES, draft.offices);
+    Object.keys(STATE_GROUPS).forEach(s => delete STATE_GROUPS[s]);
+    Object.assign(STATE_GROUPS, draft.states);
+    Object.keys(OFFICES).forEach(c => {
+      if (!officeZones[c]) officeZones[c] = [];
+      if (!polysByOffice[c]) polysByOffice[c] = [];
+      if (!labelsByOffice[c]) labelsByOffice[c] = [];
+      removeOfficeMarkers(c);
+      createOfficeMarker(c);
+    });
+    Object.keys(markersByOffice).forEach(k => {
+      const c = k.replace(/_secondary$/, '');
+      if (!OFFICES[c]) removeOfficeMarkers(c);
+    });
+    editState.officesDirty = true;
+    buildStateToggles();
+    buildSidebar();
+    buildOfficeSelect();
+    Object.values(polysByOffice).forEach(list => list.forEach(restyleZonePoly));
+  }
 
   (draft.deleted || []).forEach(key => {
     const z = zoneForKey(key);
@@ -1328,10 +1476,26 @@ function zonesToJson() {
 }
 
 function rebuildHtml(sourceHtml) {
-  const line = /^const ZONES=.*$/m;
-  if (!line.test(sourceHtml)) return null;
-  const json = zonesToJson();
-  return sourceHtml.replace(line, () => 'const ZONES=' + json + ';');
+  const lines = [
+    [/^const ZONES=.*$/m, () => 'const ZONES=' + zonesToJson() + ';'],
+    [/^const OFFICES=.*$/m, () => 'const OFFICES=' + JSON.stringify(OFFICES) + ';'],
+    [/^const STATE_GROUPS=.*$/m, () => 'const STATE_GROUPS=' + JSON.stringify(STATE_GROUPS) + ';'],
+  ];
+  let out = sourceHtml;
+  for (const [re, build] of lines) {
+    if (!re.test(out)) return null;
+    out = out.replace(re, build);
+  }
+  return out;
+}
+
+function hasUnsavedChanges() { return editState.dirty.size > 0 || editState.officesDirty; }
+
+function changeSummary() {
+  const bits = [];
+  if (editState.dirty.size) bits.push(editState.dirty.size + ' zone' + (editState.dirty.size === 1 ? '' : 's'));
+  if (editState.officesDirty) bits.push('office settings');
+  return bits.join(' and ');
 }
 
 function triggerDownload(text, filename, mime) {
@@ -1394,7 +1558,7 @@ async function gh(path, options) {
 }
 
 async function saveToGitHub() {
-  if (!editState.dirty.size) { setEditStatus('Nothing to save.'); return; }
+  if (!hasUnsavedChanges()) { setEditStatus('Nothing to save.'); return; }
   if (!editState.token) { openTokenModal(true); return; }
   const btn = document.getElementById('edit-save');
   btn.disabled = true;
@@ -1419,11 +1583,10 @@ async function saveToGitHub() {
       body: JSON.stringify({ base_tree: treeSha, tree: [{ path: REPO.path, mode: '100644', type: 'blob', sha: blobSha }] }),
     })).json()).sha;
 
-    const n = editState.dirty.size;
     const newCommit = await (await gh(base + '/git/commits', {
       method: 'POST',
       body: JSON.stringify({
-        message: 'Update territory zones (' + n + ' zone' + (n === 1 ? '' : 's') + ') from the map editor',
+        message: 'Update ' + changeSummary() + ' from the map editor',
         tree: newTreeSha, parents: [headSha],
       }),
     })).json();
@@ -1435,6 +1598,7 @@ async function saveToGitHub() {
     // Published, so this becomes the new "revert to" baseline.
     editState.dirty.clear();
     editState.deleted.clear();
+    editState.officesDirty = false;
     ZONES.forEach(z => zoneBaseline.set(z, snapshotOf(z)));
     try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
     refreshEditPanel();
@@ -1516,6 +1680,236 @@ function forgetToken() {
   setEditStatus('Token forgotten on this device.');
 }
 
+
+/* ---- offices: colours, details, and adding new ones ---- */
+
+function officesSnapshot() {
+  return { offices: JSON.parse(JSON.stringify(OFFICES)), states: JSON.parse(JSON.stringify(STATE_GROUPS)) };
+}
+
+function markOfficesDirty() {
+  editState.officesDirty = true;
+  saveDraft();
+  refreshEditPanel();
+}
+
+// Repaints everything that carries an office's colour.
+function applyOfficeAppearance(code) {
+  (polysByOffice[code] || []).forEach(poly => {
+    if (editState.selected === poly) return;   // keep the white editing outline
+    restyleZonePoly(poly);
+  });
+  removeOfficeMarkers(code);
+  createOfficeMarker(code);
+  buildSidebar();
+  buildOfficeSelect();
+  if (activeOffice) setActiveOffice(activeOffice);
+}
+
+function openOfficeModal() {
+  document.getElementById('office-modal').classList.add('visible');
+  renderOfficeList();
+  showOfficeList();
+}
+
+function closeOfficeModal() {
+  document.getElementById('office-modal').classList.remove('visible');
+  cancelPinPlacement();
+}
+
+function showOfficeList() {
+  document.getElementById('office-list-view').style.display = 'block';
+  document.getElementById('office-form-view').style.display = 'none';
+}
+
+function renderOfficeList() {
+  const wrap = document.getElementById('office-rows');
+  wrap.innerHTML = '';
+  Object.entries(STATE_GROUPS).forEach(([state, codes]) => {
+    const head = document.createElement('div');
+    head.className = 'office-row-state';
+    head.textContent = state;
+    wrap.appendChild(head);
+    codes.forEach(code => {
+      const off = OFFICES[code];
+      if (!off) return;
+      const row = document.createElement('div');
+      row.className = 'office-row';
+
+      const swatch = document.createElement('input');
+      swatch.type = 'color';
+      swatch.value = normaliseHex(off.color);
+      swatch.title = 'Colour for ' + off.name;
+      swatch.oninput = () => {
+        OFFICES[code].color = swatch.value;
+        applyOfficeAppearance(code);
+        markOfficesDirty();
+        renderOfficeList();
+      };
+
+      const label = document.createElement('div');
+      label.className = 'office-row-name';
+      label.innerHTML = '<b>' + escapeHtml(off.name) + '</b><span>' + escapeHtml(code) + ' &middot; ' +
+        (officeZones[code] || []).length + ' zones &middot; ' + escapeHtml(off.color) + '</span>';
+
+      const edit = document.createElement('button');
+      edit.className = 'edit-btn office-row-edit';
+      edit.textContent = 'Details';
+      edit.onclick = () => openOfficeForm(code);
+
+      row.appendChild(swatch);
+      row.appendChild(label);
+      row.appendChild(edit);
+      wrap.appendChild(row);
+    });
+  });
+}
+
+// <input type="color"> only accepts #rrggbb.
+function normaliseHex(c) {
+  if (!c) return '#888888';
+  let h = String(c).trim();
+  if (h[0] !== '#') h = '#' + h;
+  if (/^#[0-9a-fA-F]{3}$/.test(h)) h = '#' + h[1] + h[1] + h[2] + h[2] + h[3] + h[3];
+  return /^#[0-9a-fA-F]{6}$/.test(h) ? h.toLowerCase() : '#888888';
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* ---- add / edit one office ---- */
+
+function openOfficeForm(code) {
+  editState.officeFormCode = code || null;
+  const isNew = !code;
+  const off = code ? OFFICES[code] : null;
+  // Never let a map hiccup leave the form half-built and unopenable.
+  let centre = null;
+  if (isNew && map) { try { centre = map.getCenter(); } catch (err) { centre = null; } }
+
+  document.getElementById('office-form-title').textContent = isNew ? 'New office' : 'Edit ' + off.name;
+  const codeInput = document.getElementById('office-f-code');
+  codeInput.value = code || '';
+  codeInput.disabled = !isNew;
+  codeInput.title = isNew ? '' : 'The code is referenced by this office’s zones and cannot be changed.';
+  document.getElementById('office-f-name').value = off ? off.name : '';
+  document.getElementById('office-f-colour').value = normaliseHex(off ? off.color : suggestOfficeColour());
+  document.getElementById('office-f-address').value = off ? (off.address || '') : '';
+  document.getElementById('office-f-lat').value = off ? off.lat : (centre ? round7(centre.lat()) : '');
+  document.getElementById('office-f-lng').value = off ? off.lng : (centre ? round7(centre.lng()) : '');
+
+  const stateSel = document.getElementById('office-f-state');
+  stateSel.innerHTML = Object.keys(STATE_GROUPS).map(s => '<option value="' + s + '">' + s + '</option>').join('');
+  stateSel.value = (code && getStateForOffice(code)) || Object.keys(STATE_GROUPS)[0];
+
+  document.getElementById('office-form-error').textContent = '';
+  document.getElementById('office-list-view').style.display = 'none';
+  document.getElementById('office-form-view').style.display = 'block';
+}
+
+// Pick a hue that is not already close to an existing office colour.
+function suggestOfficeColour() {
+  const used = Object.values(OFFICES).map(o => normaliseHex(o.color));
+  for (let i = 0; i < 24; i++) {
+    const hex = hslToHex((i * 37) % 360, 70, 55);
+    if (!used.some(u => colourDistance(u, hex) < 60)) return hex;
+  }
+  return hslToHex(Math.floor(Math.random() * 360), 70, 55);
+}
+
+function hslToHex(h, s, l) {
+  s /= 100; l /= 100;
+  const k = n => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = n => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))));
+  return '#' + [f(0), f(8), f(4)].map(v => v.toString(16).padStart(2, '0')).join('');
+}
+
+function colourDistance(a, b) {
+  const pa = [1, 3, 5].map(i => parseInt(a.substr(i, 2), 16));
+  const pb = [1, 3, 5].map(i => parseInt(b.substr(i, 2), 16));
+  return Math.sqrt(pa.reduce((sum, v, i) => sum + (v - pb[i]) * (v - pb[i]), 0));
+}
+
+function submitOfficeForm() {
+  const isNew = !editState.officeFormCode;
+  const err = msg => { document.getElementById('office-form-error').textContent = msg; return false; };
+  const code = document.getElementById('office-f-code').value.trim();
+  const name = document.getElementById('office-f-name').value.trim();
+  const colour = document.getElementById('office-f-colour').value;
+  const address = document.getElementById('office-f-address').value.trim();
+  const state = document.getElementById('office-f-state').value;
+  const lat = parseFloat(document.getElementById('office-f-lat').value);
+  const lng = parseFloat(document.getElementById('office-f-lng').value);
+
+  if (!code) return err('Give the office a short code, e.g. CNS.');
+  if (!/^[A-Za-z0-9_-]+$/.test(code)) return err('The code can only use letters, numbers, hyphen or underscore.');
+  if (isNew && OFFICES[code]) return err('An office with the code "' + code + '" already exists.');
+  if (!name) return err('Give the office a name.');
+  if (isNaN(lat) || lat < -90 || lat > 90) return err('Latitude must be between -90 and 90.');
+  if (isNaN(lng) || lng < -180 || lng > 180) return err('Longitude must be between -180 and 180.');
+
+  const target = isNew ? code : editState.officeFormCode;
+  const existing = OFFICES[target] || {};
+  OFFICES[target] = Object.assign({}, existing, {
+    name: name, color: colour, lat: round7(lat), lng: round7(lng), address: address,
+  });
+
+  const oldState = isNew ? null : getStateForOffice(target);
+  if (oldState !== state) {
+    if (oldState) {
+      const list = STATE_GROUPS[oldState];
+      const i = list.indexOf(target);
+      if (i > -1) list.splice(i, 1);
+    }
+    if (!STATE_GROUPS[state]) STATE_GROUPS[state] = [];
+    if (STATE_GROUPS[state].indexOf(target) === -1) STATE_GROUPS[state].push(target);
+  }
+
+  if (isNew) {
+    if (!officeZones[target]) officeZones[target] = [];
+    if (!polysByOffice[target]) polysByOffice[target] = [];
+    if (!labelsByOffice[target]) labelsByOffice[target] = [];
+    createOfficeMarker(target);
+  }
+
+  buildStateToggles();
+  applyOfficeAppearance(target);
+  markOfficesDirty();
+  renderOfficeList();
+  showOfficeList();
+  setEditStatus(isNew
+    ? 'Added <b>' + escapeHtml(name) + '</b>. Draw zones for it with <b>+ New zone</b>, then save.'
+    : 'Updated <b>' + escapeHtml(name) + '</b>.');
+  return true;
+}
+
+/* ---- click the map to place an office pin ---- */
+
+function startPinPlacement() {
+  if (!map) return;
+  editState.placingPin = map.addListener('click', e => {
+    document.getElementById('office-f-lat').value = round7(e.latLng.lat());
+    document.getElementById('office-f-lng').value = round7(e.latLng.lng());
+    cancelPinPlacement();
+    document.getElementById('office-modal').classList.add('visible');
+    document.getElementById('office-form-error').textContent = '';
+  });
+  document.getElementById('office-modal').classList.remove('visible');
+  document.getElementById('edit-pin-bar').classList.add('visible');
+}
+
+function cancelPinPlacement() {
+  if (editState.placingPin) {
+    if (editState.placingPin.remove) editState.placingPin.remove();
+    else if (google.maps.event) google.maps.event.removeListener(editState.placingPin);
+    editState.placingPin = null;
+  }
+  document.getElementById('edit-pin-bar').classList.remove('visible');
+}
+
 /* ---- panel ---- */
 
 function setEditStatus(html) {
@@ -1555,11 +1949,10 @@ function refreshEditPanel() {
   }
 
   document.getElementById('edit-token-btn').textContent = editState.token ? 'Token set ✓' : 'Set token';
-  const n = editState.dirty.size;
-  document.getElementById('edit-save').disabled = !n;
+  document.getElementById('edit-save').disabled = !hasUnsavedChanges();
   // Kept separate from #edit-status so a refresh never wipes a message.
-  document.getElementById('edit-count').innerHTML = n
-    ? '<b>' + n + ' zone(s) changed</b> &middot; drafted in this browser until you save.'
+  document.getElementById('edit-count').innerHTML = hasUnsavedChanges()
+    ? '<b>' + changeSummary() + ' changed</b> &middot; drafted in this browser until you save.'
     : 'No unsaved changes.';
 }
 </script>
