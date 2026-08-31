@@ -52,6 +52,30 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
 #info-address strong{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#d73c3c;display:block;margin-bottom:3px}
 #reset-btn{position:absolute;top:10px;right:60px;z-index:1000;background:rgba(15,15,15,.92);border:1px solid #333;border-radius:5px;padding:7px 14px;font-size:11px;color:#bbb;cursor:pointer;font-family:Verdana,sans-serif;transition:all .15s}
 #reset-btn:hover{background:#1e1e1e;color:#fff;border-color:#555}
+/* ---- Zone editor (private, unlocked via #edit + passphrase) ---- */
+#edit-panel{position:absolute;top:10px;left:10px;width:250px;background:rgba(15,15,15,.97);border:1px solid #5f0505;border-radius:8px;z-index:1200;display:none;box-shadow:0 4px 24px rgba(0,0,0,.8);font-size:11px}
+#edit-panel.visible{display:block}
+#edit-head{background:#5f0505;padding:8px 12px;border-radius:7px 7px 0 0;display:flex;align-items:center;justify-content:space-between}
+#edit-head span{font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:#fff}
+#edit-close{cursor:pointer;color:#f7eee9;font-size:14px;line-height:1;opacity:.8}
+#edit-close:hover{opacity:1}
+#edit-body{padding:10px 12px}
+#edit-sel{border:1px solid #2a2a2a;border-radius:5px;padding:8px 10px;margin-bottom:9px;background:#161616}
+#edit-sel-name{font-size:12px;font-weight:bold;color:#fff;font-family:Georgia,serif;margin-bottom:2px}
+#edit-sel-meta{font-size:9px;color:#777;line-height:1.5}
+#edit-hint{font-size:9px;color:#8a8a8a;line-height:1.6;margin-bottom:9px}
+#edit-hint b{color:#bbb;font-weight:bold}
+.edit-row{display:flex;gap:5px;margin-bottom:6px}
+.edit-btn{flex:1;background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:6px 4px;font-size:10px;color:#bbb;cursor:pointer;font-family:Verdana,sans-serif;transition:all .12s}
+.edit-btn:hover:not(:disabled){background:#2a2a2a;color:#fff;border-color:#666}
+.edit-btn:disabled{opacity:.35;cursor:default}
+.edit-btn.primary{background:#5f0505;border-color:#5f0505;color:#fff}
+.edit-btn.primary:hover:not(:disabled){background:#7a0808;border-color:#7a0808}
+.edit-btn.danger:hover:not(:disabled){background:#3a1010;border-color:#8a2020;color:#ff9c9c}
+#edit-status{font-size:9px;color:#666;border-top:1px solid #222;padding-top:8px;margin-top:2px;line-height:1.5}
+#edit-status b{color:#e0a45c}
+#edit-badge{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#5f0505;color:#fff;padding:4px 14px;border-radius:12px;font-size:9px;letter-spacing:2px;text-transform:uppercase;z-index:1200;display:none;box-shadow:0 2px 10px rgba(0,0,0,.6)}
+#edit-badge.visible{display:block}
 </style>
 </head>
 <body>
@@ -86,6 +110,41 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
       </div>
     </div>
     <button id="reset-btn" onclick="resetView()">&#8635; Reset View</button>
+    <div id="edit-badge">Edit mode</div>
+    <div id="edit-panel">
+      <div id="edit-head">
+        <span>Zone Editor</span>
+        <div id="edit-close" title="Exit edit mode">&#10005;</div>
+      </div>
+      <div id="edit-body">
+        <div id="edit-sel">
+          <div id="edit-sel-name">No zone selected</div>
+          <div id="edit-sel-meta">Click any zone on the map to start editing it.</div>
+        </div>
+        <div id="edit-hint">
+          <b>Drag a white dot</b> to move a corner &middot;
+          <b>drag a faded dot</b> to add a corner &middot;
+          <b>right-click a dot</b> to delete it &middot;
+          <b>drag inside</b> the zone to move the whole shape.
+        </div>
+        <div class="edit-row">
+          <button class="edit-btn" id="edit-undo" title="Ctrl+Z">&#8630; Undo</button>
+          <button class="edit-btn" id="edit-revert" title="Restore this zone to the published shape">Revert zone</button>
+        </div>
+        <div class="edit-row">
+          <button class="edit-btn" id="edit-deselect">Deselect</button>
+          <button class="edit-btn danger" id="edit-delete">Delete zone</button>
+        </div>
+        <div class="edit-row">
+          <button class="edit-btn primary" id="edit-save">&#8681; Download updated map</button>
+        </div>
+        <div class="edit-row">
+          <button class="edit-btn" id="edit-json">Zones JSON only</button>
+          <button class="edit-btn danger" id="edit-discard">Discard all</button>
+        </div>
+        <div id="edit-status"></div>
+      </div>
+    </div>
   </div>
 </div>
 <script>
@@ -183,6 +242,7 @@ function initMap() {
   buildStateToggles();
   buildSidebar();
   setupSearch();
+  initEditor();
 }
 
 function drawZones(code, highlight) {
@@ -221,12 +281,17 @@ function drawZones(code, highlight) {
       map: map,
       zIndex: highlight ? baseZ + 5000 : baseZ,
     });
+    poly._zone = z;
+    poly._baseZ = baseZ;
+    zoneRefs.set(z, { poly: poly, lbl: null });
 
     poly.addListener('mouseover', () => {
+      if (editState.on && editState.selected === poly) { showInfo(code, z.name); return; }
       poly.setOptions({ fillOpacity: 0.65, strokeOpacity: 1, strokeWeight: 3 });
       showInfo(code, z.name);
     });
     poly.addListener('mouseout', () => {
+      if (editState.on && editState.selected === poly) return;
       poly.setOptions({
         fillOpacity: activeOffice === code ? 0.5 : 0.32,
         strokeOpacity: activeOffice === code ? 1 : 0.85,
@@ -234,6 +299,12 @@ function drawZones(code, highlight) {
       });
     });
     poly.addListener('click', e => {
+      if (editState.on) {
+        selectZoneForEdit(poly);
+        showInfo(code, z.name);
+        if (e && e.stop) e.stop();
+        return;
+      }
       setActiveOffice(code);
       showInfo(code, z.name);
       if (e && e.stop) e.stop();
@@ -260,6 +331,8 @@ function drawZones(code, highlight) {
       });
       lbl._labelSize = z.labelSize;
       labelsByOffice[code].push(lbl);
+      const ref = zoneRefs.get(z);
+      if (ref) ref.lbl = lbl;
     }
   });
 }
@@ -371,6 +444,7 @@ function updateZoneHighlight(code, highlight) {
   const polys = polysByOffice[code] || [];
   const labels = labelsByOffice[code] || [];
   polys.forEach(poly => {
+    if (editState.on && editState.selected === poly) return;
     // Get the current zIndex and adjust by highlight offset
     const path = poly.getPath();
     let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
@@ -615,6 +689,433 @@ function buildSidebar() {
     });
     list.appendChild(stateDiv);
   });
+}
+
+/* =========================================================================
+   ZONE EDITOR  (private)
+   -------------------------------------------------------------------------
+   Hidden for ordinary visitors: the UI only appears if the URL ends in #edit
+   AND the passphrase below is entered. Edits live in this browser only
+   (memory + localStorage draft) - publishing still means downloading the
+   updated index.html and committing it to the repo, so nobody else can
+   change the live map even if they find this.
+
+   To change the passphrase: open the browser console on this page, run
+       zoneEditorHash('your new passphrase')
+   and paste the result over EDIT_PASS_HASH below.
+   ========================================================================= */
+
+const EDIT_PASS_HASH = '030c259f042886ea8f336c860b5f5ce47f094c8870aeeb1d5c4f2b5d97ffb089';
+const DRAFT_KEY = 'dovida-map-zone-draft-v1';
+
+const zoneRefs = new Map();      // zone object -> { poly, lbl }
+const zoneBaseline = new Map();  // zone object -> coords as published in this file
+const editState = { on: false, selected: null, dirty: new Set(), undo: [], lastSnap: 0, suspend: false };
+
+async function zoneEditorHash(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function initEditor() {
+  document.getElementById('edit-close').onclick = exitEditMode;
+  document.getElementById('edit-undo').onclick = undoEdit;
+  document.getElementById('edit-revert').onclick = revertSelectedZone;
+  document.getElementById('edit-deselect').onclick = () => selectZoneForEdit(null);
+  document.getElementById('edit-delete').onclick = deleteSelectedZone;
+  document.getElementById('edit-save').onclick = downloadUpdatedMap;
+  document.getElementById('edit-json').onclick = downloadZonesJson;
+  document.getElementById('edit-discard').onclick = discardAllEdits;
+
+  document.addEventListener('keydown', e => {
+    if (!editState.on) return;
+    if (e.target.tagName === 'INPUT') return;
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undoEdit(); }
+    else if (e.key === 'Escape') selectZoneForEdit(null);
+  });
+
+  window.addEventListener('hashchange', () => { if (location.hash === '#edit' && !editState.on) unlockEditor(); });
+  if (location.hash === '#edit') unlockEditor();
+}
+
+async function unlockEditor() {
+  const entry = window.prompt('Passphrase to edit zones:');
+  if (entry === null) { history.replaceState(null, '', location.pathname); return; }
+  let ok = false;
+  try { ok = (await zoneEditorHash(entry)) === EDIT_PASS_HASH; } catch (err) { ok = false; }
+  if (!ok) { window.alert('Wrong passphrase - the map stays read-only.'); history.replaceState(null, '', location.pathname); return; }
+  enterEditMode();
+}
+
+function enterEditMode() {
+  editState.on = true;
+  ZONES.forEach(z => { if (!zoneBaseline.has(z)) zoneBaseline.set(z, z.coords.map(c => c.slice())); });
+  document.getElementById('edit-panel').classList.add('visible');
+  document.getElementById('edit-badge').classList.add('visible');
+  restoreDraft();
+  refreshEditPanel();
+}
+
+function exitEditMode() {
+  if (editState.dirty.size && !window.confirm(editState.dirty.size + ' zone(s) have unsaved changes.\n\nThey stay saved in this browser as a draft. Exit edit mode?')) return;
+  selectZoneForEdit(null);
+  editState.on = false;
+  document.getElementById('edit-panel').classList.remove('visible');
+  document.getElementById('edit-badge').classList.remove('visible');
+  history.replaceState(null, '', location.pathname);
+}
+
+/* ---- selection ---- */
+
+function selectZoneForEdit(poly) {
+  const prev = editState.selected;
+  if (prev && prev !== poly) {
+    prev.setOptions({ editable: false, draggable: false });
+    restyleZonePoly(prev);
+  }
+  editState.selected = poly || null;
+  if (poly) {
+    poly.setOptions({
+      editable: true,
+      draggable: true,
+      strokeColor: '#ffffff',
+      strokeWeight: 3,
+      strokeOpacity: 1,
+      fillOpacity: 0.45,
+      zIndex: 9000,
+    });
+    if (!poly._editWired) wireZoneEditEvents(poly);
+  }
+  refreshEditPanel();
+}
+
+function restyleZonePoly(poly) {
+  const z = poly._zone;
+  const highlight = activeOffice === z.office;
+  poly.setOptions({
+    strokeColor: getOfficeColor(z.office),
+    strokeOpacity: highlight ? 1 : 0.85,
+    strokeWeight: highlight ? 2.5 : 2,
+    fillOpacity: highlight ? 0.5 : 0.32,
+    zIndex: highlight ? poly._baseZ + 5000 : poly._baseZ,
+  });
+}
+
+function wireZoneEditEvents(poly) {
+  poly._editWired = true;
+  const path = poly.getPath();
+  const onChange = () => { if (!editState.suspend) commitZoneEdit(poly, true); };
+  path.addListener('set_at', onChange);
+  path.addListener('insert_at', onChange);
+  path.addListener('remove_at', onChange);
+  poly.addListener('dragstart', () => snapshotZone(poly._zone, true));
+  poly.addListener('dragend', () => commitZoneEdit(poly, false));
+  poly.addListener('rightclick', e => {
+    if (e.vertex == null || editState.selected !== poly) return;
+    if (path.getLength() <= 4) { setEditStatus('A zone needs at least 3 corners.'); return; }
+    snapshotZone(poly._zone, true);
+    editState.suspend = true;
+    path.removeAt(e.vertex);
+    // keep the ring closed if the first/last point was removed
+    const first = path.getAt(0), last = path.getAt(path.getLength() - 1);
+    if (!first.equals(last)) path.push(first);
+    editState.suspend = false;
+    commitZoneEdit(poly, false);
+  });
+}
+
+/* ---- change tracking ---- */
+
+function snapshotZone(z, coalesce) {
+  const now = Date.now();
+  if (coalesce && editState.undo.length && editState.undo[editState.undo.length - 1].zone === z && now - editState.lastSnap < 500) {
+    editState.lastSnap = now;
+    return;
+  }
+  editState.lastSnap = now;
+  editState.undo.push({ zone: z, coords: z.coords.map(c => c.slice()) });
+  if (editState.undo.length > 60) editState.undo.shift();
+}
+
+function commitZoneEdit(poly, coalesce) {
+  const z = poly._zone;
+  snapshotZone(z, coalesce);
+  writePathToZone(poly, z);
+  editState.dirty.add(z.name);
+  saveDraft();
+  refreshEditPanel();
+}
+
+function writePathToZone(poly, z) {
+  const pts = [];
+  poly.getPath().forEach(p => pts.push([round7(p.lat()), round7(p.lng())]));
+  if (pts.length && (pts[0][0] !== pts[pts.length - 1][0] || pts[0][1] !== pts[pts.length - 1][1])) pts.push(pts[0].slice());
+  z.coords = pts;
+  refreshZoneLabel(z);
+}
+
+function round7(n) { return Math.round(n * 1e7) / 1e7; }
+
+function applyCoordsToZone(z, coords) {
+  z.coords = coords.map(c => c.slice());
+  const ref = zoneRefs.get(z);
+  if (ref && ref.poly) {
+    editState.suspend = true;
+    ref.poly.setPath(z.coords.map(c => ({ lat: c[0], lng: c[1] })));
+    editState.suspend = false;
+  }
+  refreshZoneLabel(z);
+}
+
+function undoEdit() {
+  const step = editState.undo.pop();
+  if (!step) { setEditStatus('Nothing left to undo.'); return; }
+  applyCoordsToZone(step.zone, step.coords);
+  const base = zoneBaseline.get(step.zone);
+  if (base && JSON.stringify(base) === JSON.stringify(step.zone.coords)) editState.dirty.delete(step.zone.name);
+  saveDraft();
+  refreshEditPanel();
+}
+
+function revertSelectedZone() {
+  const poly = editState.selected;
+  if (!poly) return;
+  const z = poly._zone;
+  const base = zoneBaseline.get(z);
+  if (!base) return;
+  snapshotZone(z, false);
+  applyCoordsToZone(z, base);
+  editState.dirty.delete(z.name);
+  saveDraft();
+  refreshEditPanel();
+  setEditStatus(z.name + ' restored to the published shape.');
+}
+
+function deleteSelectedZone() {
+  const poly = editState.selected;
+  if (!poly) return;
+  const z = poly._zone;
+  if (!window.confirm('Delete the zone "' + z.name + '" from ' + getOfficeName(z.office) + '?\n\nThis is undone only by "Discard all".')) return;
+  const ref = zoneRefs.get(z) || {};
+  if (ref.poly) ref.poly.setMap(null);
+  if (ref.lbl) ref.lbl.setMap(null);
+  zoneRefs.delete(z);
+  const i = ZONES.indexOf(z); if (i > -1) ZONES.splice(i, 1);
+  const list = officeZones[z.office] || [];
+  const j = list.indexOf(z); if (j > -1) list.splice(j, 1);
+  const arr = polysByOffice[z.office] || [];
+  const k = arr.indexOf(poly); if (k > -1) arr.splice(k, 1);
+  editState.selected = null;
+  editState.dirty.add(z.name);
+  editState.undo = editState.undo.filter(s => s.zone !== z);
+  saveDraft();
+  refreshSidebarCounts();
+  refreshEditPanel();
+  setEditStatus('Deleted ' + z.name + '.');
+}
+
+function discardAllEdits() {
+  if (!window.confirm('Throw away every change made in this browser and reload the published map?')) return;
+  try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
+  location.reload();
+}
+
+/* ---- labels follow the shape ---- */
+
+function refreshZoneLabel(z) {
+  const ref = zoneRefs.get(z);
+  if (!ref || !ref.lbl || !z.coords || z.coords.length < 3) return;
+  const pole = poleOfInaccessibility(z.coords);
+  z.labelPos = [round7(pole.lat), round7(pole.lng)];
+  z.labelSize = pole.dist;
+  ref.lbl.setPosition({ lat: z.labelPos[0], lng: z.labelPos[1] });
+  ref.lbl.setOptions({
+    label: {
+      text: String(z.label),
+      color: activeOffice === z.office ? '#fff' : 'rgba(255,255,255,0.75)',
+      fontSize: getLabelFontSize(z.labelSize, activeOffice === z.office),
+      fontWeight: 'bold',
+      fontFamily: 'Verdana,sans-serif',
+    },
+  });
+  ref.lbl._labelSize = z.labelSize;
+}
+
+// Distance from a point to the polygon outline; negative when the point is outside.
+function signedDistToPolygon(x, y, coords) {
+  let inside = false, minSq = Infinity;
+  for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
+    const ax = coords[i][1], ay = coords[i][0], bx = coords[j][1], by = coords[j][0];
+    if (((ay > y) !== (by > y)) && (x < (bx - ax) * (y - ay) / (by - ay) + ax)) inside = !inside;
+    let dx = bx - ax, dy = by - ay, px = x - ax, py = y - ay;
+    const len = dx * dx + dy * dy;
+    let t = len ? (px * dx + py * dy) / len : 0;
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    const qx = x - (ax + t * dx), qy = y - (ay + t * dy);
+    const sq = qx * qx + qy * qy;
+    if (sq < minSq) minSq = sq;
+  }
+  return (inside ? 1 : -1) * Math.sqrt(minSq);
+}
+
+// Grid search plus local refinement - a light stand-in for polylabel, which is
+// what the original labelPos/labelSize values were generated with.
+function poleOfInaccessibility(coords) {
+  let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+  for (const c of coords) {
+    if (c[0] < minLat) minLat = c[0];
+    if (c[0] > maxLat) maxLat = c[0];
+    if (c[1] < minLng) minLng = c[1];
+    if (c[1] > maxLng) maxLng = c[1];
+  }
+  let bestX = (minLng + maxLng) / 2, bestY = (minLat + maxLat) / 2;
+  let bestD = signedDistToPolygon(bestX, bestY, coords);
+  const steps = 20;
+  const sx = (maxLng - minLng) / steps, sy = (maxLat - minLat) / steps;
+  for (let i = 0; i <= steps; i++) {
+    for (let j = 0; j <= steps; j++) {
+      const x = minLng + i * sx, y = minLat + j * sy;
+      const d = signedDistToPolygon(x, y, coords);
+      if (d > bestD) { bestD = d; bestX = x; bestY = y; }
+    }
+  }
+  let stepX = sx, stepY = sy;
+  for (let pass = 0; pass < 8; pass++) {
+    stepX /= 2; stepY /= 2;
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        if (!dx && !dy) continue;
+        const x = bestX + dx * stepX, y = bestY + dy * stepY;
+        const d = signedDistToPolygon(x, y, coords);
+        if (d > bestD) { bestD = d; bestX = x; bestY = y; }
+      }
+    }
+  }
+  return { lat: bestY, lng: bestX, dist: Math.max(0.003, bestD) };
+}
+
+/* ---- draft persistence (this browser only) ---- */
+
+function saveDraft() {
+  try {
+    const zones = {};
+    ZONES.forEach(z => { if (editState.dirty.has(z.name)) zones[z.name] = { coords: z.coords, labelPos: z.labelPos, labelSize: z.labelSize }; });
+    const deleted = [...editState.dirty].filter(n => !ZONES.some(z => z.name === n));
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), zones: zones, deleted: deleted }));
+  } catch (err) { setEditStatus('Draft could not be saved to this browser.'); }
+}
+
+function restoreDraft() {
+  let draft = null;
+  try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (err) { draft = null; }
+  if (!draft) return;
+  const count = Object.keys(draft.zones || {}).length + (draft.deleted || []).length;
+  if (!count) return;
+  const when = new Date(draft.at).toLocaleString();
+  if (!window.confirm('Found unsaved zone edits from ' + when + ' (' + count + ' zone(s)).\n\nOK = reapply them.  Cancel = throw them away.')) {
+    try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
+    return;
+  }
+  (draft.deleted || []).forEach(name => {
+    const z = ZONES.find(zz => zz.name === name);
+    if (!z) return;
+    const ref = zoneRefs.get(z) || {};
+    if (ref.poly) ref.poly.setMap(null);
+    if (ref.lbl) ref.lbl.setMap(null);
+    zoneRefs.delete(z);
+    const i = ZONES.indexOf(z); if (i > -1) ZONES.splice(i, 1);
+    const list = officeZones[z.office] || [];
+    const j = list.indexOf(z); if (j > -1) list.splice(j, 1);
+    const arr = polysByOffice[z.office] || [];
+    const k = ref.poly ? arr.indexOf(ref.poly) : -1; if (k > -1) arr.splice(k, 1);
+    editState.dirty.add(name);
+  });
+  Object.entries(draft.zones || {}).forEach(([name, data]) => {
+    const z = ZONES.find(zz => zz.name === name);
+    if (!z || !data.coords) return;
+    applyCoordsToZone(z, data.coords);
+    editState.dirty.add(name);
+  });
+  refreshSidebarCounts();
+}
+
+/* ---- publishing ---- */
+
+function zonesToJson() {
+  return JSON.stringify(ZONES, (key, value) => (typeof value === 'number' ? round7(value) : value));
+}
+
+function triggerDownload(text, filename, mime) {
+  const blob = new Blob([text], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+async function downloadUpdatedMap() {
+  setEditStatus('Building the updated file...');
+  let html;
+  try {
+    const res = await fetch(location.pathname + '?nocache=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error(res.status);
+    html = await res.text();
+  } catch (err) {
+    setEditStatus('Could not read this page’s source - use "Zones JSON only" instead.');
+    return;
+  }
+  const line = /^const ZONES=.*$/m;
+  if (!line.test(html)) {
+    setEditStatus('Could not find the ZONES data line - use "Zones JSON only" instead.');
+    return;
+  }
+  const json = zonesToJson();
+  html = html.replace(line, () => 'const ZONES=' + json + ';');
+  triggerDownload(html, 'index.html', 'text/html');
+  setEditStatus('Downloaded <b>index.html</b>. Commit it to the repo to publish.');
+}
+
+function downloadZonesJson() {
+  triggerDownload(zonesToJson(), 'zones.json', 'application/json');
+  setEditStatus('Downloaded <b>zones.json</b>.');
+}
+
+/* ---- panel ---- */
+
+function setEditStatus(html) {
+  const el = document.getElementById('edit-status');
+  if (el) el.innerHTML = html;
+}
+
+function refreshSidebarCounts() {
+  document.querySelectorAll('.office-item').forEach(el => {
+    const c = el.querySelector('.zone-count');
+    if (c) c.textContent = (officeZones[el.dataset.code] || []).length;
+  });
+}
+
+function refreshEditPanel() {
+  if (!editState.on) return;
+  const poly = editState.selected;
+  const nameEl = document.getElementById('edit-sel-name');
+  const metaEl = document.getElementById('edit-sel-meta');
+  ['edit-revert', 'edit-deselect', 'edit-delete'].forEach(id => { document.getElementById(id).disabled = !poly; });
+  document.getElementById('edit-undo').disabled = !editState.undo.length;
+  if (poly) {
+    const z = poly._zone;
+    nameEl.textContent = z.name;
+    nameEl.style.color = getOfficeColor(z.office);
+    metaEl.textContent = getOfficeName(z.office) + ' · ' + Math.max(0, z.coords.length - 1) + ' corners';
+  } else {
+    nameEl.textContent = 'No zone selected';
+    nameEl.style.color = '#fff';
+    metaEl.textContent = 'Click any zone on the map to start editing it.';
+  }
+  const n = editState.dirty.size;
+  setEditStatus(n
+    ? '<b>' + n + ' zone(s) changed</b> - saved as a draft in this browser. Download the map and commit it to publish.'
+    : 'No changes yet.');
 }
 </script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjgM2rBWy-8T9_hwXrEcILWlk3q9O6cFI&callback=initMap"></script>
