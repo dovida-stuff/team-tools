@@ -53,9 +53,11 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
 #reset-btn{position:absolute;top:10px;right:60px;z-index:1000;background:rgba(15,15,15,.92);border:1px solid #333;border-radius:5px;padding:7px 14px;font-size:11px;color:#bbb;cursor:pointer;font-family:Verdana,sans-serif;transition:all .15s}
 #reset-btn:hover{background:#1e1e1e;color:#fff;border-color:#555}
 /* ---- Zone editor (private, unlocked via #edit + passphrase) ---- */
-#edit-panel{position:absolute;top:10px;left:10px;width:250px;background:rgba(15,15,15,.97);border:1px solid #5f0505;border-radius:8px;z-index:1200;display:none;box-shadow:0 4px 24px rgba(0,0,0,.8);font-size:11px}
+#edit-panel{position:absolute;top:10px;left:10px;width:252px;background:rgba(15,15,15,.97);border:1px solid #5f0505;border-radius:8px;z-index:1200;display:none;box-shadow:0 4px 24px rgba(0,0,0,.8);font-size:11px;max-height:calc(100% - 20px);overflow-y:auto}
 #edit-panel.visible{display:block}
-#edit-head{background:#5f0505;padding:8px 12px;border-radius:7px 7px 0 0;display:flex;align-items:center;justify-content:space-between}
+#edit-panel::-webkit-scrollbar{width:5px}
+#edit-panel::-webkit-scrollbar-thumb{background:#5f0505;border-radius:3px}
+#edit-head{background:#5f0505;padding:8px 12px;border-radius:7px 7px 0 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:2}
 #edit-head span{font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:#fff}
 #edit-close{cursor:pointer;color:#f7eee9;font-size:14px;line-height:1;opacity:.8}
 #edit-close:hover{opacity:1}
@@ -63,6 +65,10 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
 #edit-sel{border:1px solid #2a2a2a;border-radius:5px;padding:8px 10px;margin-bottom:9px;background:#161616}
 #edit-sel-name{font-size:12px;font-weight:bold;color:#fff;font-family:Georgia,serif;margin-bottom:2px}
 #edit-sel-meta{font-size:9px;color:#777;line-height:1.5}
+#edit-fields{display:none;margin-top:9px;border-top:1px solid #262626;padding-top:8px}
+#edit-fields label{display:block;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:7px}
+#edit-fields input,#edit-fields select{display:block;width:100%;margin-top:3px;background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:5px 7px;font-size:11px;color:#ddd;font-family:Verdana,sans-serif;outline:none;letter-spacing:0;text-transform:none}
+#edit-fields input:focus,#edit-fields select:focus{border-color:#5f0505}
 #edit-hint{font-size:9px;color:#8a8a8a;line-height:1.6;margin-bottom:9px}
 #edit-hint b{color:#bbb;font-weight:bold}
 .edit-row{display:flex;gap:5px;margin-bottom:6px}
@@ -72,10 +78,30 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
 .edit-btn.primary{background:#5f0505;border-color:#5f0505;color:#fff}
 .edit-btn.primary:hover:not(:disabled){background:#7a0808;border-color:#7a0808}
 .edit-btn.danger:hover:not(:disabled){background:#3a1010;border-color:#8a2020;color:#ff9c9c}
-#edit-status{font-size:9px;color:#666;border-top:1px solid #222;padding-top:8px;margin-top:2px;line-height:1.5}
+#edit-count{font-size:9px;color:#888;border-top:1px solid #222;padding-top:8px;margin:2px 0 7px;line-height:1.5}
+#edit-count b{color:#e0a45c}
+#edit-status{font-size:9px;color:#777;border-top:1px solid #222;padding-top:8px;margin-top:2px;line-height:1.6;word-break:break-word}
 #edit-status b{color:#e0a45c}
+#edit-status a{color:#7fb3ff}
 #edit-badge{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#5f0505;color:#fff;padding:4px 14px;border-radius:12px;font-size:9px;letter-spacing:2px;text-transform:uppercase;z-index:1200;display:none;box-shadow:0 2px 10px rgba(0,0,0,.6)}
 #edit-badge.visible{display:block}
+#edit-draw-bar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(15,15,15,.97);border:1px solid #5f0505;border-radius:20px;padding:8px 16px;z-index:1200;display:none;align-items:center;gap:8px;font-size:10px;color:#bbb;box-shadow:0 4px 20px rgba(0,0,0,.7);white-space:nowrap}
+#edit-draw-bar.visible{display:flex}
+#edit-draw-office{background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:4px 6px;font-size:10px;color:#ddd;font-family:Verdana,sans-serif;outline:none;max-width:190px}
+#edit-draw-cancel{background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:4px 10px;font-size:10px;color:#bbb;cursor:pointer;font-family:Verdana,sans-serif}
+#edit-draw-cancel:hover{background:#3a1010;border-color:#8a2020;color:#ff9c9c}
+#edit-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:3000;display:none;align-items:center;justify-content:center}
+#edit-modal.visible{display:flex}
+#edit-modal-box{background:#141414;border:1px solid #5f0505;border-radius:8px;padding:18px 20px;width:400px;max-width:92vw;box-shadow:0 8px 40px rgba(0,0,0,.9)}
+#edit-modal-box h3{font-family:Georgia,serif;font-size:15px;color:#fff;margin-bottom:8px}
+#edit-modal-box p{font-size:10px;color:#999;line-height:1.7;margin-bottom:8px}
+#edit-modal-box .edit-modal-help{color:#777;border-left:2px solid #5f0505;padding-left:9px}
+#edit-modal-box b{color:#ccc}
+#edit-modal-box a{color:#7fb3ff}
+#edit-token-input{width:100%;background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:8px 10px;font-size:11px;color:#ddd;font-family:monospace;outline:none;margin-bottom:9px}
+#edit-token-input:focus{border-color:#5f0505}
+#edit-token-remember-row{display:flex;align-items:center;gap:7px;font-size:10px;color:#999;margin-bottom:12px;cursor:pointer}
+#edit-token-remember-row input{cursor:pointer}
 </style>
 </head>
 <body>
@@ -111,6 +137,12 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
     </div>
     <button id="reset-btn" onclick="resetView()">&#8635; Reset View</button>
     <div id="edit-badge">Edit mode</div>
+    <div id="edit-draw-bar">
+      New zone for
+      <select id="edit-draw-office"></select>
+      &mdash; click the map to place corners, click the first corner to close.
+      <button id="edit-draw-cancel">Cancel</button>
+    </div>
     <div id="edit-panel">
       <div id="edit-head">
         <span>Zone Editor</span>
@@ -119,7 +151,12 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
       <div id="edit-body">
         <div id="edit-sel">
           <div id="edit-sel-name">No zone selected</div>
-          <div id="edit-sel-meta">Click any zone on the map to start editing it.</div>
+          <div id="edit-sel-meta">Click a zone to edit it, or draw a new one.</div>
+          <div id="edit-fields">
+            <label>Name<input id="edit-f-name" type="text" autocomplete="off"/></label>
+            <label>Map number<input id="edit-f-label" type="text" autocomplete="off"/></label>
+            <label>Office<select id="edit-f-office"></select></label>
+          </div>
         </div>
         <div id="edit-hint">
           <b>Drag a white dot</b> to move a corner &middot;
@@ -128,21 +165,51 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
           <b>drag inside</b> the zone to move the whole shape.
         </div>
         <div class="edit-row">
+          <button class="edit-btn" id="edit-new">&#43; New zone</button>
           <button class="edit-btn" id="edit-undo" title="Ctrl+Z">&#8630; Undo</button>
-          <button class="edit-btn" id="edit-revert" title="Restore this zone to the published shape">Revert zone</button>
         </div>
         <div class="edit-row">
+          <button class="edit-btn" id="edit-revert" title="Restore this zone to the published version">Revert zone</button>
           <button class="edit-btn" id="edit-deselect">Deselect</button>
+        </div>
+        <div class="edit-row">
           <button class="edit-btn danger" id="edit-delete">Delete zone</button>
         </div>
+        <div id="edit-count"></div>
         <div class="edit-row">
-          <button class="edit-btn primary" id="edit-save">&#8681; Download updated map</button>
+          <button class="edit-btn primary" id="edit-save">&#10003; Save to GitHub</button>
         </div>
         <div class="edit-row">
-          <button class="edit-btn" id="edit-json">Zones JSON only</button>
+          <button class="edit-btn" id="edit-token-btn">Set token</button>
+          <button class="edit-btn" id="edit-download" title="Download the rebuilt index.html to commit by hand">Download file</button>
+        </div>
+        <div class="edit-row">
+          <button class="edit-btn" id="edit-json">Zones JSON</button>
           <button class="edit-btn danger" id="edit-discard">Discard all</button>
         </div>
         <div id="edit-status"></div>
+      </div>
+    </div>
+    <div id="edit-modal">
+      <div id="edit-modal-box">
+        <h3>GitHub token</h3>
+        <p id="edit-token-why"></p>
+        <p class="edit-modal-help">
+          Create a <b>fine-grained personal access token</b> at
+          <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens</a>,
+          limited to the <b>team-tools</b> repository only, with
+          <b>Repository permissions &rarr; Contents: Read and write</b>. Give it a short expiry.
+        </p>
+        <input id="edit-token-input" type="password" placeholder="github_pat_..." autocomplete="off"/>
+        <label id="edit-token-remember-row">
+          <input id="edit-token-remember" type="checkbox" checked/>
+          Remember on this device (encrypted with your passphrase)
+        </label>
+        <div class="edit-row">
+          <button class="edit-btn primary" id="edit-token-save">Use this token</button>
+          <button class="edit-btn" id="edit-token-cancel">Cancel</button>
+          <button class="edit-btn danger" id="edit-token-forget">Forget</button>
+        </div>
       </div>
     </div>
   </div>
@@ -246,7 +313,6 @@ function initMap() {
 }
 
 function drawZones(code, highlight) {
-  const color = getOfficeColor(code);
   const zones = officeZones[code] || [];
   const visible = isStateVisible(code);
 
@@ -256,85 +322,93 @@ function drawZones(code, highlight) {
   labelsByOffice[code] = [];
   if (!visible) return;
 
-  zones.forEach(z => {
-    if (!z.coords || z.coords.length < 3) return;
-    const path = z.coords.map(c => ({ lat: c[0], lng: c[1] }));
+  zones.forEach(z => createZonePoly(z, code, highlight));
+}
 
-    // Compute bounding box "area" for zIndex (smaller = on top)
-    let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
-    for (const c of z.coords) {
-      if (c[0] < minLat) minLat = c[0];
-      if (c[0] > maxLat) maxLat = c[0];
-      if (c[1] < minLng) minLng = c[1];
-      if (c[1] > maxLng) maxLng = c[1];
-    }
-    const area = (maxLat - minLat) * (maxLng - minLng);
-    // Smaller polygons get higher zIndex so they appear on top
-    const baseZ = Math.round(1000 - area * 100);
-    const poly = new google.maps.Polygon({
-      paths: path,
-      strokeColor: color,
-      strokeOpacity: highlight ? 1 : 0.85,
-      strokeWeight: highlight ? 2.5 : 2,
-      fillColor: color,
-      fillOpacity: highlight ? 0.5 : 0.32,
-      map: map,
-      zIndex: highlight ? baseZ + 5000 : baseZ,
-    });
-    poly._zone = z;
-    poly._baseZ = baseZ;
-    zoneRefs.set(z, { poly: poly, lbl: null });
+// Builds the polygon (and number label) for one zone. Split out of drawZones so
+// zones drawn by hand in the editor go through exactly the same path.
+function createZonePoly(z, code, highlight) {
+  if (!z.coords || z.coords.length < 3) return null;
+  const color = getOfficeColor(code);
+  if (!polysByOffice[code]) polysByOffice[code] = [];
+  if (!labelsByOffice[code]) labelsByOffice[code] = [];
+  const path = z.coords.map(c => ({ lat: c[0], lng: c[1] }));
 
-    poly.addListener('mouseover', () => {
-      if (editState.on && editState.selected === poly) { showInfo(code, z.name); return; }
-      poly.setOptions({ fillOpacity: 0.65, strokeOpacity: 1, strokeWeight: 3 });
-      showInfo(code, z.name);
+  // Compute bounding box "area" for zIndex (smaller = on top)
+  let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+  for (const c of z.coords) {
+    if (c[0] < minLat) minLat = c[0];
+    if (c[0] > maxLat) maxLat = c[0];
+    if (c[1] < minLng) minLng = c[1];
+    if (c[1] > maxLng) maxLng = c[1];
+  }
+  const area = (maxLat - minLat) * (maxLng - minLng);
+  // Smaller polygons get higher zIndex so they appear on top
+  const baseZ = Math.round(1000 - area * 100);
+  const poly = new google.maps.Polygon({
+    paths: path,
+    strokeColor: color,
+    strokeOpacity: highlight ? 1 : 0.85,
+    strokeWeight: highlight ? 2.5 : 2,
+    fillColor: color,
+    fillOpacity: highlight ? 0.5 : 0.32,
+    map: map,
+    zIndex: highlight ? baseZ + 5000 : baseZ,
+  });
+  poly._zone = z;
+  poly._baseZ = baseZ;
+  zoneRefs.set(z, { poly: poly, lbl: null });
+
+  poly.addListener('mouseover', () => {
+    if (editState.on && editState.selected === poly) { showInfo(code, z.name); return; }
+    poly.setOptions({ fillOpacity: 0.65, strokeOpacity: 1, strokeWeight: 3 });
+    showInfo(code, z.name);
+  });
+  poly.addListener('mouseout', () => {
+    if (editState.on && editState.selected === poly) return;
+    poly.setOptions({
+      fillOpacity: activeOffice === code ? 0.5 : 0.32,
+      strokeOpacity: activeOffice === code ? 1 : 0.85,
+      strokeWeight: activeOffice === code ? 2.5 : 2,
     });
-    poly.addListener('mouseout', () => {
-      if (editState.on && editState.selected === poly) return;
-      poly.setOptions({
-        fillOpacity: activeOffice === code ? 0.5 : 0.32,
-        strokeOpacity: activeOffice === code ? 1 : 0.85,
-        strokeWeight: activeOffice === code ? 2.5 : 2,
-      });
-    });
-    poly.addListener('click', e => {
-      if (editState.on) {
-        selectZoneForEdit(poly);
-        showInfo(code, z.name);
-        if (e && e.stop) e.stop();
-        return;
-      }
-      setActiveOffice(code);
+  });
+  poly.addListener('click', e => {
+    if (editState.on) {
+      selectZoneForEdit(poly);
       showInfo(code, z.name);
       if (e && e.stop) e.stop();
-    });
-    polysByOffice[code].push(poly);
-
-    if (z.label) {
-      const c = z.labelPos
-        ? { lat: z.labelPos[0], lng: z.labelPos[1] }
-        : centroid(z.coords);
-      const lbl = new google.maps.Marker({
-        position: c,
-        map: map,
-        icon: { path: google.maps.SymbolPath.CIRCLE, scale: 0, strokeOpacity: 0, fillOpacity: 0 },
-        label: {
-          text: String(z.label),
-          color: highlight ? '#fff' : 'rgba(255,255,255,0.75)',
-          fontSize: getLabelFontSize(z.labelSize, highlight),
-          fontWeight: 'bold',
-          fontFamily: 'Verdana,sans-serif',
-        },
-        zIndex: highlight ? 4 : 2,
-        clickable: false,
-      });
-      lbl._labelSize = z.labelSize;
-      labelsByOffice[code].push(lbl);
-      const ref = zoneRefs.get(z);
-      if (ref) ref.lbl = lbl;
+      return;
     }
+    setActiveOffice(code);
+    showInfo(code, z.name);
+    if (e && e.stop) e.stop();
   });
+  polysByOffice[code].push(poly);
+
+  if (z.label) {
+    const c = z.labelPos
+      ? { lat: z.labelPos[0], lng: z.labelPos[1] }
+      : centroid(z.coords);
+    const lbl = new google.maps.Marker({
+      position: c,
+      map: map,
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 0, strokeOpacity: 0, fillOpacity: 0 },
+      label: {
+        text: String(z.label),
+        color: highlight ? '#fff' : 'rgba(255,255,255,0.75)',
+        fontSize: getLabelFontSize(z.labelSize, highlight),
+        fontWeight: 'bold',
+        fontFamily: 'Verdana,sans-serif',
+      },
+      zIndex: highlight ? 4 : 2,
+      clickable: false,
+    });
+    lbl._labelSize = z.labelSize;
+    labelsByOffice[code].push(lbl);
+    const ref = zoneRefs.get(z);
+    if (ref) ref.lbl = lbl;
+  }
+  return zoneRefs.get(z);
 }
 
 function addMarkers() {
@@ -695,10 +769,11 @@ function buildSidebar() {
    ZONE EDITOR  (private)
    -------------------------------------------------------------------------
    Hidden for ordinary visitors: the UI only appears if the URL ends in #edit
-   AND the passphrase below is entered. Edits live in this browser only
-   (memory + localStorage draft) - publishing still means downloading the
-   updated index.html and committing it to the repo, so nobody else can
-   change the live map even if they find this.
+   AND the passphrase below is entered.
+
+   Saving commits this file straight back to the GitHub repo using a personal
+   access token you supply. The token is held only in your browser, encrypted
+   with your passphrase, so nobody who lacks both can publish a change.
 
    To change the passphrase: open the browser console on this page, run
        zoneEditorHash('your new passphrase')
@@ -706,32 +781,48 @@ function buildSidebar() {
    ========================================================================= */
 
 const EDIT_PASS_HASH = '030c259f042886ea8f336c860b5f5ce47f094c8870aeeb1d5c4f2b5d97ffb089';
-const DRAFT_KEY = 'dovida-map-zone-draft-v1';
+const DRAFT_KEY = 'dovida-map-zone-draft-v2';
+const TOKEN_KEY = 'dovida-map-gh-token-v1';
+const REPO = { owner: 'dovida-stuff', repo: 'team-tools', path: 'index.html', branch: 'main' };
 
 const zoneRefs = new Map();      // zone object -> { poly, lbl }
-const zoneBaseline = new Map();  // zone object -> coords as published in this file
-const editState = { on: false, selected: null, dirty: new Set(), undo: [], lastSnap: 0, suspend: false };
+const zoneKey = new Map();       // zone object -> stable key used by the draft
+const zoneBaseline = new Map();  // zone object -> its state as published in this file
+const editState = {
+  on: false, selected: null, dirty: new Set(), deleted: new Map(),
+  undo: [], lastSnap: 0, suspend: false, newSeq: 0, drawing: null, pass: null, token: null,
+};
 
 async function zoneEditorHash(text) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 function initEditor() {
   document.getElementById('edit-close').onclick = exitEditMode;
   document.getElementById('edit-undo').onclick = undoEdit;
+  document.getElementById('edit-new').onclick = startDrawingZone;
+  document.getElementById('edit-draw-cancel').onclick = cancelDrawingZone;
   document.getElementById('edit-revert').onclick = revertSelectedZone;
   document.getElementById('edit-deselect').onclick = () => selectZoneForEdit(null);
   document.getElementById('edit-delete').onclick = deleteSelectedZone;
-  document.getElementById('edit-save').onclick = downloadUpdatedMap;
+  document.getElementById('edit-save').onclick = saveToGitHub;
+  document.getElementById('edit-download').onclick = downloadUpdatedMap;
   document.getElementById('edit-json').onclick = downloadZonesJson;
   document.getElementById('edit-discard').onclick = discardAllEdits;
+  document.getElementById('edit-token-btn').onclick = () => openTokenModal(false);
+  document.getElementById('edit-token-save').onclick = submitToken;
+  document.getElementById('edit-token-cancel').onclick = closeTokenModal;
+  document.getElementById('edit-token-forget').onclick = forgetToken;
+
+  document.getElementById('edit-f-name').onchange = applyZoneFields;
+  document.getElementById('edit-f-label').onchange = applyZoneFields;
+  document.getElementById('edit-f-office').onchange = applyZoneFields;
 
   document.addEventListener('keydown', e => {
-    if (!editState.on) return;
-    if (e.target.tagName === 'INPUT') return;
+    if (!editState.on || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undoEdit(); }
-    else if (e.key === 'Escape') selectZoneForEdit(null);
+    else if (e.key === 'Escape') { if (editState.drawing) cancelDrawingZone(); else selectZoneForEdit(null); }
   });
 
   window.addEventListener('hashchange', () => { if (location.hash === '#edit' && !editState.on) unlockEditor(); });
@@ -744,25 +835,42 @@ async function unlockEditor() {
   let ok = false;
   try { ok = (await zoneEditorHash(entry)) === EDIT_PASS_HASH; } catch (err) { ok = false; }
   if (!ok) { window.alert('Wrong passphrase - the map stays read-only.'); history.replaceState(null, '', location.pathname); return; }
+  editState.pass = entry;
   enterEditMode();
 }
 
 function enterEditMode() {
   editState.on = true;
-  ZONES.forEach(z => { if (!zoneBaseline.has(z)) zoneBaseline.set(z, z.coords.map(c => c.slice())); });
+  ZONES.forEach((z, i) => {
+    if (!zoneKey.has(z)) zoneKey.set(z, 'z' + i);
+    zoneBaseline.set(z, snapshotOf(z));
+  });
+  buildOfficeSelect();
   document.getElementById('edit-panel').classList.add('visible');
   document.getElementById('edit-badge').classList.add('visible');
   restoreDraft();
+  loadStoredToken();
   refreshEditPanel();
 }
 
 function exitEditMode() {
   if (editState.dirty.size && !window.confirm(editState.dirty.size + ' zone(s) have unsaved changes.\n\nThey stay saved in this browser as a draft. Exit edit mode?')) return;
+  cancelDrawingZone();
   selectZoneForEdit(null);
   editState.on = false;
+  editState.pass = null;
+  editState.token = null;
   document.getElementById('edit-panel').classList.remove('visible');
   document.getElementById('edit-badge').classList.remove('visible');
   history.replaceState(null, '', location.pathname);
+}
+
+function snapshotOf(z) {
+  return {
+    name: z.name, label: z.label, office: z.office, folder: z.folder,
+    coords: z.coords.map(c => c.slice()),
+    labelPos: z.labelPos ? z.labelPos.slice() : null, labelSize: z.labelSize,
+  };
 }
 
 /* ---- selection ---- */
@@ -776,13 +884,9 @@ function selectZoneForEdit(poly) {
   editState.selected = poly || null;
   if (poly) {
     poly.setOptions({
-      editable: true,
-      draggable: true,
-      strokeColor: '#ffffff',
-      strokeWeight: 3,
-      strokeOpacity: 1,
-      fillOpacity: 0.45,
-      zIndex: 9000,
+      editable: true, draggable: true,
+      strokeColor: '#ffffff', strokeWeight: 3, strokeOpacity: 1,
+      fillOpacity: 0.45, zIndex: 9000,
     });
     if (!poly._editWired) wireZoneEditEvents(poly);
   }
@@ -794,6 +898,7 @@ function restyleZonePoly(poly) {
   const highlight = activeOffice === z.office;
   poly.setOptions({
     strokeColor: getOfficeColor(z.office),
+    fillColor: getOfficeColor(z.office),
     strokeOpacity: highlight ? 1 : 0.85,
     strokeWeight: highlight ? 2.5 : 2,
     fillOpacity: highlight ? 0.5 : 0.32,
@@ -816,7 +921,6 @@ function wireZoneEditEvents(poly) {
     snapshotZone(poly._zone, true);
     editState.suspend = true;
     path.removeAt(e.vertex);
-    // keep the ring closed if the first/last point was removed
     const first = path.getAt(0), last = path.getAt(path.getLength() - 1);
     if (!first.equals(last)) path.push(first);
     editState.suspend = false;
@@ -824,7 +928,139 @@ function wireZoneEditEvents(poly) {
   });
 }
 
+/* ---- name / label / office ---- */
+
+function buildOfficeSelect() {
+  const codes = [];
+  Object.entries(STATE_GROUPS).forEach(([state, list]) => list.forEach(c => codes.push([state, c])));
+  const html = codes.map(([state, c]) => '<option value="' + c + '">' + getOfficeName(c) + ' (' + state + ')</option>').join('');
+  document.getElementById('edit-f-office').innerHTML = html;
+  document.getElementById('edit-draw-office').innerHTML = html;
+}
+
+function applyZoneFields() {
+  const poly = editState.selected;
+  if (!poly) return;
+  const z = poly._zone;
+  const name = document.getElementById('edit-f-name').value.trim();
+  const label = document.getElementById('edit-f-label').value.trim();
+  const office = document.getElementById('edit-f-office').value;
+  let changed = false;
+
+  if (name && name !== z.name) { z.name = name; changed = true; }
+  if (label !== String(z.label == null ? '' : z.label)) { z.label = label; changed = true; refreshZoneLabel(z); }
+  if (office && office !== z.office) { moveZoneToOffice(z, office); refreshZoneLabel(z); changed = true; }
+  if (!changed) return;
+
+  markZoneDirty(z);
+  saveDraft();
+  refreshSidebarCounts();
+  refreshEditPanel();
+}
+
+function moveZoneToOffice(z, newCode) {
+  const oldCode = z.office;
+  const ref = zoneRefs.get(z) || {};
+  const from = officeZones[oldCode] || [];
+  const i = from.indexOf(z); if (i > -1) from.splice(i, 1);
+  const fromPolys = polysByOffice[oldCode] || [];
+  const pi = ref.poly ? fromPolys.indexOf(ref.poly) : -1; if (pi > -1) fromPolys.splice(pi, 1);
+  const fromLbls = labelsByOffice[oldCode] || [];
+  const li = ref.lbl ? fromLbls.indexOf(ref.lbl) : -1; if (li > -1) fromLbls.splice(li, 1);
+
+  z.office = newCode;
+  if (!officeZones[newCode]) officeZones[newCode] = [];
+  officeZones[newCode].push(z);
+  if (!polysByOffice[newCode]) polysByOffice[newCode] = [];
+  if (!labelsByOffice[newCode]) labelsByOffice[newCode] = [];
+  if (ref.poly) {
+    polysByOffice[newCode].push(ref.poly);
+    ref.poly.setOptions({ fillColor: getOfficeColor(newCode) });
+    if (editState.selected !== ref.poly) restyleZonePoly(ref.poly);
+    ref.poly.setVisible(isStateVisible(newCode));
+  }
+  if (ref.lbl) {
+    labelsByOffice[newCode].push(ref.lbl);
+    ref.lbl.setVisible(isStateVisible(newCode));
+  }
+}
+
+/* ---- drawing a new zone ---- */
+
+function startDrawingZone() {
+  if (editState.drawing) return;
+  if (!google.maps.drawing) { setEditStatus('The Google drawing library did not load - reload the page.'); return; }
+  selectZoneForEdit(null);
+  document.getElementById('info-panel').classList.remove('visible');
+  document.getElementById('edit-draw-bar').classList.add('visible');
+  const drawOpts = code => ({ strokeColor: '#ffffff', strokeWeight: 3, fillColor: getOfficeColor(code), fillOpacity: 0.45, zIndex: 9000 });
+  const dm = new google.maps.drawing.DrawingManager({
+    drawingMode: google.maps.drawing.OverlayType.POLYGON,
+    drawingControl: false,
+    polygonOptions: drawOpts(document.getElementById('edit-draw-office').value),
+  });
+  dm.setMap(map);
+  editState.drawing = dm;
+  dm.addListener('polygoncomplete', tempPoly => {
+    const coords = [];
+    tempPoly.getPath().forEach(p => coords.push([round7(p.lat()), round7(p.lng())]));
+    const office = document.getElementById('edit-draw-office').value;
+    tempPoly.setMap(null);
+    cancelDrawingZone();
+    if (coords.length < 3) { setEditStatus('A zone needs at least 3 corners - try again.'); return; }
+    coords.push(coords[0].slice());
+    finishNewZone(coords, office);
+  });
+  document.getElementById('edit-draw-office').onchange = () => {
+    dm.setOptions({ polygonOptions: drawOpts(document.getElementById('edit-draw-office').value) });
+  };
+  refreshEditPanel();
+  setEditStatus('Click on the map to place each corner, then click the first corner again to close the shape.');
+}
+
+function cancelDrawingZone() {
+  if (editState.drawing) { editState.drawing.setMap(null); editState.drawing = null; }
+  document.getElementById('edit-draw-bar').classList.remove('visible');
+  refreshEditPanel();
+}
+
+// New zones copy the naming style the office already uses, so an office
+// numbering zones "Zone 3 - MNC" gets "Zone 9 - MNC" rather than "MNC 9".
+function nextZoneNaming(code) {
+  const siblings = officeZones[code] || [];
+  let next = 1;
+  siblings.forEach(s => {
+    const n = parseInt(s.label, 10);
+    if (!isNaN(n) && n >= next) next = n + 1;
+  });
+  const label = String(next);
+  let name = code + ' ' + label;
+  const model = siblings.find(s => s.label && s.name.indexOf(String(s.label)) > -1);
+  if (model) name = model.name.replace(String(model.label), label);
+  while (siblings.some(s => s.name === name)) name = name + ' (new)';
+  const folder = siblings.length ? siblings[0].folder : (getStateForOffice(code) || '');
+  return { name: name, label: label, folder: folder };
+}
+
+function finishNewZone(coords, code) {
+  const naming = nextZoneNaming(code);
+  const z = { name: naming.name, folder: naming.folder, office: code, coords: coords, label: naming.label, labelPos: null, labelSize: 0.02 };
+  ZONES.push(z);
+  if (!officeZones[code]) officeZones[code] = [];
+  officeZones[code].push(z);
+  zoneKey.set(z, 'n' + (editState.newSeq++));
+  const ref = createZonePoly(z, code, activeOffice === code);
+  refreshZoneLabel(z);
+  markZoneDirty(z);
+  saveDraft();
+  refreshSidebarCounts();
+  if (ref && ref.poly) selectZoneForEdit(ref.poly);
+  setEditStatus('Created <b>' + z.name + '</b>. Rename it or change its office above if needed.');
+}
+
 /* ---- change tracking ---- */
+
+function markZoneDirty(z) { editState.dirty.add(zoneKey.get(z)); }
 
 function snapshotZone(z, coalesce) {
   const now = Date.now();
@@ -841,7 +1077,7 @@ function commitZoneEdit(poly, coalesce) {
   const z = poly._zone;
   snapshotZone(z, coalesce);
   writePathToZone(poly, z);
-  editState.dirty.add(z.name);
+  markZoneDirty(z);
   saveDraft();
   refreshEditPanel();
 }
@@ -867,12 +1103,18 @@ function applyCoordsToZone(z, coords) {
   refreshZoneLabel(z);
 }
 
+function zoneMatchesBaseline(z) {
+  const b = zoneBaseline.get(z);
+  return !!b && b.name === z.name && b.office === z.office
+    && String(b.label) === String(z.label)
+    && JSON.stringify(b.coords) === JSON.stringify(z.coords);
+}
+
 function undoEdit() {
   const step = editState.undo.pop();
   if (!step) { setEditStatus('Nothing left to undo.'); return; }
   applyCoordsToZone(step.zone, step.coords);
-  const base = zoneBaseline.get(step.zone);
-  if (base && JSON.stringify(base) === JSON.stringify(step.zone.coords)) editState.dirty.delete(step.zone.name);
+  if (zoneMatchesBaseline(step.zone)) editState.dirty.delete(zoneKey.get(step.zone));
   saveDraft();
   refreshEditPanel();
 }
@@ -882,20 +1124,20 @@ function revertSelectedZone() {
   if (!poly) return;
   const z = poly._zone;
   const base = zoneBaseline.get(z);
-  if (!base) return;
+  if (!base) { setEditStatus('This zone is new - use Delete zone to remove it.'); return; }
   snapshotZone(z, false);
-  applyCoordsToZone(z, base);
-  editState.dirty.delete(z.name);
+  if (base.office !== z.office) moveZoneToOffice(z, base.office);
+  z.name = base.name;
+  z.label = base.label;
+  applyCoordsToZone(z, base.coords);
+  editState.dirty.delete(zoneKey.get(z));
   saveDraft();
+  refreshSidebarCounts();
   refreshEditPanel();
-  setEditStatus(z.name + ' restored to the published shape.');
+  setEditStatus(z.name + ' restored to the published version.');
 }
 
-function deleteSelectedZone() {
-  const poly = editState.selected;
-  if (!poly) return;
-  const z = poly._zone;
-  if (!window.confirm('Delete the zone "' + z.name + '" from ' + getOfficeName(z.office) + '?\n\nThis is undone only by "Discard all".')) return;
+function removeZoneFromMap(z) {
   const ref = zoneRefs.get(z) || {};
   if (ref.poly) ref.poly.setMap(null);
   if (ref.lbl) ref.lbl.setMap(null);
@@ -904,10 +1146,22 @@ function deleteSelectedZone() {
   const list = officeZones[z.office] || [];
   const j = list.indexOf(z); if (j > -1) list.splice(j, 1);
   const arr = polysByOffice[z.office] || [];
-  const k = arr.indexOf(poly); if (k > -1) arr.splice(k, 1);
+  const k = ref.poly ? arr.indexOf(ref.poly) : -1; if (k > -1) arr.splice(k, 1);
+  const lbls = labelsByOffice[z.office] || [];
+  const l = ref.lbl ? lbls.indexOf(ref.lbl) : -1; if (l > -1) lbls.splice(l, 1);
+}
+
+function deleteSelectedZone() {
+  const poly = editState.selected;
+  if (!poly) return;
+  const z = poly._zone;
+  if (!window.confirm('Delete the zone "' + z.name + '" from ' + getOfficeName(z.office) + '?')) return;
+  const key = zoneKey.get(z);
+  removeZoneFromMap(z);
   editState.selected = null;
-  editState.dirty.add(z.name);
   editState.undo = editState.undo.filter(s => s.zone !== z);
+  if (String(key).charAt(0) === 'n') editState.dirty.delete(key);
+  else { editState.dirty.add(key); editState.deleted.set(key, true); }
   saveDraft();
   refreshSidebarCounts();
   refreshEditPanel();
@@ -924,10 +1178,11 @@ function discardAllEdits() {
 
 function refreshZoneLabel(z) {
   const ref = zoneRefs.get(z);
-  if (!ref || !ref.lbl || !z.coords || z.coords.length < 3) return;
+  if (!ref || !z.coords || z.coords.length < 3) return;
   const pole = poleOfInaccessibility(z.coords);
   z.labelPos = [round7(pole.lat), round7(pole.lng)];
   z.labelSize = pole.dist;
+  if (!ref.lbl) return;
   ref.lbl.setPosition({ lat: z.labelPos[0], lng: z.labelPos[1] });
   ref.lbl.setOptions({
     label: {
@@ -947,7 +1202,7 @@ function signedDistToPolygon(x, y, coords) {
   for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
     const ax = coords[i][1], ay = coords[i][0], bx = coords[j][1], by = coords[j][0];
     if (((ay > y) !== (by > y)) && (x < (bx - ax) * (y - ay) / (by - ay) + ax)) inside = !inside;
-    let dx = bx - ax, dy = by - ay, px = x - ax, py = y - ay;
+    const dx = bx - ax, dy = by - ay, px = x - ax, py = y - ay;
     const len = dx * dx + dy * dy;
     let t = len ? (px * dx + py * dy) / len : 0;
     t = t < 0 ? 0 : t > 1 ? 1 : t;
@@ -999,10 +1254,22 @@ function poleOfInaccessibility(coords) {
 function saveDraft() {
   try {
     const zones = {};
-    ZONES.forEach(z => { if (editState.dirty.has(z.name)) zones[z.name] = { coords: z.coords, labelPos: z.labelPos, labelSize: z.labelSize }; });
-    const deleted = [...editState.dirty].filter(n => !ZONES.some(z => z.name === n));
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), zones: zones, deleted: deleted }));
+    ZONES.forEach(z => {
+      const key = zoneKey.get(z);
+      if (!editState.dirty.has(key)) return;
+      const snap = snapshotOf(z);
+      snap.isNew = String(key).charAt(0) === 'n';
+      const base = zoneBaseline.get(z);
+      snap.baseName = base ? base.name : null;
+      zones[key] = snap;
+    });
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), zones: zones, deleted: [...editState.deleted.keys()] }));
   } catch (err) { setEditStatus('Draft could not be saved to this browser.'); }
+}
+
+function zoneForKey(key) {
+  for (const z of ZONES) if (zoneKey.get(z) === key) return z;
+  return null;
 }
 
 function restoreDraft() {
@@ -1016,33 +1283,55 @@ function restoreDraft() {
     try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
     return;
   }
-  (draft.deleted || []).forEach(name => {
-    const z = ZONES.find(zz => zz.name === name);
+  let skipped = 0;
+
+  (draft.deleted || []).forEach(key => {
+    const z = zoneForKey(key);
     if (!z) return;
-    const ref = zoneRefs.get(z) || {};
-    if (ref.poly) ref.poly.setMap(null);
-    if (ref.lbl) ref.lbl.setMap(null);
-    zoneRefs.delete(z);
-    const i = ZONES.indexOf(z); if (i > -1) ZONES.splice(i, 1);
-    const list = officeZones[z.office] || [];
-    const j = list.indexOf(z); if (j > -1) list.splice(j, 1);
-    const arr = polysByOffice[z.office] || [];
-    const k = ref.poly ? arr.indexOf(ref.poly) : -1; if (k > -1) arr.splice(k, 1);
-    editState.dirty.add(name);
+    removeZoneFromMap(z);
+    editState.dirty.add(key);
+    editState.deleted.set(key, true);
   });
-  Object.entries(draft.zones || {}).forEach(([name, data]) => {
-    const z = ZONES.find(zz => zz.name === name);
-    if (!z || !data.coords) return;
-    applyCoordsToZone(z, data.coords);
-    editState.dirty.add(name);
+
+  Object.entries(draft.zones || {}).forEach(([key, snap]) => {
+    if (snap.isNew) {
+      const z = { name: snap.name, folder: snap.folder, office: snap.office, coords: snap.coords, label: snap.label, labelPos: snap.labelPos, labelSize: snap.labelSize };
+      ZONES.push(z);
+      if (!officeZones[z.office]) officeZones[z.office] = [];
+      officeZones[z.office].push(z);
+      zoneKey.set(z, key);
+      const n = parseInt(String(key).slice(1), 10);
+      if (!isNaN(n) && n >= editState.newSeq) editState.newSeq = n + 1;
+      createZonePoly(z, z.office, activeOffice === z.office);
+      editState.dirty.add(key);
+      return;
+    }
+    const z = zoneForKey(key);
+    const base = z ? zoneBaseline.get(z) : null;
+    // The published file changed under this draft - don't guess which zone it meant.
+    if (!z || (snap.baseName && base && base.name !== snap.baseName)) { skipped++; return; }
+    if (snap.office && snap.office !== z.office) moveZoneToOffice(z, snap.office);
+    z.name = snap.name;
+    z.label = snap.label;
+    applyCoordsToZone(z, snap.coords);
+    editState.dirty.add(key);
   });
+
   refreshSidebarCounts();
+  if (skipped) setEditStatus('<b>' + skipped + ' draft zone(s) skipped</b> - the published map changed since they were drafted.');
 }
 
-/* ---- publishing ---- */
+/* ---- building the updated file ---- */
 
 function zonesToJson() {
   return JSON.stringify(ZONES, (key, value) => (typeof value === 'number' ? round7(value) : value));
+}
+
+function rebuildHtml(sourceHtml) {
+  const line = /^const ZONES=.*$/m;
+  if (!line.test(sourceHtml)) return null;
+  const json = zonesToJson();
+  return sourceHtml.replace(line, () => 'const ZONES=' + json + ';');
 }
 
 function triggerDownload(text, filename, mime) {
@@ -1062,23 +1351,169 @@ async function downloadUpdatedMap() {
     if (!res.ok) throw new Error(res.status);
     html = await res.text();
   } catch (err) {
-    setEditStatus('Could not read this page’s source - use "Zones JSON only" instead.');
+    setEditStatus('Could not read this page&rsquo;s source - use "JSON" instead.');
     return;
   }
-  const line = /^const ZONES=.*$/m;
-  if (!line.test(html)) {
-    setEditStatus('Could not find the ZONES data line - use "Zones JSON only" instead.');
-    return;
-  }
-  const json = zonesToJson();
-  html = html.replace(line, () => 'const ZONES=' + json + ';');
-  triggerDownload(html, 'index.html', 'text/html');
+  const out = rebuildHtml(html);
+  if (!out) { setEditStatus('Could not find the ZONES data line - use "JSON" instead.'); return; }
+  triggerDownload(out, 'index.html', 'text/html');
   setEditStatus('Downloaded <b>index.html</b>. Commit it to the repo to publish.');
 }
 
 function downloadZonesJson() {
   triggerDownload(zonesToJson(), 'zones.json', 'application/json');
   setEditStatus('Downloaded <b>zones.json</b>.');
+}
+
+/* ---- saving straight to GitHub ---- */
+
+function b64(text) {
+  const bytes = new TextEncoder().encode(text);
+  let s = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+
+async function gh(path, options) {
+  const opts = options || {};
+  const res = await fetch('https://api.github.com' + path, {
+    method: opts.method || 'GET',
+    body: opts.body,
+    headers: {
+      Authorization: 'Bearer ' + editState.token,
+      Accept: opts.accept || 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+  });
+  if (!res.ok) {
+    let detail = res.status + ' ' + res.statusText;
+    try { const j = await res.json(); if (j.message) detail = j.message; } catch (err) {}
+    throw new Error(detail);
+  }
+  return res;
+}
+
+async function saveToGitHub() {
+  if (!editState.dirty.size) { setEditStatus('Nothing to save.'); return; }
+  if (!editState.token) { openTokenModal(true); return; }
+  const btn = document.getElementById('edit-save');
+  btn.disabled = true;
+  const base = '/repos/' + REPO.owner + '/' + REPO.repo;
+  try {
+    setEditStatus('Reading the published file from GitHub...');
+    const cur = await gh(base + '/contents/' + REPO.path + '?ref=' + REPO.branch, { accept: 'application/vnd.github.raw' });
+    const source = await cur.text();
+    const html = rebuildHtml(source);
+    if (!html) throw new Error('could not find the ZONES data line in the repo copy of ' + REPO.path);
+
+    setEditStatus('Uploading...');
+    const headSha = (await (await gh(base + '/git/ref/heads/' + REPO.branch)).json()).object.sha;
+    const treeSha = (await (await gh(base + '/git/commits/' + headSha)).json()).tree.sha;
+
+    const blobSha = (await (await gh(base + '/git/blobs', {
+      method: 'POST', body: JSON.stringify({ content: b64(html), encoding: 'base64' }),
+    })).json()).sha;
+
+    const newTreeSha = (await (await gh(base + '/git/trees', {
+      method: 'POST',
+      body: JSON.stringify({ base_tree: treeSha, tree: [{ path: REPO.path, mode: '100644', type: 'blob', sha: blobSha }] }),
+    })).json()).sha;
+
+    const n = editState.dirty.size;
+    const newCommit = await (await gh(base + '/git/commits', {
+      method: 'POST',
+      body: JSON.stringify({
+        message: 'Update territory zones (' + n + ' zone' + (n === 1 ? '' : 's') + ') from the map editor',
+        tree: newTreeSha, parents: [headSha],
+      }),
+    })).json();
+
+    await gh(base + '/git/refs/heads/' + REPO.branch, {
+      method: 'PATCH', body: JSON.stringify({ sha: newCommit.sha, force: false }),
+    });
+
+    // Published, so this becomes the new "revert to" baseline.
+    editState.dirty.clear();
+    editState.deleted.clear();
+    ZONES.forEach(z => zoneBaseline.set(z, snapshotOf(z)));
+    try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
+    refreshEditPanel();
+    const url = 'https://github.com/' + REPO.owner + '/' + REPO.repo + '/commit/' + newCommit.sha;
+    setEditStatus('<b>Saved.</b> <a href="' + url + '" target="_blank" rel="noopener">Commit ' + newCommit.sha.slice(0, 7) + '</a> &middot; the live map updates in about a minute.');
+  } catch (err) {
+    const msg = String(err.message || err);
+    setEditStatus('<b>Save failed:</b> ' + msg
+      + (/credential|401|403|not accessible|Not Found/i.test(msg) ? ' &mdash; check the token has Contents: Read and write on this repo.' : ''));
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ---- token, encrypted with the passphrase ---- */
+
+async function passKey(pass, salt) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: salt, iterations: 150000, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+const toB64 = a => btoa(String.fromCharCode(...new Uint8Array(a)));
+const fromB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+async function encryptToken(token, pass) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await passKey(pass, salt);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(token));
+  return JSON.stringify({ s: toB64(salt), i: toB64(iv), c: toB64(ct) });
+}
+
+async function decryptToken(blob, pass) {
+  const o = JSON.parse(blob);
+  const key = await passKey(pass, fromB64(o.s));
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(o.i) }, key, fromB64(o.c));
+  return new TextDecoder().decode(pt);
+}
+
+async function loadStoredToken() {
+  let blob = null;
+  try { blob = localStorage.getItem(TOKEN_KEY); } catch (err) {}
+  if (!blob) return;
+  try { editState.token = await decryptToken(blob, editState.pass); } catch (err) { editState.token = null; }
+  refreshEditPanel();
+}
+
+function openTokenModal(becauseSaving) {
+  document.getElementById('edit-modal').classList.add('visible');
+  document.getElementById('edit-token-input').value = '';
+  document.getElementById('edit-token-why').textContent = becauseSaving
+    ? 'Saving needs a GitHub token that can commit to ' + REPO.owner + '/' + REPO.repo + '.'
+    : 'The token lets this page commit straight to ' + REPO.owner + '/' + REPO.repo + '.';
+  document.getElementById('edit-token-input').focus();
+}
+
+function closeTokenModal() { document.getElementById('edit-modal').classList.remove('visible'); }
+
+async function submitToken() {
+  const token = document.getElementById('edit-token-input').value.trim();
+  if (!token) return;
+  editState.token = token;
+  if (document.getElementById('edit-token-remember').checked) {
+    try { localStorage.setItem(TOKEN_KEY, await encryptToken(token, editState.pass)); } catch (err) {}
+  } else {
+    try { localStorage.removeItem(TOKEN_KEY); } catch (err) {}
+  }
+  closeTokenModal();
+  refreshEditPanel();
+  setEditStatus('Token set. Press <b>Save to GitHub</b> to publish.');
+}
+
+function forgetToken() {
+  editState.token = null;
+  try { localStorage.removeItem(TOKEN_KEY); } catch (err) {}
+  closeTokenModal();
+  refreshEditPanel();
+  setEditStatus('Token forgotten on this device.');
 }
 
 /* ---- panel ---- */
@@ -1098,26 +1533,36 @@ function refreshSidebarCounts() {
 function refreshEditPanel() {
   if (!editState.on) return;
   const poly = editState.selected;
-  const nameEl = document.getElementById('edit-sel-name');
-  const metaEl = document.getElementById('edit-sel-meta');
-  ['edit-revert', 'edit-deselect', 'edit-delete'].forEach(id => { document.getElementById(id).disabled = !poly; });
+  const z = poly ? poly._zone : null;
+  ['edit-deselect', 'edit-delete'].forEach(id => { document.getElementById(id).disabled = !poly; });
+  document.getElementById('edit-revert').disabled = !poly || !zoneBaseline.has(z);
   document.getElementById('edit-undo').disabled = !editState.undo.length;
-  if (poly) {
-    const z = poly._zone;
-    nameEl.textContent = z.name;
-    nameEl.style.color = getOfficeColor(z.office);
-    metaEl.textContent = getOfficeName(z.office) + ' · ' + Math.max(0, z.coords.length - 1) + ' corners';
+  document.getElementById('edit-new').disabled = !!editState.drawing;
+
+  if (z) {
+    document.getElementById('edit-fields').style.display = 'block';
+    document.getElementById('edit-sel-name').textContent = z.name;
+    document.getElementById('edit-sel-name').style.color = getOfficeColor(z.office);
+    document.getElementById('edit-sel-meta').textContent = getOfficeName(z.office) + ' · ' + Math.max(0, z.coords.length - 1) + ' corners';
+    document.getElementById('edit-f-name').value = z.name;
+    document.getElementById('edit-f-label').value = z.label == null ? '' : z.label;
+    document.getElementById('edit-f-office').value = z.office;
   } else {
-    nameEl.textContent = 'No zone selected';
-    nameEl.style.color = '#fff';
-    metaEl.textContent = 'Click any zone on the map to start editing it.';
+    document.getElementById('edit-fields').style.display = 'none';
+    document.getElementById('edit-sel-name').textContent = 'No zone selected';
+    document.getElementById('edit-sel-name').style.color = '#fff';
+    document.getElementById('edit-sel-meta').textContent = 'Click a zone to edit it, or draw a new one.';
   }
+
+  document.getElementById('edit-token-btn').textContent = editState.token ? 'Token set ✓' : 'Set token';
   const n = editState.dirty.size;
-  setEditStatus(n
-    ? '<b>' + n + ' zone(s) changed</b> - saved as a draft in this browser. Download the map and commit it to publish.'
-    : 'No changes yet.');
+  document.getElementById('edit-save').disabled = !n;
+  // Kept separate from #edit-status so a refresh never wipes a message.
+  document.getElementById('edit-count').innerHTML = n
+    ? '<b>' + n + ' zone(s) changed</b> &middot; drafted in this browser until you save.'
+    : 'No unsaved changes.';
 }
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjgM2rBWy-8T9_hwXrEcILWlk3q9O6cFI&callback=initMap"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjgM2rBWy-8T9_hwXrEcILWlk3q9O6cFI&libraries=drawing&callback=initMap"></script>
 </body>
 </html>
