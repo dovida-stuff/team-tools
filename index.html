@@ -212,18 +212,11 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
         </div>
         <div class="edit-row">
           <button class="edit-btn" id="edit-offices">&#9632; Offices &amp; colours</button>
+          <button class="edit-btn" id="edit-office-new">&#43; New office</button>
         </div>
         <div id="edit-count"></div>
         <div class="edit-row">
           <button class="edit-btn primary" id="edit-save">&#10003; Save to GitHub</button>
-        </div>
-        <div class="edit-row">
-          <button class="edit-btn" id="edit-token-btn">Set token</button>
-          <button class="edit-btn" id="edit-download" title="Download the rebuilt index.html to commit by hand">Download file</button>
-        </div>
-        <div class="edit-row">
-          <button class="edit-btn" id="edit-json">Zones JSON</button>
-          <button class="edit-btn danger" id="edit-discard">Discard all</button>
         </div>
         <div id="edit-status"></div>
       </div>
@@ -240,10 +233,10 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
         </div>
         <div id="office-list-view">
           <p class="office-modal-help">Change an office colour with its swatch &mdash; the map updates as you pick. Colours and new offices are saved with everything else.</p>
-          <div id="office-rows"></div>
           <div class="edit-row">
             <button class="edit-btn primary" id="office-add">&#43; New office</button>
           </div>
+          <div id="office-rows"></div>
         </div>
         <div id="office-form-view">
           <h4 id="office-form-title">New office</h4>
@@ -914,14 +907,11 @@ function initEditor() {
   document.getElementById('edit-deselect').onclick = () => selectZoneForEdit(null);
   document.getElementById('edit-delete').onclick = deleteSelectedZone;
   document.getElementById('edit-save').onclick = saveToGitHub;
-  document.getElementById('edit-download').onclick = downloadUpdatedMap;
-  document.getElementById('edit-json').onclick = downloadZonesJson;
-  document.getElementById('edit-discard').onclick = discardAllEdits;
-  document.getElementById('edit-token-btn').onclick = () => openTokenModal(false);
   document.getElementById('edit-token-save').onclick = submitToken;
   document.getElementById('edit-token-cancel').onclick = closeTokenModal;
   document.getElementById('edit-token-forget').onclick = forgetToken;
   document.getElementById('edit-offices').onclick = openOfficeModal;
+  document.getElementById('edit-office-new').onclick = () => { openOfficeModal(); openOfficeForm(null); };
   document.getElementById('office-modal-close').onclick = closeOfficeModal;
   document.getElementById('office-add').onclick = () => openOfficeForm(null);
   document.getElementById('office-form-save').onclick = submitOfficeForm;
@@ -1291,12 +1281,6 @@ function deleteSelectedZone() {
   setEditStatus('Deleted ' + z.name + '.');
 }
 
-function discardAllEdits() {
-  if (!window.confirm('Throw away every change made in this browser and reload the published map?')) return;
-  try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
-  location.reload();
-}
-
 /* ---- labels follow the shape ---- */
 
 function refreshZoneLabel(z) {
@@ -1498,37 +1482,6 @@ function changeSummary() {
   return bits.join(' and ');
 }
 
-function triggerDownload(text, filename, mime) {
-  const blob = new Blob([text], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-}
-
-async function downloadUpdatedMap() {
-  setEditStatus('Building the updated file...');
-  let html;
-  try {
-    const res = await fetch(location.pathname + '?nocache=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) throw new Error(res.status);
-    html = await res.text();
-  } catch (err) {
-    setEditStatus('Could not read this page&rsquo;s source - use "JSON" instead.');
-    return;
-  }
-  const out = rebuildHtml(html);
-  if (!out) { setEditStatus('Could not find the ZONES data line - use "JSON" instead.'); return; }
-  triggerDownload(out, 'index.html', 'text/html');
-  setEditStatus('Downloaded <b>index.html</b>. Commit it to the repo to publish.');
-}
-
-function downloadZonesJson() {
-  triggerDownload(zonesToJson(), 'zones.json', 'application/json');
-  setEditStatus('Downloaded <b>zones.json</b>.');
-}
-
 /* ---- saving straight to GitHub ---- */
 
 function b64(text) {
@@ -1606,8 +1559,16 @@ async function saveToGitHub() {
     setEditStatus('<b>Saved.</b> <a href="' + url + '" target="_blank" rel="noopener">Commit ' + newCommit.sha.slice(0, 7) + '</a> &middot; the live map updates in about a minute.');
   } catch (err) {
     const msg = String(err.message || err);
-    setEditStatus('<b>Save failed:</b> ' + msg
-      + (/credential|401|403|not accessible|Not Found/i.test(msg) ? ' &mdash; check the token has Contents: Read and write on this repo.' : ''));
+    // Tokens expire. With no "set token" button left, a rejected token has to
+    // re-prompt here or there would be no way back in.
+    if (/credential|401|403|not accessible|Not Found|Requires authentication/i.test(msg)) {
+      editState.token = null;
+      try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+      setEditStatus('<b>GitHub rejected that token</b> (' + msg + '). It may have expired. Enter a current one to save &mdash; your changes are safe.');
+      openTokenModal(true);
+    } else {
+      setEditStatus('<b>Save failed:</b> ' + msg);
+    }
   } finally {
     btn.disabled = false;
   }
@@ -1948,7 +1909,6 @@ function refreshEditPanel() {
     document.getElementById('edit-sel-meta').textContent = 'Click a zone to edit it, or draw a new one.';
   }
 
-  document.getElementById('edit-token-btn').textContent = editState.token ? 'Token set ✓' : 'Set token';
   document.getElementById('edit-save').disabled = !hasUnsavedChanges();
   // Kept separate from #edit-status so a refresh never wipes a message.
   document.getElementById('edit-count').innerHTML = hasUnsavedChanges()
