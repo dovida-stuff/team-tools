@@ -63,6 +63,10 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
 #edit-body::-webkit-scrollbar{width:5px}
 #edit-body::-webkit-scrollbar-thumb{background:#5f0505;border-radius:3px}
 #edit-empty p{font-size:11px;color:#8a8a8a;line-height:1.6;margin-bottom:11px}
+#edit-draft-bar{border:1px solid #6b4a12;background:#1d1708;border-radius:5px;padding:9px 10px;margin-bottom:10px}
+#edit-draft-text{font-size:10px;color:#d8b473;line-height:1.55;margin-bottom:8px}
+#edit-draft-text b{color:#f0d5a0}
+#edit-draft-bar .edit-row{margin-bottom:0}
 #edit-sel{border:1px solid #2a2a2a;border-radius:5px;padding:9px 10px;margin-bottom:9px;background:#161616}
 #edit-sel-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 #edit-sel-name{font-size:12.5px;font-weight:bold;color:#fff;font-family:Georgia,serif;line-height:1.25}
@@ -210,6 +214,13 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
       </div>
 
       <div id="edit-body">
+        <div id="edit-draft-bar" hidden>
+          <div id="edit-draft-text"></div>
+          <div class="edit-row">
+            <button class="edit-btn primary" id="edit-draft-restore">Restore them</button>
+            <button class="edit-btn danger" id="edit-draft-discard">Discard</button>
+          </div>
+        </div>
         <div id="edit-empty">
           <p>Click a zone on the map to edit it.</p>
         </div>
@@ -944,6 +955,7 @@ const editState = {
   on: false, selected: null, dirty: new Set(), deleted: new Map(),
   undo: [], lastSnap: 0, suspend: false, newSeq: 0, drawing: null, pass: null, token: null,
   officesDirty: false, officeFormCode: null, placingPin: null, officeSecondaries: [], msg: '',
+  pendingDraft: null, publishedZones: '', publishedOffices: '',
 };
 
 async function zoneEditorHash(text) {
@@ -963,6 +975,8 @@ function initEditor() {
   document.getElementById('edit-delete').onclick = deleteSelectedZone;
   document.getElementById('edit-save').onclick = saveToGitHub;
   document.getElementById('edit-discard').onclick = discardAllEdits;
+  document.getElementById('edit-draft-restore').onclick = restoreDraft;
+  document.getElementById('edit-draft-discard').onclick = discardPendingDraft;
   document.getElementById('edit-token-save').onclick = submitToken;
   document.getElementById('edit-token-cancel').onclick = closeTokenModal;
   document.getElementById('edit-token-forget').onclick = forgetToken;
@@ -1022,7 +1036,10 @@ function enterEditMode() {
   buildOfficeSelect();
   document.getElementById('edit-panel').classList.add('visible');
   document.getElementById('edit-badge').classList.add('visible');
-  restoreDraft();
+  // What the file held when this page loaded, to spot someone else saving.
+  editState.publishedZones = JSON.stringify(ZONES);
+  editState.publishedOffices = JSON.stringify(OFFICES) + JSON.stringify(STATE_GROUPS);
+  offerDraft();
   loadStoredToken();
   refreshEditPanel();
 }
@@ -1524,17 +1541,37 @@ function zoneForKey(key) {
   return null;
 }
 
-function restoreDraft() {
+// Offers the draft in the panel rather than interrupting with a dialog. The
+// map stays on the published version until the offer is accepted.
+function offerDraft() {
   let draft = null;
   try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (err) { draft = null; }
   if (!draft) return;
   const count = Object.keys(draft.zones || {}).length + (draft.deleted || []).length + (draft.offices ? 1 : 0);
   if (!count) return;
-  const when = new Date(draft.at).toLocaleString();
-  if (!window.confirm('Found unsaved zone edits from ' + when + ' (' + count + ' zone(s)).\n\nOK = reapply them.  Cancel = throw them away.')) {
-    try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
-    return;
-  }
+  editState.pendingDraft = draft;
+  const when = new Date(draft.at).toLocaleString([], { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+  document.getElementById('edit-draft-text').innerHTML =
+    'You left <b>' + count + ' unsaved change' + (count === 1 ? '' : 's') + '</b> in this browser on ' + escapeHtml(when) +
+    '. The map below is the published version until you restore them.';
+  document.getElementById('edit-draft-bar').hidden = false;
+}
+
+function dismissDraftOffer() {
+  editState.pendingDraft = null;
+  document.getElementById('edit-draft-bar').hidden = true;
+}
+
+function discardPendingDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
+  dismissDraftOffer();
+  setEditStatus('Those unsaved changes were discarded.');
+}
+
+function restoreDraft() {
+  const draft = editState.pendingDraft;
+  if (!draft) return;
+  dismissDraftOffer();
   let skipped = 0;
 
   if (draft.offices && draft.states) {
@@ -1595,7 +1632,10 @@ function restoreDraft() {
   });
 
   refreshSidebarCounts();
-  if (skipped) setEditStatus('<b>' + skipped + ' draft zone(s) skipped</b> - the published map changed since they were drafted.');
+  refreshEditPanel();
+  setEditStatus(skipped
+    ? '<b>' + skipped + ' change(s) skipped</b> &middot; those zones changed in the published map since you drafted them.'
+    : 'Your unsaved changes are back. Save when you are ready.');
 }
 
 /* ---- building the updated file ---- */
@@ -1655,6 +1695,32 @@ async function gh(path, options) {
   return res;
 }
 
+// Saving replaces the whole zone and office data, so if the repo moved on
+// since this page loaded, saving would wipe whatever changed. Check first.
+function confirmNoOneElseSaved(source) {
+  const grab = (name) => {
+    const m = source.match(new RegExp('^const ' + name + '=(.*);$', 'm'));
+    if (!m) return null;
+    try { return JSON.stringify(JSON.parse(m[1])); } catch (err) { return null; }
+  };
+  const repoZones = grab('ZONES');
+  const repoOffices = grab('OFFICES');
+  const repoStates = grab('STATE_GROUPS');
+  if (repoZones === null || repoOffices === null || repoStates === null) return true;
+
+  const zonesMoved = repoZones !== editState.publishedZones;
+  const officesMoved = (repoOffices + repoStates) !== editState.publishedOffices;
+  if (!zonesMoved && !officesMoved) return true;
+
+  const what = zonesMoved && officesMoved ? 'zones and offices'
+    : zonesMoved ? 'zones' : 'offices';
+  return window.confirm(
+    'The published map has changed since this page was opened - its ' + what + ' no longer match.\n\n'
+    + 'Someone else may have saved, or this page was loaded from an older cached copy.\n\n'
+    + 'Saving now replaces their version with yours.\n\n'
+    + 'Cancel to reload first (your unsaved changes are kept and offered back), or OK to save anyway.');
+}
+
 async function saveToGitHub() {
   if (!hasUnsavedChanges()) { setEditStatus('Nothing to save.'); return; }
   if (!editState.token) { openTokenModal(true); return; }
@@ -1665,6 +1731,10 @@ async function saveToGitHub() {
     setEditStatus('Reading the published file from GitHub...');
     const cur = await gh(base + '/contents/' + REPO.path + '?ref=' + REPO.branch, { accept: 'application/vnd.github.raw' });
     const source = await cur.text();
+    if (!confirmNoOneElseSaved(source)) {
+      setEditStatus('Save cancelled &middot; nothing was changed on GitHub.');
+      return;
+    }
     const html = rebuildHtml(source);
     if (!html) throw new Error('could not find the ZONES data line in the repo copy of ' + REPO.path);
 
@@ -1697,6 +1767,8 @@ async function saveToGitHub() {
     editState.dirty.clear();
     editState.deleted.clear();
     editState.officesDirty = false;
+    editState.publishedZones = JSON.stringify(ZONES);
+    editState.publishedOffices = JSON.stringify(OFFICES) + JSON.stringify(STATE_GROUPS);
     ZONES.forEach(z => zoneBaseline.set(z, snapshotOf(z)));
     try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
     refreshEditPanel();
