@@ -509,6 +509,7 @@ function createZonePoly(z, code, highlight) {
     });
   });
   poly.addListener('click', e => {
+    if (takePinClick(e)) return;
     if (editState.on) {
       selectZoneForEdit(poly);
       showInfo(code, z.name);
@@ -597,6 +598,7 @@ function createOfficeMarker(code) {
     });
 
     marker.addListener('click', e => {
+      if (takePinClick(e)) return;
       setActiveOffice(code);
       showInfo(code, '');
       zoomToOffice(code);
@@ -626,6 +628,7 @@ function createOfficeMarker(code) {
         });
 
         secMarker.addListener('click', e => {
+          if (takePinClick(e)) return;
           setActiveOffice(code);
           showInfoForSecondary(code, sec);
           if (e && e.stop) e.stop();
@@ -954,7 +957,7 @@ const zoneBaseline = new Map();  // zone object -> its state as published in thi
 const editState = {
   on: false, selected: null, dirty: new Set(), deleted: new Map(),
   undo: [], lastSnap: 0, suspend: false, newSeq: 0, drawing: null, pass: null, token: null,
-  officesDirty: false, officeFormCode: null, placingPin: null, officeSecondaries: [], msg: '',
+  officesDirty: false, officeFormCode: null, placingPin: null, pinPick: null, officeSecondaries: [], msg: '',
   pendingDraft: null, publishedZones: '', publishedOffices: '',
 };
 
@@ -2143,14 +2146,27 @@ function startPinPlacement(onPick) {
     document.getElementById('office-f-lat').value = lat;
     document.getElementById('office-f-lng').value = lng;
   };
-  editState.placingPin = map.addListener('click', e => {
-    apply(round7(e.latLng.lat()), round7(e.latLng.lng()));
+  // Offices usually sit inside their own territory, so most useful clicks land
+  // on a polygon - which consumes the event before the map ever sees it.
+  // Anything clickable checks pinPick first while placement is running.
+  editState.pinPick = latLng => {
+    if (!latLng) return;
+    apply(round7(latLng.lat()), round7(latLng.lng()));
     cancelPinPlacement();
     document.getElementById('office-modal').classList.add('visible');
     document.getElementById('office-form-error').textContent = '';
-  });
+  };
+  editState.placingPin = map.addListener('click', e => editState.pinPick && editState.pinPick(e.latLng));
   document.getElementById('office-modal').classList.remove('visible');
   document.getElementById('edit-pin-bar').classList.add('visible');
+}
+
+// Returns true when the click was consumed as a pin placement.
+function takePinClick(e) {
+  if (!editState.pinPick || !e || !e.latLng) return false;
+  editState.pinPick(e.latLng);
+  if (e.stop) e.stop();
+  return true;
 }
 
 function cancelPinPlacement() {
@@ -2159,6 +2175,7 @@ function cancelPinPlacement() {
     else if (google.maps.event) google.maps.event.removeListener(editState.placingPin);
     editState.placingPin = null;
   }
+  editState.pinPick = null;
   document.getElementById('edit-pin-bar').classList.remove('visible');
 }
 
