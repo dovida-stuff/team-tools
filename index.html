@@ -218,6 +218,9 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
         <div class="edit-row">
           <button class="edit-btn primary" id="edit-save">&#10003; Save to GitHub</button>
         </div>
+        <div class="edit-row">
+          <button class="edit-btn danger" id="edit-discard" title="Throw away every unsaved change in this browser">Discard all changes</button>
+        </div>
         <div id="edit-status"></div>
       </div>
     </div>
@@ -907,6 +910,7 @@ function initEditor() {
   document.getElementById('edit-deselect').onclick = () => selectZoneForEdit(null);
   document.getElementById('edit-delete').onclick = deleteSelectedZone;
   document.getElementById('edit-save').onclick = saveToGitHub;
+  document.getElementById('edit-discard').onclick = discardAllEdits;
   document.getElementById('edit-token-save').onclick = submitToken;
   document.getElementById('edit-token-cancel').onclick = closeTokenModal;
   document.getElementById('edit-token-forget').onclick = forgetToken;
@@ -1248,6 +1252,13 @@ function revertSelectedZone() {
   refreshSidebarCounts();
   refreshEditPanel();
   setEditStatus(z.name + ' restored to the published version.');
+}
+
+function discardAllEdits() {
+  if (!hasUnsavedChanges()) { setEditStatus('There is nothing unsaved to discard.'); return; }
+  if (!window.confirm('Throw away ' + changeSummary() + ' and reload the published map?\n\nAnything already saved to GitHub is not affected.')) return;
+  try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
+  location.reload();
 }
 
 function removeZoneFromMap(z) {
@@ -1910,6 +1921,7 @@ function refreshEditPanel() {
   }
 
   document.getElementById('edit-save').disabled = !hasUnsavedChanges();
+  document.getElementById('edit-discard').disabled = !hasUnsavedChanges();
   // Kept separate from #edit-status so a refresh never wipes a message.
   document.getElementById('edit-count').innerHTML = hasUnsavedChanges()
     ? '<b>' + changeSummary() + ' changed</b> &middot; drafted in this browser until you save.'
