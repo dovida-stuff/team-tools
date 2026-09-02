@@ -53,24 +53,49 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
 #reset-btn{position:absolute;top:10px;right:60px;z-index:1000;background:rgba(15,15,15,.92);border:1px solid #333;border-radius:5px;padding:7px 14px;font-size:11px;color:#bbb;cursor:pointer;font-family:Verdana,sans-serif;transition:all .15s}
 #reset-btn:hover{background:#1e1e1e;color:#fff;border-color:#555}
 /* ---- Zone editor (private, unlocked via #edit + passphrase) ---- */
-#edit-panel{position:absolute;top:10px;left:10px;width:252px;background:rgba(15,15,15,.97);border:1px solid #5f0505;border-radius:8px;z-index:1200;display:none;box-shadow:0 4px 24px rgba(0,0,0,.8);font-size:11px;max-height:calc(100% - 20px);overflow-y:auto}
-#edit-panel.visible{display:block}
-#edit-panel::-webkit-scrollbar{width:5px}
-#edit-panel::-webkit-scrollbar-thumb{background:#5f0505;border-radius:3px}
-#edit-head{background:#5f0505;padding:8px 12px;border-radius:7px 7px 0 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:2}
+#edit-panel{position:absolute;top:10px;left:10px;width:256px;background:rgba(15,15,15,.97);border:1px solid #5f0505;border-radius:8px;z-index:1200;display:none;box-shadow:0 4px 24px rgba(0,0,0,.8);font-size:11px;max-height:calc(100% - 20px);flex-direction:column}
+#edit-panel.visible{display:flex}
+#edit-head{background:#5f0505;padding:8px 12px;border-radius:7px 7px 0 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 #edit-head span{font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:#fff}
 #edit-close{cursor:pointer;color:#f7eee9;font-size:14px;line-height:1;opacity:.8}
 #edit-close:hover{opacity:1}
-#edit-body{padding:10px 12px}
-#edit-sel{border:1px solid #2a2a2a;border-radius:5px;padding:8px 10px;margin-bottom:9px;background:#161616}
-#edit-sel-name{font-size:12px;font-weight:bold;color:#fff;font-family:Georgia,serif;margin-bottom:2px}
-#edit-sel-meta{font-size:9px;color:#777;line-height:1.5}
-#edit-fields{display:none;margin-top:9px;border-top:1px solid #262626;padding-top:8px}
-#edit-fields label{display:block;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:7px}
-#edit-fields input,#edit-fields select{display:block;width:100%;margin-top:3px;background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:5px 7px;font-size:11px;color:#ddd;font-family:Verdana,sans-serif;outline:none;letter-spacing:0;text-transform:none}
-#edit-fields input:focus,#edit-fields select:focus{border-color:#5f0505}
-#edit-hint{font-size:9px;color:#8a8a8a;line-height:1.6;margin-bottom:9px}
+#edit-body{padding:11px 12px;overflow-y:auto;flex:1;min-height:0}
+#edit-body::-webkit-scrollbar{width:5px}
+#edit-body::-webkit-scrollbar-thumb{background:#5f0505;border-radius:3px}
+#edit-empty p{font-size:11px;color:#8a8a8a;line-height:1.6;margin-bottom:11px}
+#edit-sel{border:1px solid #2a2a2a;border-radius:5px;padding:9px 10px;margin-bottom:9px;background:#161616}
+#edit-sel-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+#edit-sel-name{font-size:12.5px;font-weight:bold;color:#fff;font-family:Georgia,serif;line-height:1.25}
+#edit-sel-meta{font-size:9px;color:#777;margin-top:2px;line-height:1.5}
+#edit-deselect{cursor:pointer;color:#555;font-size:12px;line-height:1;flex-shrink:0}
+#edit-deselect:hover{color:#fff}
+#edit-fields{margin-top:9px;border-top:1px solid #262626;padding-top:9px}
+#edit-fields label,.edit-field-label{display:block;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:8px}
+#edit-fields input[type=text],#edit-fields select{display:block;width:100%;margin-top:3px;background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:5px 7px;font-size:11px;color:#ddd;font-family:Verdana,sans-serif;outline:none;letter-spacing:0;text-transform:none}
+#edit-fields input[type=text]:focus,#edit-fields select:focus{border-color:#5f0505}
+.edit-field-pair{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.edit-field-pair label{margin-bottom:8px}
+.edit-field-label{margin-bottom:3px}
+#edit-fill-row{display:flex;gap:5px;align-items:center;margin-bottom:6px}
+#edit-f-fill{width:34px;height:26px;padding:0;border:1px solid #333;border-radius:4px;background:none;cursor:pointer;flex-shrink:0}
+#edit-fill-preview{flex:1;height:26px;border:1px solid #333;border-radius:4px;display:flex;align-items:center;justify-content:center;min-width:0}
+#edit-fill-preview span{font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.75);text-shadow:0 1px 2px rgba(0,0,0,.8)}
+#edit-f-fill-reset{flex:0 0 auto;padding:5px 8px;height:26px}
+#edit-fill-inuse{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.fill-chip{width:22px;height:18px;border-radius:3px;border:1px solid #3a3a3a;cursor:pointer;padding:0;transition:transform .1s,border-color .1s}
+.fill-chip:hover{transform:scale(1.12);border-color:#aaa}
+.fill-chip.on{border-color:#fff;border-width:2px}
+#edit-fill-note{font-size:8.5px;color:#6d6d6d;line-height:1.6}
+#edit-fill-note b{color:#999}
+#edit-hint{margin-top:9px;border-top:1px solid #222;padding-top:8px}
+#edit-hint summary{font-size:9.5px;color:#666;cursor:pointer;list-style:none}
+#edit-hint summary::-webkit-details-marker{display:none}
+#edit-hint summary::before{content:"\25B8 "}
+#edit-hint[open] summary::before{content:"\25BE "}
+#edit-hint summary:hover{color:#999}
+#edit-hint p{font-size:9px;color:#8a8a8a;line-height:1.7;margin-top:6px}
 #edit-hint b{color:#bbb;font-weight:bold}
+#edit-make-row{margin-top:2px}
 .edit-row{display:flex;gap:5px;margin-bottom:6px}
 .edit-btn{flex:1;background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:6px 4px;font-size:10px;color:#bbb;cursor:pointer;font-family:Verdana,sans-serif;transition:all .12s}
 .edit-btn:hover:not(:disabled){background:#2a2a2a;color:#fff;border-color:#666}
@@ -78,11 +103,11 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
 .edit-btn.primary{background:#5f0505;border-color:#5f0505;color:#fff}
 .edit-btn.primary:hover:not(:disabled){background:#7a0808;border-color:#7a0808}
 .edit-btn.danger:hover:not(:disabled){background:#3a1010;border-color:#8a2020;color:#ff9c9c}
-#edit-count{font-size:9px;color:#888;border-top:1px solid #222;padding-top:8px;margin:2px 0 7px;line-height:1.5}
-#edit-count b{color:#e0a45c}
-#edit-status{font-size:9px;color:#777;border-top:1px solid #222;padding-top:8px;margin-top:2px;line-height:1.6;word-break:break-word}
-#edit-status b{color:#e0a45c}
-#edit-status a{color:#7fb3ff}
+#edit-delete,#edit-discard{flex:0 0 34px}
+#edit-foot{border-top:1px solid #2a2a2a;background:#0b0b0b;padding:9px 12px 4px;border-radius:0 0 7px 7px;flex-shrink:0}
+#edit-note{font-size:9px;color:#8a8a8a;line-height:1.55;margin-bottom:7px;word-break:break-word}
+#edit-note b{color:#e0a45c}
+#edit-note a{color:#7fb3ff}
 #edit-badge{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#5f0505;color:#fff;padding:4px 14px;border-radius:12px;font-size:9px;letter-spacing:2px;text-transform:uppercase;z-index:1200;display:none;box-shadow:0 2px 10px rgba(0,0,0,.6)}
 #edit-badge.visible{display:block}
 #edit-draw-bar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(15,15,15,.97);border:1px solid #5f0505;border-radius:20px;padding:8px 16px;z-index:1200;display:none;align-items:center;gap:8px;font-size:10px;color:#bbb;box-shadow:0 4px 20px rgba(0,0,0,.7);white-space:nowrap}
@@ -102,21 +127,6 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
 #edit-token-input:focus{border-color:#5f0505}
 #edit-token-remember-row{display:flex;align-items:center;gap:7px;font-size:10px;color:#999;margin-bottom:12px;cursor:pointer}
 #edit-token-remember-row input{cursor:pointer}
-#edit-fill-row{display:flex;align-items:flex-end;gap:6px}
-#edit-fill-row label{flex:1;margin-bottom:0}
-#edit-fill-row input[type=color]{display:block;width:100%;height:26px;margin-top:3px;padding:0;border:1px solid #333;border-radius:4px;background:none;cursor:pointer}
-#edit-f-fill-reset{flex:0 0 auto;padding:5px 8px;height:26px}
-#office-sec-section{border-top:1px solid #262626;padding-top:10px;margin-bottom:9px}
-#office-sec-head{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#666;margin-bottom:7px}
-#office-sec-rows{margin-bottom:7px}
-.office-sec-none{font-size:10px;color:#555;font-style:italic;padding:2px 0 6px}
-.office-sec-row{border:1px solid #262626;border-radius:5px;padding:7px 8px;margin-bottom:6px;background:#161616}
-.office-sec-row input[type=text]{width:100%;margin-bottom:5px;background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:5px 7px;font-size:11px;color:#ddd;font-family:Verdana,sans-serif;outline:none}
-.office-sec-row input[type=text]:focus{border-color:#5f0505}
-.office-sec-coords{display:flex;gap:5px;align-items:center}
-.office-sec-coords input{margin-bottom:0!important;flex:1;min-width:0}
-.office-sec-coords .edit-btn{flex:0 0 auto;padding:5px 8px}
-#office-sec-add{width:100%}
 #office-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:3000;display:none;align-items:center;justify-content:center}
 #office-modal.visible{display:flex}
 #office-modal-box{background:#141414;border:1px solid #5f0505;border-radius:8px;width:440px;max-width:94vw;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.9)}
@@ -198,49 +208,65 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
         <span>Zone Editor</span>
         <div id="edit-close" title="Exit edit mode">&#10005;</div>
       </div>
+
       <div id="edit-body">
-        <div id="edit-sel">
-          <div id="edit-sel-name">No zone selected</div>
-          <div id="edit-sel-meta">Click a zone to edit it, or draw a new one.</div>
-          <div id="edit-fields">
-            <label>Name<input id="edit-f-name" type="text" autocomplete="off"/></label>
-            <label>Map number<input id="edit-f-label" type="text" autocomplete="off"/></label>
-            <label>Office<select id="edit-f-office"></select></label>
-            <div id="edit-fill-row">
-              <label>Zone fill<input id="edit-f-fill" type="color"/></label>
-              <button class="edit-btn" id="edit-f-fill-reset" title="Use this office's colour for the fill">Match office</button>
+        <div id="edit-empty">
+          <p>Click a zone on the map to edit it.</p>
+        </div>
+
+        <div id="edit-zone" hidden>
+          <div id="edit-sel">
+            <div id="edit-sel-top">
+              <div>
+                <div id="edit-sel-name">&nbsp;</div>
+                <div id="edit-sel-meta">&nbsp;</div>
+              </div>
+              <div id="edit-deselect" role="button" tabindex="0" title="Deselect (Esc)">&#10005;</div>
+            </div>
+            <div id="edit-fields">
+              <label>Name<input id="edit-f-name" type="text" autocomplete="off"/></label>
+              <div class="edit-field-pair">
+                <label>Number<input id="edit-f-label" type="text" autocomplete="off"/></label>
+                <label>Office<select id="edit-f-office"></select></label>
+              </div>
+              <div class="edit-field-label">Fill</div>
+              <div id="edit-fill-row">
+                <input id="edit-f-fill" type="color" title="Pick any colour"/>
+                <div id="edit-fill-preview" title="How this fill looks on the map"><span>on map</span></div>
+                <button class="edit-btn" id="edit-f-fill-reset" title="Use this office's colour for the fill">Match office</button>
+              </div>
+              <div id="edit-fill-inuse"></div>
+              <div id="edit-fill-note">Map fills are semi&#8209;transparent, so a colour looks softer there than in the picker. Pick from <b>in use</b> to match another zone exactly.</div>
             </div>
           </div>
+          <div class="edit-row">
+            <button class="edit-btn" id="edit-undo" title="Ctrl+Z">&#8630; Undo</button>
+            <button class="edit-btn" id="edit-revert" title="Restore this zone to the published version">&#8635; Revert</button>
+            <button class="edit-btn danger" id="edit-delete" title="Delete this zone">&#128465;</button>
+          </div>
+          <details id="edit-hint">
+            <summary>How to reshape this zone</summary>
+            <p>
+              <b>Drag a white dot</b> to move a corner &middot;
+              <b>drag a faded dot</b> to add a corner &middot;
+              <b>right-click a dot</b> to delete it &middot;
+              <b>drag inside</b> the zone to move the whole shape.
+            </p>
+          </details>
         </div>
-        <div id="edit-hint">
-          <b>Drag a white dot</b> to move a corner &middot;
-          <b>drag a faded dot</b> to add a corner &middot;
-          <b>right-click a dot</b> to delete it &middot;
-          <b>drag inside</b> the zone to move the whole shape.
-        </div>
-        <div class="edit-row">
+
+        <div class="edit-row" id="edit-make-row">
           <button class="edit-btn" id="edit-new">&#43; New zone</button>
-          <button class="edit-btn" id="edit-undo" title="Ctrl+Z">&#8630; Undo</button>
+          <button class="edit-btn" id="edit-offices">&#9632; Offices</button>
         </div>
-        <div class="edit-row">
-          <button class="edit-btn" id="edit-revert" title="Restore this zone to the published version">Revert zone</button>
-          <button class="edit-btn" id="edit-deselect">Deselect</button>
-        </div>
-        <div class="edit-row">
-          <button class="edit-btn danger" id="edit-delete">Delete zone</button>
-        </div>
-        <div class="edit-row">
-          <button class="edit-btn" id="edit-offices">&#9632; Offices &amp; colours</button>
-          <button class="edit-btn" id="edit-office-new">&#43; New office</button>
-        </div>
-        <div id="edit-count"></div>
+      </div>
+
+      <div id="edit-foot">
+        <div id="edit-note"></div>
         <div class="edit-row">
           <button class="edit-btn primary" id="edit-save">&#10003; Save to GitHub</button>
+          <button class="edit-btn danger" id="edit-discard" title="Throw away every unsaved change in this browser">&#9003;</button>
         </div>
-        <div class="edit-row">
-          <button class="edit-btn danger" id="edit-discard" title="Throw away every unsaved change in this browser">Discard all changes</button>
-        </div>
-        <div id="edit-status"></div>
       </div>
     </div>
     <div id="edit-pin-bar">
@@ -917,7 +943,7 @@ const zoneBaseline = new Map();  // zone object -> its state as published in thi
 const editState = {
   on: false, selected: null, dirty: new Set(), deleted: new Map(),
   undo: [], lastSnap: 0, suspend: false, newSeq: 0, drawing: null, pass: null, token: null,
-  officesDirty: false, officeFormCode: null, placingPin: null, officeSecondaries: [],
+  officesDirty: false, officeFormCode: null, placingPin: null, officeSecondaries: [], msg: '',
 };
 
 async function zoneEditorHash(text) {
@@ -931,7 +957,9 @@ function initEditor() {
   document.getElementById('edit-new').onclick = startDrawingZone;
   document.getElementById('edit-draw-cancel').onclick = cancelDrawingZone;
   document.getElementById('edit-revert').onclick = revertSelectedZone;
-  document.getElementById('edit-deselect').onclick = () => selectZoneForEdit(null);
+  const deselect = document.getElementById('edit-deselect');
+  deselect.onclick = () => selectZoneForEdit(null);
+  deselect.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectZoneForEdit(null); } };
   document.getElementById('edit-delete').onclick = deleteSelectedZone;
   document.getElementById('edit-save').onclick = saveToGitHub;
   document.getElementById('edit-discard').onclick = discardAllEdits;
@@ -939,7 +967,6 @@ function initEditor() {
   document.getElementById('edit-token-cancel').onclick = closeTokenModal;
   document.getElementById('edit-token-forget').onclick = forgetToken;
   document.getElementById('edit-offices').onclick = openOfficeModal;
-  document.getElementById('edit-office-new').onclick = () => { openOfficeModal(); openOfficeForm(null); };
   document.getElementById('office-modal-close').onclick = closeOfficeModal;
   document.getElementById('office-add').onclick = () => openOfficeForm(null);
   document.getElementById('office-form-save').onclick = submitOfficeForm;
@@ -1030,6 +1057,7 @@ function selectZoneForEdit(poly) {
     restyleZonePoly(prev);
   }
   editState.selected = poly || null;
+  editState.msg = '';
   if (poly) {
     poly.setOptions({
       editable: true, draggable: true,
@@ -1112,6 +1140,51 @@ function applyZoneFields() {
 // null clears the override so the zone follows its office again.
 function setZoneFill(z, fill) {
   if (fill) z.fill = fill; else delete z.fill;
+}
+
+// Fills are drawn at 32% over the map's landscape colour, so the picker's
+// swatch never matches what you see. These composite it the same way.
+const MAP_GROUND = [0x24, 0x24, 0x33];
+const FILL_ALPHA = 0.32;
+
+function asMapColour(hex) {
+  const h = normaliseHex(hex);
+  const rgb = [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16));
+  const out = rgb.map((c, i) => Math.round(c * FILL_ALPHA + MAP_GROUND[i] * (1 - FILL_ALPHA)));
+  return 'rgb(' + out.join(',') + ')';
+}
+
+// Every colour already on the map, so a zone can be matched exactly rather
+// than eyedropped (which would sample the see-through version).
+function coloursInUse(z) {
+  const seen = new Map();
+  const add = (hex, label) => {
+    const key = normaliseHex(hex);
+    if (!seen.has(key)) seen.set(key, label);
+  };
+  add(getOfficeColor(z.office), getOfficeName(z.office) + ' (this office)');
+  ZONES.forEach(zz => { if (zz.fill) add(zz.fill, zz.name); });
+  Object.keys(OFFICES).forEach(c => add(getOfficeColor(c), getOfficeName(c)));
+  return [...seen.entries()].slice(0, 18);
+}
+
+function renderFillControls(z) {
+  const current = normaliseHex(zoneFill(z));
+  document.getElementById('edit-f-fill').value = current;
+  const preview = document.getElementById('edit-fill-preview');
+  preview.style.background = asMapColour(current);
+  document.getElementById('edit-f-fill-reset').disabled = !z.fill;
+
+  const wrap = document.getElementById('edit-fill-inuse');
+  wrap.innerHTML = '';
+  coloursInUse(z).forEach(([hex, label]) => {
+    const chip = document.createElement('button');
+    chip.className = 'fill-chip' + (hex === current ? ' on' : '');
+    chip.style.background = asMapColour(hex);
+    chip.title = label + ' \u2014 ' + hex + ' (as it looks on the map)';
+    chip.onclick = () => applyZoneFill(hex);
+    wrap.appendChild(chip);
+  });
 }
 
 function applyZoneFill(fill) {
@@ -2019,9 +2092,19 @@ function cancelPinPlacement() {
 
 /* ---- panel ---- */
 
+// A single line carries either the latest message or the unsaved count.
 function setEditStatus(html) {
-  const el = document.getElementById('edit-status');
-  if (el) el.innerHTML = html;
+  editState.msg = html;
+  renderEditNote();
+}
+
+function renderEditNote() {
+  const el = document.getElementById('edit-note');
+  if (!el) return;
+  if (editState.msg) { el.innerHTML = editState.msg; return; }
+  el.innerHTML = hasUnsavedChanges()
+    ? '<b>' + changeSummary() + ' changed</b> &middot; drafted in this browser until you save.'
+    : 'No unsaved changes.';
 }
 
 function refreshSidebarCounts() {
@@ -2035,34 +2118,28 @@ function refreshEditPanel() {
   if (!editState.on) return;
   const poly = editState.selected;
   const z = poly ? poly._zone : null;
-  ['edit-deselect', 'edit-delete'].forEach(id => { document.getElementById(id).disabled = !poly; });
-  document.getElementById('edit-revert').disabled = !poly || !zoneBaseline.has(z);
-  document.getElementById('edit-undo').disabled = !editState.undo.length;
+
+  // The panel shows one of two states, so nothing sits around disabled.
+  document.getElementById('edit-empty').hidden = !!z;
+  document.getElementById('edit-zone').hidden = !z;
   document.getElementById('edit-new').disabled = !!editState.drawing;
 
   if (z) {
-    document.getElementById('edit-fields').style.display = 'block';
+    document.getElementById('edit-undo').disabled = !editState.undo.length;
+    document.getElementById('edit-revert').disabled = !zoneBaseline.has(z);
     document.getElementById('edit-sel-name').textContent = z.name;
     document.getElementById('edit-sel-name').style.color = getOfficeColor(z.office);
-    document.getElementById('edit-sel-meta').textContent = getOfficeName(z.office) + ' · ' + Math.max(0, z.coords.length - 1) + ' corners';
+    document.getElementById('edit-sel-meta').textContent =
+      getOfficeName(z.office) + ' \u00b7 ' + Math.max(0, z.coords.length - 1) + ' corners';
     document.getElementById('edit-f-name').value = z.name;
     document.getElementById('edit-f-label').value = z.label == null ? '' : z.label;
     document.getElementById('edit-f-office').value = z.office;
-    document.getElementById('edit-f-fill').value = normaliseHex(zoneFill(z));
-    document.getElementById('edit-f-fill-reset').disabled = !z.fill;
-  } else {
-    document.getElementById('edit-fields').style.display = 'none';
-    document.getElementById('edit-sel-name').textContent = 'No zone selected';
-    document.getElementById('edit-sel-name').style.color = '#fff';
-    document.getElementById('edit-sel-meta').textContent = 'Click a zone to edit it, or draw a new one.';
+    renderFillControls(z);
   }
 
   document.getElementById('edit-save').disabled = !hasUnsavedChanges();
   document.getElementById('edit-discard').disabled = !hasUnsavedChanges();
-  // Kept separate from #edit-status so a refresh never wipes a message.
-  document.getElementById('edit-count').innerHTML = hasUnsavedChanges()
-    ? '<b>' + changeSummary() + ' changed</b> &middot; drafted in this browser until you save.'
-    : 'No unsaved changes.';
+  renderEditNote();
 }
 </script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjgM2rBWy-8T9_hwXrEcILWlk3q9O6cFI&libraries=drawing&callback=initMap"></script>
