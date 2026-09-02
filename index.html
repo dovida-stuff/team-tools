@@ -127,10 +127,10 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
 #edit-modal-box .edit-modal-help{color:#777;border-left:2px solid #5f0505;padding-left:9px}
 #edit-modal-box b{color:#ccc}
 #edit-modal-box a{color:#7fb3ff}
-#edit-token-input{width:100%;background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:8px 10px;font-size:11px;color:#ddd;font-family:monospace;outline:none;margin-bottom:9px}
-#edit-token-input:focus{border-color:#5f0505}
-#edit-token-remember-row{display:flex;align-items:center;gap:7px;font-size:10px;color:#999;margin-bottom:12px;cursor:pointer}
-#edit-token-remember-row input{cursor:pointer}
+#edit-pw-input{width:100%;background:#1e1e1e;border:1px solid #333;border-radius:4px;padding:8px 10px;font-size:11px;color:#ddd;font-family:Verdana,sans-serif;outline:none;margin-bottom:9px}
+#edit-pw-input:focus{border-color:#5f0505}
+#edit-pw-remember-row{display:flex;align-items:center;gap:7px;font-size:10px;color:#999;margin-bottom:12px;cursor:pointer}
+#edit-pw-remember-row input{cursor:pointer}
 #office-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:3000;display:none;align-items:center;justify-content:center}
 #office-modal.visible{display:flex}
 #office-modal-box{background:#141414;border:1px solid #5f0505;border-radius:8px;width:440px;max-width:94vw;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.9)}
@@ -328,23 +328,21 @@ body{font-family:'Verdana',sans-serif;background:#1a1a1a;color:#fff;height:100vh
     </div>
     <div id="edit-modal">
       <div id="edit-modal-box">
-        <h3>GitHub token</h3>
-        <p id="edit-token-why"></p>
+        <h3>Save password</h3>
+        <p id="edit-pw-why"></p>
         <p class="edit-modal-help">
-          Create a <b>fine-grained personal access token</b> at
-          <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens</a>,
-          limited to the <b>team-tools</b> repository only, with
-          <b>Repository permissions &rarr; Contents: Read and write</b>. Give it a short expiry.
+          Ask whoever looks after the map for the shared save password. It is
+          not your GitHub password, and you do not need a GitHub account.
         </p>
-        <input id="edit-token-input" type="password" placeholder="github_pat_..." autocomplete="off"/>
-        <label id="edit-token-remember-row">
-          <input id="edit-token-remember" type="checkbox" checked/>
+        <input id="edit-pw-input" type="password" placeholder="Save password" autocomplete="off"/>
+        <label id="edit-pw-remember-row">
+          <input id="edit-pw-remember" type="checkbox" checked/>
           Remember on this device (encrypted with your passphrase)
         </label>
         <div class="edit-row">
-          <button class="edit-btn primary" id="edit-token-save">Use this token</button>
-          <button class="edit-btn" id="edit-token-cancel">Cancel</button>
-          <button class="edit-btn danger" id="edit-token-forget">Forget</button>
+          <button class="edit-btn primary" id="edit-pw-save">Use this password</button>
+          <button class="edit-btn" id="edit-pw-cancel">Cancel</button>
+          <button class="edit-btn danger" id="edit-pw-forget">Forget</button>
         </div>
       </div>
     </div>
@@ -948,17 +946,18 @@ function buildSidebar() {
 
 const EDIT_PASS_HASH = '83a81978ac1673b0ca6b531bf27387819864eb59f61d9bcf4aec398171fae7e2';
 const DRAFT_KEY = 'dovida-map-zone-draft-v2';
-const TOKEN_KEY = 'dovida-map-gh-token-v1';
-const REPO = { owner: 'dovida-stuff', repo: 'team-tools', path: 'index.html', branch: 'main' };
+const PASS_KEY = 'dovida-map-save-pass-v1';
+// Cloudflare Worker that holds the GitHub token. See worker/save-worker.js.
+const SAVE_ENDPOINT = 'https://doivda-map-save.danielstwalker.workers.dev';
 
 const zoneRefs = new Map();      // zone object -> { poly, lbl }
 const zoneKey = new Map();       // zone object -> stable key used by the draft
 const zoneBaseline = new Map();  // zone object -> its state as published in this file
 const editState = {
   on: false, selected: null, dirty: new Set(), deleted: new Map(),
-  undo: [], lastSnap: 0, suspend: false, newSeq: 0, drawing: null, pass: null, token: null,
+  undo: [], lastSnap: 0, suspend: false, newSeq: 0, drawing: null, pass: null, savePassword: null,
   officesDirty: false, officeFormCode: null, placingPin: null, pinPick: null, officeSecondaries: [], msg: '',
-  pendingDraft: null, publishedZones: '', publishedOffices: '',
+  pendingDraft: null, publishedZones: '', publishedOffices: '', publishedStates: '',
 };
 
 async function zoneEditorHash(text) {
@@ -980,9 +979,10 @@ function initEditor() {
   document.getElementById('edit-discard').onclick = discardAllEdits;
   document.getElementById('edit-draft-restore').onclick = restoreDraft;
   document.getElementById('edit-draft-discard').onclick = discardPendingDraft;
-  document.getElementById('edit-token-save').onclick = submitToken;
-  document.getElementById('edit-token-cancel').onclick = closeTokenModal;
-  document.getElementById('edit-token-forget').onclick = forgetToken;
+  document.getElementById('edit-pw-save').onclick = submitPassword;
+  document.getElementById('edit-pw-cancel').onclick = closePasswordModal;
+  document.getElementById('edit-pw-forget').onclick = forgetPassword;
+  document.getElementById('edit-pw-input').onkeydown = e => { if (e.key === 'Enter') submitPassword(); };
   document.getElementById('edit-offices').onclick = openOfficeModal;
   document.getElementById('office-modal-close').onclick = closeOfficeModal;
   document.getElementById('office-add').onclick = () => openOfficeForm(null);
@@ -1039,11 +1039,10 @@ function enterEditMode() {
   buildOfficeSelect();
   document.getElementById('edit-panel').classList.add('visible');
   document.getElementById('edit-badge').classList.add('visible');
-  // What the file held when this page loaded, to spot someone else saving.
-  editState.publishedZones = JSON.stringify(ZONES);
-  editState.publishedOffices = JSON.stringify(OFFICES) + JSON.stringify(STATE_GROUPS);
+  // What the file held when this page loaded, so the Worker can spot a stale save.
+  markPublishedState();
   offerDraft();
-  loadStoredToken();
+  loadStoredPassword();
   refreshEditPanel();
 }
 
@@ -1054,7 +1053,7 @@ function exitEditMode() {
   selectZoneForEdit(null);
   editState.on = false;
   editState.pass = null;
-  editState.token = null;
+  editState.savePassword = null;
   document.getElementById('edit-panel').classList.remove('visible');
   document.getElementById('edit-badge').classList.remove('visible');
   history.replaceState(null, '', location.pathname);
@@ -1647,20 +1646,6 @@ function zonesToJson() {
   return JSON.stringify(ZONES, (key, value) => (typeof value === 'number' ? round7(value) : value));
 }
 
-function rebuildHtml(sourceHtml) {
-  const lines = [
-    [/^const ZONES=.*$/m, () => 'const ZONES=' + zonesToJson() + ';'],
-    [/^const OFFICES=.*$/m, () => 'const OFFICES=' + JSON.stringify(OFFICES) + ';'],
-    [/^const STATE_GROUPS=.*$/m, () => 'const STATE_GROUPS=' + JSON.stringify(STATE_GROUPS) + ';'],
-  ];
-  let out = sourceHtml;
-  for (const [re, build] of lines) {
-    if (!re.test(out)) return null;
-    out = out.replace(re, build);
-  }
-  return out;
-}
-
 function hasUnsavedChanges() { return editState.dirty.size > 0 || editState.officesDirty; }
 
 function changeSummary() {
@@ -1670,131 +1655,77 @@ function changeSummary() {
   return bits.join(' and ');
 }
 
-/* ---- saving straight to GitHub ---- */
-
-function b64(text) {
-  const bytes = new TextEncoder().encode(text);
-  let s = '';
-  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-  return btoa(s);
-}
-
-async function gh(path, options) {
-  const opts = options || {};
-  const res = await fetch('https://api.github.com' + path, {
-    method: opts.method || 'GET',
-    body: opts.body,
-    headers: {
-      Authorization: 'Bearer ' + editState.token,
-      Accept: opts.accept || 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-    },
-  });
-  if (!res.ok) {
-    let detail = res.status + ' ' + res.statusText;
-    try { const j = await res.json(); if (j.message) detail = j.message; } catch (err) {}
-    throw new Error(detail);
-  }
-  return res;
-}
-
-// Saving replaces the whole zone and office data, so if the repo moved on
-// since this page loaded, saving would wipe whatever changed. Check first.
-function confirmNoOneElseSaved(source) {
-  const grab = (name) => {
-    const m = source.match(new RegExp('^const ' + name + '=(.*);$', 'm'));
-    if (!m) return null;
-    try { return JSON.stringify(JSON.parse(m[1])); } catch (err) { return null; }
-  };
-  const repoZones = grab('ZONES');
-  const repoOffices = grab('OFFICES');
-  const repoStates = grab('STATE_GROUPS');
-  if (repoZones === null || repoOffices === null || repoStates === null) return true;
-
-  const zonesMoved = repoZones !== editState.publishedZones;
-  const officesMoved = (repoOffices + repoStates) !== editState.publishedOffices;
-  if (!zonesMoved && !officesMoved) return true;
-
-  const what = zonesMoved && officesMoved ? 'zones and offices'
-    : zonesMoved ? 'zones' : 'offices';
-  return window.confirm(
-    'The published map has changed since this page was opened - its ' + what + ' no longer match.\n\n'
-    + 'Someone else may have saved, or this page was loaded from an older cached copy.\n\n'
-    + 'Saving now replaces their version with yours.\n\n'
-    + 'Cancel to reload first (your unsaved changes are kept and offered back), or OK to save anyway.');
-}
+/* ---- saving, via the Worker that holds the GitHub token ---- */
 
 async function saveToGitHub() {
   if (!hasUnsavedChanges()) { setEditStatus('Nothing to save.'); return; }
-  if (!editState.token) { openTokenModal(true); return; }
+  if (!editState.savePassword) { openPasswordModal(true); return; }
+
   const btn = document.getElementById('edit-save');
   btn.disabled = true;
-  const base = '/repos/' + REPO.owner + '/' + REPO.repo;
+  setEditStatus('Saving&hellip;');
   try {
-    setEditStatus('Reading the published file from GitHub...');
-    const cur = await gh(base + '/contents/' + REPO.path + '?ref=' + REPO.branch, { accept: 'application/vnd.github.raw' });
-    const source = await cur.text();
-    if (!confirmNoOneElseSaved(source)) {
-      setEditStatus('Save cancelled &middot; nothing was changed on GitHub.');
-      return;
-    }
-    const html = rebuildHtml(source);
-    if (!html) throw new Error('could not find the ZONES data line in the repo copy of ' + REPO.path);
-
-    setEditStatus('Uploading...');
-    const headSha = (await (await gh(base + '/git/ref/heads/' + REPO.branch)).json()).object.sha;
-    const treeSha = (await (await gh(base + '/git/commits/' + headSha)).json()).tree.sha;
-
-    const blobSha = (await (await gh(base + '/git/blobs', {
-      method: 'POST', body: JSON.stringify({ content: b64(html), encoding: 'base64' }),
-    })).json()).sha;
-
-    const newTreeSha = (await (await gh(base + '/git/trees', {
+    const res = await fetch(SAVE_ENDPOINT, {
       method: 'POST',
-      body: JSON.stringify({ base_tree: treeSha, tree: [{ path: REPO.path, mode: '100644', type: 'blob', sha: blobSha }] }),
-    })).json()).sha;
-
-    const newCommit = await (await gh(base + '/git/commits', {
-      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        message: 'Update ' + changeSummary() + ' from the map editor',
-        tree: newTreeSha, parents: [headSha],
+        password: editState.savePassword,
+        zones: JSON.parse(zonesToJson()),
+        offices: OFFICES,
+        states: STATE_GROUPS,
+        // What this page loaded, so the Worker can refuse a stale save.
+        basedOn: {
+          zones: editState.publishedZones,
+          offices: editState.publishedOffices,
+          states: editState.publishedStates,
+        },
+        summary: changeSummary(),
       }),
-    })).json();
-
-    await gh(base + '/git/refs/heads/' + REPO.branch, {
-      method: 'PATCH', body: JSON.stringify({ sha: newCommit.sha, force: false }),
     });
 
-    // Published, so this becomes the new "revert to" baseline.
+    let data = {};
+    try { data = await res.json(); } catch (err) {}
+
+    if (res.status === 401) {
+      editState.savePassword = null;
+      try { localStorage.removeItem(PASS_KEY); } catch (err) {}
+      setEditStatus('<b>That password was refused.</b> Enter the current one &mdash; your changes are safe.');
+      openPasswordModal(true);
+      return;
+    }
+    if (res.status === 409) {
+      setEditStatus('<b>' + escapeHtml(data.message || 'The published map changed since this page loaded. Nothing was saved.')
+        + '</b> Reload the page &mdash; your changes are kept and offered back &mdash; then redo anything that clashes.');
+      return;
+    }
+    if (!res.ok) throw new Error(data.error || data.message || (res.status + ' ' + res.statusText));
+
+    // Published, so this page is the current version again.
     editState.dirty.clear();
     editState.deleted.clear();
     editState.officesDirty = false;
-    editState.publishedZones = JSON.stringify(ZONES);
-    editState.publishedOffices = JSON.stringify(OFFICES) + JSON.stringify(STATE_GROUPS);
+    markPublishedState();
     ZONES.forEach(z => zoneBaseline.set(z, snapshotOf(z)));
     try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
     refreshEditPanel();
-    const url = 'https://github.com/' + REPO.owner + '/' + REPO.repo + '/commit/' + newCommit.sha;
-    setEditStatus('<b>Saved.</b> <a href="' + url + '" target="_blank" rel="noopener">Commit ' + newCommit.sha.slice(0, 7) + '</a> &middot; the live map updates in about a minute.');
+    setEditStatus('<b>Saved.</b> <a href="' + escapeHtml(data.url || '#') + '" target="_blank" rel="noopener">Commit '
+      + escapeHtml(String(data.sha || '').slice(0, 7)) + '</a> &middot; the live map updates in about a minute.');
   } catch (err) {
-    const msg = String(err.message || err);
-    // Tokens expire. With no "set token" button left, a rejected token has to
-    // re-prompt here or there would be no way back in.
-    if (/credential|401|403|not accessible|Not Found|Requires authentication/i.test(msg)) {
-      editState.token = null;
-      try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
-      setEditStatus('<b>GitHub rejected that token</b> (' + msg + '). It may have expired. Enter a current one to save &mdash; your changes are safe.');
-      openTokenModal(true);
-    } else {
-      setEditStatus('<b>Save failed:</b> ' + msg);
-    }
+    setEditStatus('<b>Save failed:</b> ' + escapeHtml(String(err.message || err))
+      + ' &middot; your changes are still here.');
   } finally {
     btn.disabled = false;
   }
 }
 
-/* ---- token, encrypted with the passphrase ---- */
+// The zones, offices and states exactly as the published file holds them.
+function markPublishedState() {
+  editState.publishedZones = JSON.stringify(ZONES);
+  editState.publishedOffices = JSON.stringify(OFFICES);
+  editState.publishedStates = JSON.stringify(STATE_GROUPS);
+}
+
+/* ---- the save password, encrypted with the editor passphrase ---- */
 
 async function passKey(pass, salt) {
   const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
@@ -1805,62 +1736,61 @@ async function passKey(pass, salt) {
 const toB64 = a => btoa(String.fromCharCode(...new Uint8Array(a)));
 const fromB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 
-async function encryptToken(token, pass) {
+async function encryptSecret(text, pass) {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const key = await passKey(pass, salt);
-  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(token));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(text));
   return JSON.stringify({ s: toB64(salt), i: toB64(iv), c: toB64(ct) });
 }
 
-async function decryptToken(blob, pass) {
+async function decryptSecret(blob, pass) {
   const o = JSON.parse(blob);
   const key = await passKey(pass, fromB64(o.s));
   const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(o.i) }, key, fromB64(o.c));
   return new TextDecoder().decode(pt);
 }
 
-async function loadStoredToken() {
+async function loadStoredPassword() {
   let blob = null;
-  try { blob = localStorage.getItem(TOKEN_KEY); } catch (err) {}
+  try { blob = localStorage.getItem(PASS_KEY); } catch (err) {}
   if (!blob) return;
-  try { editState.token = await decryptToken(blob, editState.pass); } catch (err) { editState.token = null; }
+  try { editState.savePassword = await decryptSecret(blob, editState.pass); } catch (err) { editState.savePassword = null; }
   refreshEditPanel();
 }
 
-function openTokenModal(becauseSaving) {
+function openPasswordModal(becauseSaving) {
   document.getElementById('edit-modal').classList.add('visible');
-  document.getElementById('edit-token-input').value = '';
-  document.getElementById('edit-token-why').textContent = becauseSaving
-    ? 'Saving needs a GitHub token that can commit to ' + REPO.owner + '/' + REPO.repo + '.'
-    : 'The token lets this page commit straight to ' + REPO.owner + '/' + REPO.repo + '.';
-  document.getElementById('edit-token-input').focus();
+  document.getElementById('edit-pw-input').value = '';
+  document.getElementById('edit-pw-why').textContent = becauseSaving
+    ? 'Saving needs the shared save password.'
+    : 'The save password lets this browser publish changes.';
+  document.getElementById('edit-pw-input').focus();
 }
 
-function closeTokenModal() { document.getElementById('edit-modal').classList.remove('visible'); }
+function closePasswordModal() { document.getElementById('edit-modal').classList.remove('visible'); }
 
-async function submitToken() {
-  const token = document.getElementById('edit-token-input').value.trim();
-  if (!token) return;
-  editState.token = token;
-  if (document.getElementById('edit-token-remember').checked) {
-    try { localStorage.setItem(TOKEN_KEY, await encryptToken(token, editState.pass)); } catch (err) {}
+async function submitPassword() {
+  const pw = document.getElementById('edit-pw-input').value;
+  if (!pw) return;
+  editState.savePassword = pw;
+  if (document.getElementById('edit-pw-remember').checked) {
+    try { localStorage.setItem(PASS_KEY, await encryptSecret(pw, editState.pass)); } catch (err) {}
   } else {
-    try { localStorage.removeItem(TOKEN_KEY); } catch (err) {}
+    try { localStorage.removeItem(PASS_KEY); } catch (err) {}
   }
-  closeTokenModal();
+  closePasswordModal();
   refreshEditPanel();
-  setEditStatus('Token set. Press <b>Save to GitHub</b> to publish.');
+  setEditStatus('Password set. Press <b>Save to GitHub</b> to publish.');
 }
 
-function forgetToken() {
-  editState.token = null;
-  try { localStorage.removeItem(TOKEN_KEY); } catch (err) {}
-  closeTokenModal();
+function forgetPassword() {
+  editState.savePassword = null;
+  try { localStorage.removeItem(PASS_KEY); } catch (err) {}
+  closePasswordModal();
   refreshEditPanel();
-  setEditStatus('Token forgotten on this device.');
+  setEditStatus('The save password was forgotten on this device.');
 }
-
 
 /* ---- offices: colours, details, and adding new ones ---- */
 
