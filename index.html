@@ -1450,7 +1450,7 @@ function refreshZoneLabel(z) {
   if (!ref || !z.coords || z.coords.length < 3) return;
   const pole = poleOfInaccessibility(z.coords);
   z.labelPos = [round7(pole.lat), round7(pole.lng)];
-  z.labelSize = pole.dist;
+  z.labelSize = round7(pole.dist);
   if (!ref.lbl) return;
   ref.lbl.setPosition({ lat: z.labelPos[0], lng: z.labelPos[1] });
   ref.lbl.setOptions({
@@ -1664,15 +1664,18 @@ async function saveToGitHub() {
   const btn = document.getElementById('edit-save');
   btn.disabled = true;
   setEditStatus('Saving&hellip;');
+  // Captured once so the fingerprint kept afterwards is exactly what the
+  // Worker committed, whatever rounding the payload applied.
+  const sending = { zones: JSON.parse(zonesToJson()), offices: OFFICES, states: STATE_GROUPS };
   try {
     const res = await fetch(SAVE_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         password: editState.savePassword,
-        zones: JSON.parse(zonesToJson()),
-        offices: OFFICES,
-        states: STATE_GROUPS,
+        zones: sending.zones,
+        offices: sending.offices,
+        states: sending.states,
         // What this page loaded, so the Worker can refuse a stale save.
         basedOn: {
           zones: editState.publishedZones,
@@ -1704,7 +1707,9 @@ async function saveToGitHub() {
     editState.dirty.clear();
     editState.deleted.clear();
     editState.officesDirty = false;
-    markPublishedState();
+    editState.publishedZones = JSON.stringify(sending.zones);
+    editState.publishedOffices = JSON.stringify(sending.offices);
+    editState.publishedStates = JSON.stringify(sending.states);
     ZONES.forEach(z => zoneBaseline.set(z, snapshotOf(z)));
     try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
     refreshEditPanel();
