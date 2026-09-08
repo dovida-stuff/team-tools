@@ -373,6 +373,14 @@ ZONES.forEach(z => {
 
 function getOfficeColor(code) { return OFFICES[code] ? OFFICES[code].color : (code === 'BRNW' ? BRNW_COLOR : '#888'); }
 function getOfficeName(code)  { return OFFICES[code] ? OFFICES[code].name  : (code === 'BRNW' ? BRNW_NAME  : code); }
+
+// Map data is edited by people and published verbatim, so every place that
+// builds HTML from it escapes text and only ever emits a #rrggbb colour.
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function safeColour(c) { return normaliseHex(c); }
 function getStateForOffice(code) {
   for (const [s, codes] of Object.entries(STATE_GROUPS)) if (codes.includes(code)) return s;
   return null;
@@ -548,6 +556,7 @@ function createZonePoly(z, code, highlight) {
 
 // Pin artwork, split out so a recoloured or newly added office can rebuild it.
 function officePinIcon(color) {
+  color = safeColour(color);
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">' +
     '<path d="M14 0C6.27 0 0 6.27 0 14c0 9.75 14 22 14 22S28 23.75 28 14C28 6.27 21.73 0 14 0z" fill="' + color + '" stroke="#fff" stroke-width="2"/>' +
     '<circle cx="14" cy="14" r="5" fill="rgba(255,255,255,0.9)"/></svg>';
@@ -559,6 +568,7 @@ function officePinIcon(color) {
 }
 
 function secondaryPinIcon(color) {
+  color = safeColour(color);
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="28" viewBox="0 0 28 36">' +
     '<path d="M14 0C6.27 0 0 6.27 0 14c0 9.75 14 22 14 22S28 23.75 28 14C28 6.27 21.73 0 14 0z" fill="' + color + '" stroke="#fff" stroke-width="2.5"/>' +
     '<circle cx="14" cy="14" r="6" fill="#1a1a1a"/>' +
@@ -605,8 +615,8 @@ function createOfficeMarker(code) {
 
     const iw = new google.maps.InfoWindow({
       content: '<div style="font-family:Verdana,sans-serif;padding:4px;min-width:160px;">' +
-        '<div style="font-size:12px;font-weight:bold;color:' + off.color + ';margin-bottom:2px;">' + off.name + '</div>' +
-        '<div style="font-size:10px;color:#555;">' + off.address + '</div></div>'
+        '<div style="font-size:12px;font-weight:bold;color:' + safeColour(off.color) + ';margin-bottom:2px;">' + escapeHtml(off.name) + '</div>' +
+        '<div style="font-size:10px;color:#555;">' + escapeHtml(off.address) + '</div></div>'
     });
     marker.addListener('mouseover', () => iw.open(map, marker));
     marker.addListener('mouseout', () => iw.close());
@@ -634,9 +644,9 @@ function createOfficeMarker(code) {
 
         const secIw = new google.maps.InfoWindow({
           content: '<div style="font-family:Verdana,sans-serif;padding:4px;min-width:160px;">' +
-            '<div style="font-size:11px;font-weight:bold;color:' + off.color + ';margin-bottom:2px;">' + off.name + '</div>' +
-            '<div style="font-size:10px;color:#888;margin-bottom:3px;font-style:italic;">' + (sec.label || 'Satellite location') + '</div>' +
-            '<div style="font-size:10px;color:#555;">' + sec.address + '</div></div>'
+            '<div style="font-size:11px;font-weight:bold;color:' + safeColour(off.color) + ';margin-bottom:2px;">' + escapeHtml(off.name) + '</div>' +
+            '<div style="font-size:10px;color:#888;margin-bottom:3px;font-style:italic;">' + escapeHtml(sec.label || 'Satellite location') + '</div>' +
+            '<div style="font-size:10px;color:#555;">' + escapeHtml(sec.address) + '</div></div>'
         });
         secMarker.addListener('mouseover', () => secIw.open(map, secMarker));
         secMarker.addListener('mouseout', () => secIw.close());
@@ -813,9 +823,9 @@ function setupSearch() {
       const div = document.createElement('div');
       div.className = 'search-result';
       div.innerHTML =
-        '<div class="search-result-name">' + m.name +
-        ' <span style="color:#666;font-size:9px;font-weight:normal">' + meta + '</span></div>' +
-        '<div class="search-result-meta" style="color:' + officeColor + '">' + officeText + '</div>';
+        '<div class="search-result-name">' + escapeHtml(m.name) +
+        ' <span style="color:#666;font-size:9px;font-weight:normal">' + escapeHtml(meta) + '</span></div>' +
+        '<div class="search-result-meta" style="color:' + safeColour(officeColor) + '">' + escapeHtml(officeText) + '</div>';
       div.onclick = () => {
         goToLocation(m, hit);
         input.value = m.name + (m.state ? ', ' + m.state : '');
@@ -920,7 +930,7 @@ function buildSidebar() {
       item.className = 'office-item';
       item.dataset.code = code;
       item.style.setProperty('--oc', color);
-      item.innerHTML = '<div class="office-dot" style="background:' + color + '"></div><div class="office-name">' + name + '</div><div class="zone-count">' + count + '</div>';
+      item.innerHTML = '<div class="office-dot" style="background:' + safeColour(color) + '"></div><div class="office-name">' + escapeHtml(name) + '</div><div class="zone-count">' + count + '</div>';
       item.onclick = () => { setActiveOffice(code); showInfo(code, ''); zoomToOffice(code); };
       item.style.opacity = stateVisible[state] === false ? '0.35' : '1';
       stateDiv.appendChild(item);
@@ -935,13 +945,16 @@ function buildSidebar() {
    Hidden for ordinary visitors: the UI only appears if the URL ends in #edit
    AND the passphrase below is entered.
 
-   Saving commits this file straight back to the GitHub repo using a personal
-   access token you supply. The token is held only in your browser, encrypted
-   with your passphrase, so nobody who lacks both can publish a change.
+   Saving posts the map data to the Cloudflare Worker in worker/save-worker.js,
+   which holds the GitHub token and checks the shared save password. The
+   passphrase below only reveals the editor UI and encrypts the remembered
+   save password on this device; it is not what protects the repo. Anyone can
+   read this file, so treat the passphrase as a convenience gate, not a secret.
 
    To change the passphrase: open the browser console on this page, run
        zoneEditorHash('your new passphrase')
-   and paste the result over EDIT_PASS_HASH below.
+   and paste the result over EDIT_PASS_HASH below. To change the save
+   password, update EDIT_PASSWORD on the Worker (see worker/README.md).
    ========================================================================= */
 
 const EDIT_PASS_HASH = '83a81978ac1673b0ca6b531bf27387819864eb59f61d9bcf4aec398171fae7e2';
@@ -1131,7 +1144,7 @@ function wireZoneEditEvents(poly) {
 function buildOfficeSelect() {
   const codes = [];
   Object.entries(STATE_GROUPS).forEach(([state, list]) => list.forEach(c => codes.push([state, c])));
-  const html = codes.map(([state, c]) => '<option value="' + c + '">' + getOfficeName(c) + ' (' + state + ')</option>').join('');
+  const html = codes.map(([state, c]) => '<option value="' + escapeHtml(c) + '">' + escapeHtml(getOfficeName(c) + ' (' + state + ')') + '</option>').join('');
   document.getElementById('edit-f-office').innerHTML = html;
   document.getElementById('edit-draw-office').innerHTML = html;
 }
@@ -1318,7 +1331,7 @@ function finishNewZone(coords, code) {
   saveDraft();
   refreshSidebarCounts();
   if (ref && ref.poly) selectZoneForEdit(ref.poly);
-  setEditStatus('Created <b>' + z.name + '</b>. Rename it or change its office above if needed.');
+  setEditStatus('Created <b>' + escapeHtml(z.name) + '</b>. Rename it or change its office above if needed.');
 }
 
 /* ---- change tracking ---- */
@@ -1402,7 +1415,7 @@ function revertSelectedZone() {
   saveDraft();
   refreshSidebarCounts();
   refreshEditPanel();
-  setEditStatus(z.name + ' restored to the published version.');
+  setEditStatus(escapeHtml(z.name) + ' restored to the published version.');
 }
 
 function discardAllEdits() {
@@ -1440,7 +1453,7 @@ function deleteSelectedZone() {
   saveDraft();
   refreshSidebarCounts();
   refreshEditPanel();
-  setEditStatus('Deleted ' + z.name + '.');
+  setEditStatus('Deleted ' + escapeHtml(z.name) + '.');
 }
 
 /* ---- labels follow the shape ---- */
@@ -1666,7 +1679,7 @@ async function saveToGitHub() {
   setEditStatus('Saving&hellip;');
   // Captured once so the fingerprint kept afterwards is exactly what the
   // Worker committed, whatever rounding the payload applied.
-  const sending = { zones: JSON.parse(zonesToJson()), offices: OFFICES, states: STATE_GROUPS };
+  const sending = { zones: JSON.parse(zonesToJson()), offices: JSON.parse(JSON.stringify(OFFICES)), states: JSON.parse(JSON.stringify(STATE_GROUPS)) };
   try {
     const res = await fetch(SAVE_ENDPOINT, {
       method: 'POST',
@@ -1890,11 +1903,6 @@ function normaliseHex(c) {
   return /^#[0-9a-fA-F]{6}$/.test(h) ? h.toLowerCase() : '#888888';
 }
 
-function escapeHtml(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-
 /* ---- add / edit one office ---- */
 
 function openOfficeForm(code) {
@@ -1917,7 +1925,7 @@ function openOfficeForm(code) {
   document.getElementById('office-f-lng').value = off ? off.lng : (centre ? round7(centre.lng()) : '');
 
   const stateSel = document.getElementById('office-f-state');
-  stateSel.innerHTML = Object.keys(STATE_GROUPS).map(s => '<option value="' + s + '">' + s + '</option>').join('');
+  stateSel.innerHTML = Object.keys(STATE_GROUPS).map(s => '<option value="' + escapeHtml(s) + '">' + escapeHtml(s) + '</option>').join('');
   stateSel.value = (code && getStateForOffice(code)) || Object.keys(STATE_GROUPS)[0];
 
   editState.officeSecondaries = (off && off.secondaryLocations ? off.secondaryLocations : [])
@@ -1965,7 +1973,8 @@ function submitOfficeForm() {
   const lng = parseFloat(document.getElementById('office-f-lng').value);
 
   if (!code) return err('Give the office a short code, e.g. CNS.');
-  if (!/^[A-Za-z0-9_-]+$/.test(code)) return err('The code can only use letters, numbers, hyphen or underscore.');
+  if (!/^[A-Za-z0-9_-]{1,40}$/.test(code)) return err('The code can only use letters, numbers, hyphen or underscore, up to 40 characters.');
+  if (['__proto__', 'constructor', 'prototype'].includes(code)) return err('That code is reserved - pick another.');
   if (isNew && OFFICES[code]) return err('An office with the code "' + code + '" already exists.');
   if (!name) return err('Give the office a name.');
   if (isNaN(lat) || lat < -90 || lat > 90) return err('Latitude must be between -90 and 90.');

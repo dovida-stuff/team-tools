@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Territory map (test fixture)</title>
+<style>#map{position:absolute;inset:0}</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+// Data lines. The save endpoint rewrites exactly these three and nothing else.
+const OFFICES={"ADE":{"name":"Adelaide","color":"#00a2ff","lat":-34.9,"lng":138.6,"address":"1 King William St, Adelaide SA"},"GC":{"name":"Gold Coast","color":"#ff5733","lat":-28.0,"lng":153.4,"address":"2 Surf Pde, Broadbeach QLD"}};
+const ZONES=[{"name":"ADE 1","folder":"SA","office":"ADE","coords":[[-34.8,138.5],[-34.7,138.6],[-34.9,138.7],[-34.8,138.5]],"label":"1","labelPos":[-34.8,138.6],"labelSize":0.02},{"name":"GC 1","folder":"QLD","office":"GC","coords":[[-28.0,153.3],[-27.9,153.4],[-28.1,153.5],[-28.0,153.3]],"label":"1","labelPos":[-28.0,153.4],"labelSize":0.02}];
+const STATE_GROUPS={"QLD":["GC"],"SA":["ADE"]};
+const map = L.map('map').setView([-27, 140], 5);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+for (const z of ZONES) {
+  L.polygon(z.coords, { color: OFFICES[z.office].color, weight: 2 }).addTo(map).bindTooltip(escapeHtml(z.name));
+}
+// padding 01: lorem ipsum dolor sit amet consectetur adipiscing elit sed do
+// padding 02: lorem ipsum dolor sit amet consectetur adipiscing elit sed do 
+// padding 03: lorem ipsum dolor sit amet consectetur adipiscing elit sed do e
+// padding 04: lorem ipsum dolor sit amet consectetur adipiscing elit sed do ei
+// padding 05: lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiu
+// padding 06: lorem ipsum dolor sit amet consectetur adipiscing elit sed do eius
+// padding 07: lorem ipsum dolor sit amet consectetur adipiscing elit sed d
+// padding 08: lorem ipsum dolor sit amet consectetur adipiscing elit sed do
+// padding 09: lorem ipsum dolor sit amet consectetur adipiscing elit sed do 
+// padding 10: lorem ipsum dolor sit amet consectetur adipiscing elit sed do e
+// padding 11: lorem ipsum dolor sit amet consectetur adipiscing elit sed do ei
+// padding 12: lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiu
+// padding 13: lorem ipsum dolor sit amet consectetur adipiscing elit sed do eius
+// padding 14: lorem ipsum dolor sit amet consectetur adipiscing elit sed d
+// padding 15: lorem ipsum dolor sit amet consectetur adipiscing elit sed do
+// padding 16: lorem ipsum dolor sit amet consectetur adipiscing elit sed do 
+// padding 17: lorem ipsum dolor sit amet consectetur adipiscing elit sed do e
+// padding 18: lorem ipsum dolor sit amet consectetur adipiscing elit sed do ei
+// padding 19: lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiu
+// padding 20: lorem ipsum dolor sit amet consectetur adipiscing elit sed do eius
+// padding 21: lorem ipsum dolor sit amet consectetur adipiscing elit sed d
+// padding 22: lorem ipsum dolor sit amet consectetur adipiscing elit sed do
+// padding 23: lorem ipsum dolor sit amet consectetur adipiscing elit sed do 
+// padding 24: lorem ipsum dolor sit amet consectetur adipiscing elit sed do e
+// padding 25: lorem ipsum dolor sit amet consectetur adipiscing elit sed do ei
+// padding 26: lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiu
+// padding 27: lorem ipsum dolor sit amet consectetur adipiscing elit sed do eius
+// padding 28: lorem ipsum dolor sit amet consectetur adipiscing elit sed d
+// padding 29: lorem ipsum dolor sit amet consectetur adipiscing elit sed do
+// padding 30: lorem ipsum dolor sit amet consectetur adipiscing elit sed do 
+// padding 31: lorem ipsum dolor sit amet consectetur adipiscing elit sed do e
+// padding 32: lorem ipsum dolor sit amet consectetur adipiscing elit sed do ei
+// padding 33: lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiu
+// padding 34: lorem ipsum dolor sit amet consectetur adipiscing elit sed do eius
+// padding 35: lorem ipsum dolor sit amet consectetur adipiscing elit sed d
+// padding 36: lorem ipsum dolor sit amet consectetur adipiscing elit sed do
+// padding 37: lorem ipsum dolor sit amet consectetur adipiscing elit sed do 
+// padding 38: lorem ipsum dolor sit amet consectetur adipiscing elit sed do e
+// padding 39: lorem ipsum dolor sit amet consectetur adipiscing elit sed do ei
+// padding 40: lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiu
+</script>
+</body>
+</html>

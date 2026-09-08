@@ -1,0 +1,10 @@
+{
+  "name": "dovida-territory-map",
+  "private": true,
+  "description": "Dovida recruitment territory map and its save Worker",
+  "scripts": {
+    "test": "node --test test/*.test.mjs && node test/e2e-roundtrip.mjs",
+    "test:worker": "node --test test/*.test.mjs",
+    "test:browser": "node test/browser/run.mjs verify --html index.html"
+  }
+}
