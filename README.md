@@ -11,8 +11,6 @@ Australia, published with GitHub Pages at
 - `worker/save-worker.js` — the Cloudflare Worker that commits editor changes
   back to this repo. It holds the GitHub token so the page never does. Setup
   and behaviour are in `worker/README.md`.
-- `indexOLD*.html` — earlier, viewer-only versions kept for reference. They
-  are served by GitHub Pages too, so delete them once nobody needs them.
 
 ## Editing the map
 
