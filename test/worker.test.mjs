@@ -3,8 +3,8 @@
 // Every GitHub call goes through the fake in helpers/github-mock.mjs, which is
 // installed before each test so nothing here can reach the network.
 //
-// Tests titled "[NEW BEHAVIOUR]" describe hardening the Worker does not do yet.
-// They are expected to fail until that work lands.
+// Tests titled "[NEW BEHAVIOUR]" cover the hardening added in the security
+// review (escaping, schema validation, limits); the rest is original behaviour.
 
 import { describe, it, beforeEach, afterEach, mock as nodeMock } from 'node:test';
 import assert from 'node:assert/strict';
@@ -406,6 +406,15 @@ describe('[NEW BEHAVIOUR] schema validation', () => {
     ['an office keyed prototype', d => { d.offices = withKey(d.offices, 'prototype', office); }],
     ['a state keyed __proto__', d => { d.states = withKey(d.states, '__proto__', ['ADE']); }],
     ['a state keyed constructor', d => { d.states = withKey(d.states, 'constructor', ['ADE']); }],
+    ['an office keyed toString (inherited from Object.prototype)', d => { d.offices = withKey(d.offices, 'toString', office); }],
+    ['an office keyed hasOwnProperty (inherited from Object.prototype)', d => { d.offices = withKey(d.offices, 'hasOwnProperty', office); }],
+    ['an office keyed __defineGetter__ (inherited from Object.prototype)', d => { d.offices = withKey(d.offices, '__defineGetter__', office); }],
+    ['an office code ending in _secondary (the satellite-pin slot suffix)', d => { d.offices = withKey(d.offices, 'ADE_secondary', office); }],
+    ['a state keyed valueOf (inherited from Object.prototype)', d => { d.states = withKey(d.states, 'valueOf', ['ADE']); }],
+    ['an office field named toString', d => { d.offices.ADE.toString = 'x'; }],
+    ['an unknown office field large enough to bloat the file', d => { d.offices.ADE.blob = 'x'.repeat(1000001); }],
+    ['an unknown satellite field large enough to bloat the file', d => { d.offices.ADE.secondaryLocations = [{ lat: -34.9, lng: 138.6, blob: 'x'.repeat(1000001) }]; }],
+    ['a states object large enough to bloat the file', d => { d.states.QLD = ['GC', ...Array.from({ length: 30000 }, () => 'ADE')]; }],
     ['a state keyed prototype', d => { d.states = withKey(d.states, 'prototype', ['ADE']); }],
   ];
 
@@ -418,6 +427,15 @@ describe('[NEW BEHAVIOUR] schema validation', () => {
       assert.equal(gh.calls.length, 0);
     });
   }
+
+  it('[NEW BEHAVIOUR] returns 400 for a zone label of 1e999, which JSON.parse reads as Infinity', async () => {
+    const data = fixtureData();
+    data.zones[0].label = '__INF__';
+    const raw = JSON.stringify({ password: PASSWORD, ...data }).replace('"__INF__"', '1e999');
+    const r = await post(raw);
+    assert.equal(r.status, 400);
+    assert.equal(gh.calls.length, 0);
+  });
 
   it('still accepts well-formed data, including a #rgb office colour and a #rrggbb zone fill', async () => {
     const data = fixtureData();

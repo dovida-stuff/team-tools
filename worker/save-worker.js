@@ -31,15 +31,23 @@ const LIMITS = {
   cornersPerZone: 20000,
   zonesChars: 6000000,
   offices: 500,
+  officesChars: 1000000,
   secondaries: 50,
   states: 100,
+  statesChars: 100000,
   text: 500,
 };
 
 const HEX_COLOUR = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;   // office colours, as published
 const HEX_FILL = /^#[0-9a-fA-F]{6}$/;                        // zone fills, always from the colour picker
 const CODE = /^[A-Za-z0-9 _&-]{1,40}$/;
-const RESERVED_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+// Anything Object.prototype already answers to ("toString", "hasOwnProperty",
+// "__proto__" ...) would be read back as that inherited value by the page's
+// `if (!officeZones[code])` lookups, and "_secondary" is the suffix the page
+// uses for an office's satellite-pin slot.
+function isReservedKey(key) {
+  return key in Object.prototype || key === 'prototype' || /_secondary$/i.test(key);
+}
 
 export default {
   async fetch(request, env) {
@@ -157,7 +165,7 @@ function has(obj, key) { return Object.prototype.hasOwnProperty.call(obj, key); 
 // "__proto__" would otherwise become the object's prototype once the page
 // evaluates the rewritten object literal.
 function badKey(key, what) {
-  if (RESERVED_KEYS.has(key)) return 'The ' + what + ' code "' + key + '" is not allowed.';
+  if (isReservedKey(key)) return 'The ' + what + ' code "' + key.slice(0, 40) + '" is not allowed.';
   if (!CODE.test(key)) return 'The ' + what + ' code "' + key.slice(0, 40) + '" can only use letters, numbers, spaces, hyphen, underscore or &, up to 40 characters.';
   return null;
 }
@@ -187,9 +195,11 @@ function validatePayload(body) {
       }
     }
     for (const key of Object.keys(off)) {
-      if (RESERVED_KEYS.has(key)) return where + ' has a field that is not allowed.';
+      if (key in Object.prototype || key === 'prototype') return where + ' has a field that is not allowed.';
     }
   }
+
+  if (JSON.stringify(offices).length > LIMITS.officesChars) return 'The offices data is too large to publish.';
 
   if (!isPlainObject(states) || Object.keys(states).length === 0) return 'The states data was missing or malformed.';
   if (Object.keys(states).length > LIMITS.states) return 'Too many state groups.';
@@ -202,6 +212,8 @@ function validatePayload(body) {
     }
   }
 
+  if (JSON.stringify(states).length > LIMITS.statesChars) return 'The states data is too large to publish.';
+
   if (!Array.isArray(zones) || zones.length === 0) return 'The zones data was missing or malformed.';
   if (zones.length > LIMITS.zones) return 'Too many zones.';
   let chars = 0;
@@ -213,13 +225,13 @@ function validatePayload(body) {
     if (typeof z.office !== 'string' || !has(offices, z.office)) return where + ' belongs to an office that does not exist.';
     if (!Array.isArray(z.coords) || z.coords.length < 4 || z.coords.length > LIMITS.cornersPerZone) return where + ' needs at least three corners.';
     for (const p of z.coords) if (!isPoint(p)) return where + ' has a corner that is not a valid latitude/longitude pair.';
-    if (z.label !== undefined && z.label !== null && !isText(z.label, 40) && typeof z.label !== 'number') return where + ' has a malformed number label.';
+    if (z.label !== undefined && z.label !== null && !isText(z.label, 40) && !(typeof z.label === 'number' && Number.isFinite(z.label))) return where + ' has a malformed number label.';
     if (z.folder !== undefined && !isText(z.folder)) return where + ' has a malformed folder.';
     if (z.fill !== undefined && z.fill !== null && (typeof z.fill !== 'string' || !HEX_FILL.test(z.fill))) return where + ' needs a fill colour like #rrggbb.';
     if (z.labelPos !== undefined && z.labelPos !== null && !isPoint(z.labelPos)) return where + ' has a malformed label position.';
     if (z.labelSize !== undefined && z.labelSize !== null && !(typeof z.labelSize === 'number' && Number.isFinite(z.labelSize))) return where + ' has a malformed label size.';
     for (const key of Object.keys(z)) {
-      if (RESERVED_KEYS.has(key)) return where + ' has a field that is not allowed.';
+      if (key in Object.prototype || key === 'prototype') return where + ' has a field that is not allowed.';
     }
     // Rough running size, so an oversized payload is refused before the
     // whole thing is serialised: about 24 characters per corner plus the rest.

@@ -1974,7 +1974,10 @@ function submitOfficeForm() {
 
   if (!code) return err('Give the office a short code, e.g. CNS.');
   if (!/^[A-Za-z0-9_-]{1,40}$/.test(code)) return err('The code can only use letters, numbers, hyphen or underscore, up to 40 characters.');
-  if (['__proto__', 'constructor', 'prototype'].includes(code)) return err('That code is reserved - pick another.');
+  // Names that Object.prototype already has would be read back as that
+  // inherited value by lookups like officeZones[code]; "_secondary" is the
+  // suffix used for an office's satellite pins.
+  if (code in Object.prototype || code === 'prototype' || /_secondary$/i.test(code)) return err('That code is reserved - pick another.');
   if (isNew && OFFICES[code]) return err('An office with the code "' + code + '" already exists.');
   if (!name) return err('Give the office a name.');
   if (isNaN(lat) || lat < -90 || lat > 90) return err('Latitude must be between -90 and 90.');
