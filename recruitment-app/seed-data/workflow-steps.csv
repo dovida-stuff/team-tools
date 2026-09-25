@@ -1,0 +1,37 @@
+Candidate type,Sort order,Step label,Prototype key,Step kind,Application column key,Category,Input type,Options,Completing values,Counts toward readiness,Required,Show in grid,Required before stage
+Caregiver,10,Candidate,candidate,Application field,candidate,Identity,,,,No,No,Yes,
+Caregiver,20,Status,status,Application field,stage,Process,,,,No,No,Yes,
+Caregiver,30,Recruiter,recruiter,Application field,recruiter,Identity,,,,No,No,Yes,
+Caregiver,40,BGC started,bgcStarted,Tracked step,,Process,Text,,,No,No,Yes,
+Caregiver,50,Orientation / intake,orientation,Application field,intake,Process,,,,No,No,Yes,
+Caregiver,60,Source,source,Application field,source,Identity,,,,No,No,Yes,
+Caregiver,70,Phone,phone,Application field,phone,Identity,,,,No,No,Yes,
+Caregiver,80,Email,email,Application field,email,Identity,,,,No,No,Yes,
+Caregiver,90,Zone / location,zone,Application field,zone,Identity,,,,No,No,Yes,
+Caregiver,100,Banning register,banning,Tracked step,,Compliance,Status,,Complete; Waived,Yes,Yes,Yes,Offer stage
+Caregiver,110,Reference check,reference,Tracked step,,Compliance,Status,,Complete; Waived,Yes,Yes,Yes,Offer stage
+Caregiver,120,Police check,police,Tracked step,,Compliance,Status,,Complete; Waived,Yes,Yes,Yes,Offer stage
+Caregiver,130,Right to work,rtw,Tracked step,,Compliance,Status,,Complete; Waived,Yes,Yes,Yes,Offer stage
+Caregiver,140,Stat dec,statdec,Tracked step,,Compliance,Status,,Complete; Waived,Yes,Yes,Yes,Offer stage
+Caregiver,150,Pay level,payLevel,Tracked step,,Process,Dropdown,Level 1; Level 2; Level 3; Level 4,,No,No,Yes,
+Caregiver,160,Driving req.,driving,Tracked step,,Compliance,Status,,Complete; Waived,Yes,Yes,Yes,Offer stage
+Caregiver,170,QC complete,qc,Tracked step,,Compliance,Status,,Complete; Waived,Yes,Yes,Yes,Offer stage
+Caregiver,180,Training,training,Tracked step,,Process,Dropdown,Not started; Pending; Booked; Complete,Complete,Yes,No,Yes,
+Caregiver,190,Contract start,contractStart,Tracked step,,Process,Text,,,No,No,Yes,
+Caregiver,200,Rehire / transfer,rehire,Tracked step,,Identity,Dropdown,New starter; Rehire; Transfer,,No,No,Yes,
+Caregiver,210,Onboarding,onboarding,Tracked step,,Process,Status,,Complete; Waived,Yes,No,Yes,
+Caregiver,220,File sent,fileSent,Tracked step,,Outcome,Dropdown,No; Yes,Yes,Yes,No,Yes,
+Caregiver,230,Notes,notes,Application field,notes,Outcome,,,,No,No,Yes,
+Caregiver,240,DNS,dns,Application field,dns,Outcome,,,,No,No,Yes,
+Key Player,10,Candidate,candidate,Application field,candidate,Identity,,,,No,No,Yes,
+Key Player,20,Office,office,Application field,office,Identity,,,,No,No,Yes,
+Key Player,30,Role title,role,Application field,role,Identity,,,,No,No,Yes,
+Key Player,40,Status,status,Application field,stage,Process,,,,No,No,Yes,
+Key Player,50,Recruiter,recruiter,Application field,recruiter,Identity,,,,No,No,Yes,
+Key Player,60,Assessment,assessment,Tracked step,,Process,Status,,Complete; Waived,Yes,No,Yes,
+Key Player,70,Qualifications,qualifications,Tracked step,,Compliance,Status,,Complete; Waived,Yes,Yes,Yes,Offer stage
+Key Player,80,Insurance,insurance,Tracked step,,Compliance,Status,,Complete; Waived,Yes,Yes,Yes,Offer stage
+Key Player,90,Position description sent,positionDesc,Tracked step,,Process,Status,,Complete; Waived,Yes,No,Yes,
+Key Player,100,Reference check,reference,Tracked step,,Compliance,Status,,Complete; Waived,Yes,Yes,Yes,Offer stage
+Key Player,110,Contract accepted,contractAccepted,Tracked step,,Outcome,Status,,Complete; Waived,Yes,No,Yes,
+Key Player,120,Email sent to HM,hmEmail,Tracked step,,Outcome,Status,,Complete; Waived,Yes,No,Yes,

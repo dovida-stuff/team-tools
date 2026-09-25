@@ -1,0 +1,118 @@
+Application number,Requirement,State,Value,Required,Due date
+101,Banning register,Complete,,Yes,
+101,Right to work,Complete,,Yes,
+101,Police check,In progress,,Yes,2026-09-10
+101,Reference check,Not started,,Yes,2026-09-12
+101,Statutory declaration,Not started,,No,
+101,Driver licence,Complete,,Yes,
+101,Quality check,Not started,,Yes,
+102,Banning register,Complete,,Yes,
+102,Right to work,Complete,,Yes,
+102,Police check,Complete,,Yes,2026-09-10
+102,Reference check,Complete,,Yes,2026-09-12
+102,Statutory declaration,Complete,,No,
+102,Driver licence,Complete,,Yes,
+102,Quality check,Not started,,Yes,
+103,Qualifications,Complete,,Yes,
+103,Insurance,Complete,,Yes,
+103,Position description sent,Complete,,Yes,
+103,Reference check,Complete,,Yes,
+103,Contract acceptance,In progress,,Yes,2026-09-09
+103,Hiring manager email,Not started,,Yes,
+104,Banning register,Complete,,Yes,
+104,Right to work,Complete,,Yes,
+104,Police check,Complete,,Yes,2026-09-10
+104,Reference check,Complete,,Yes,2026-09-12
+104,Statutory declaration,Complete,,No,
+104,Driver licence,Complete,,Yes,
+104,Quality check,Complete,,Yes,
+105,Banning register,Complete,,Yes,
+105,Right to work,Complete,,Yes,
+105,Police check,In progress,,Yes,2026-09-10
+105,Reference check,Not started,,Yes,2026-09-12
+105,Statutory declaration,Not started,,No,
+105,Driver licence,Not started,,Yes,
+105,Quality check,Not started,,Yes,
+106,Banning register,Complete,,Yes,
+106,Right to work,Complete,,Yes,
+106,Police check,In progress,,Yes,2026-09-10
+106,Reference check,Not started,,Yes,2026-09-12
+106,Statutory declaration,Not started,,No,
+106,Driver licence,Complete,,Yes,
+106,Quality check,Not started,,Yes,
+107,Banning register,Complete,,Yes,
+107,Right to work,Complete,,Yes,
+107,Police check,Complete,,Yes,2026-09-10
+107,Reference check,Complete,,Yes,2026-09-12
+107,Statutory declaration,Complete,,No,
+107,Driver licence,Complete,,Yes,
+107,Quality check,Not started,,Yes,
+108,Qualifications,Complete,,No,
+108,Insurance,Waived,,No,
+108,Position description sent,Complete,,Yes,
+108,Reference check,In progress,,Yes,2026-09-11
+108,Assessment,Not started,,Yes,2026-09-12
+109,Banning register,Complete,,Yes,
+109,Right to work,Complete,,Yes,
+109,Police check,Complete,,Yes,2026-09-10
+109,Reference check,Complete,,Yes,2026-09-12
+109,Statutory declaration,Complete,,No,
+109,Driver licence,Complete,,Yes,
+109,Quality check,Complete,,Yes,
+110,Banning register,Complete,,Yes,
+110,Right to work,Complete,,Yes,
+110,Police check,Complete,,Yes,2026-09-10
+110,Reference check,Complete,,Yes,2026-09-12
+110,Statutory declaration,Complete,,No,
+110,Driver licence,Complete,,Yes,
+110,Quality check,Complete,,Yes,
+111,Banning register,Complete,,Yes,
+111,Right to work,Complete,,Yes,
+111,Police check,Complete,,Yes,2026-09-10
+111,Reference check,Complete,,Yes,2026-09-12
+111,Statutory declaration,Complete,,No,
+111,Driver licence,Complete,,Yes,
+111,Quality check,Complete,,Yes,
+112,Banning register,Complete,,Yes,
+112,Right to work,Complete,,Yes,
+112,Police check,In progress,,Yes,2026-09-10
+112,Reference check,Not started,,Yes,2026-09-12
+112,Statutory declaration,Not started,,No,
+112,Driver licence,Not started,,Yes,
+112,Quality check,Not started,,Yes,
+113,Banning register,Complete,,Yes,
+113,Right to work,Complete,,Yes,
+113,Police check,Complete,,Yes,2026-09-10
+113,Reference check,Complete,,Yes,2026-09-12
+113,Statutory declaration,Complete,,No,
+113,Driver licence,Complete,,Yes,
+113,Quality check,Not started,,Yes,
+114,Banning register,Complete,,Yes,
+114,Right to work,Complete,,Yes,
+114,Police check,Complete,,Yes,2026-09-10
+114,Reference check,Complete,,Yes,2026-09-12
+114,Statutory declaration,Not started,,No,
+114,Driver licence,Not started,,Yes,
+114,Quality check,Not started,,Yes,
+115,Banning register,Complete,,Yes,
+115,Right to work,Complete,,Yes,
+115,Police check,Complete,,Yes,2026-09-10
+115,Reference check,Complete,,Yes,2026-09-12
+115,Statutory declaration,Complete,,No,
+115,Driver licence,Complete,,Yes,
+115,Quality check,Complete,,Yes,
+116,Qualifications,Complete,,Yes,
+116,Insurance,Complete,,No,
+116,Position description sent,Complete,,Yes,
+116,Reference check,Complete,,Yes,
+116,Assessment,Not started,,Yes,
+117,Qualifications,Complete,,Yes,
+117,Insurance,Complete,,No,
+117,Position description sent,Complete,,Yes,
+117,Reference check,Complete,,Yes,
+117,Assessment,Complete,,Yes,
+118,Qualifications,Complete,,Yes,
+118,Insurance,Complete,,No,
+118,Position description sent,In progress,,Yes,
+118,Reference check,Not started,,Yes,
+118,Assessment,Not started,,Yes,
