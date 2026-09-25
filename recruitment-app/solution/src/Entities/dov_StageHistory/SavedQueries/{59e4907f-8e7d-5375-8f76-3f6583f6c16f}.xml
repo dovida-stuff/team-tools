@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{59e4907f-8e7d-5375-8f76-3f6583f6c16f}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="dov_name" select="1" icon="1" preview="1">
+        <row name="result" id="dov_stagehistoryid">
+          <cell name="dov_name" width="300" />
+          <cell name="dov_application" width="150" />
+          <cell name="dov_fromstage" width="150" />
+          <cell name="dov_tostage" width="150" />
+          <cell name="dov_outcomereason" width="150" />
+          <cell name="dov_changedby" width="150" />
+          <cell name="dov_changedon" width="150" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="dov_stagehistory">
+          <attribute name="dov_stagehistoryid" />
+          <attribute name="dov_name" />
+          <attribute name="dov_application" />
+          <attribute name="dov_fromstage" />
+          <attribute name="dov_tostage" />
+          <attribute name="dov_outcomereason" />
+          <attribute name="dov_changedby" />
+          <attribute name="dov_changedon" />
+          <order attribute="dov_changedon" descending="true" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Active Stage History" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

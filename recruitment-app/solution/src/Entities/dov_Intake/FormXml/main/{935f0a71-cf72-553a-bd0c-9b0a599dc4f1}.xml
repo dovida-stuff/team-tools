@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{935f0a71-cf72-553a-bd0c-9b0a599dc4f1}</formid>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{f1528f3a-c881-5c55-88fd-cda86c54c3f2}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{c15f053c-8d35-5a65-80a4-e00a39401e21}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{23d6fe48-393f-558a-9ad7-035eed177a8c}">
+                        <labels>
+                          <label description="Intake name" languagecode="1033" />
+                        </labels>
+                        <control id="dov_name" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="dov_name" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{55e68dc6-1053-5168-a4df-1768cd77d860}">
+                        <labels>
+                          <label description="Orientation date" languagecode="1033" />
+                        </labels>
+                        <control id="dov_orientationdate" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="dov_orientationdate" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{474b5f95-fcea-529d-bdb2-ebb6718f48b1}">
+                        <labels>
+                          <label description="Requested places" languagecode="1033" />
+                        </labels>
+                        <control id="dov_requestedplaces" classid="{C6D124CA-7EDA-4A60-AEA9-7FB8D318B68F}" datafieldname="dov_requestedplaces" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{8c5a3504-81dd-5863-98cb-de3ade723440}">
+                        <labels>
+                          <label description="Intake status" languagecode="1033" />
+                        </labels>
+                        <control id="dov_intakestatus" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="dov_intakestatus" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{b1027f83-6ffd-5100-8d1e-157b0fcdcbd6}">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

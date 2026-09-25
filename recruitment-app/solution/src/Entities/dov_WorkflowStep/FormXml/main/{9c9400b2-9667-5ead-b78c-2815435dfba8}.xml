@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{9c9400b2-9667-5ead-b78c-2815435dfba8}</formid>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{4933b894-ebae-5832-8006-7e8e6528407c}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{de44164a-95d9-5e7a-8ce0-90f866cce6de}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{0748995e-327f-59a7-b230-142e11309216}">
+                        <labels>
+                          <label description="Step label" languagecode="1033" />
+                        </labels>
+                        <control id="dov_name" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="dov_name" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{71851ab1-1470-5816-8540-f5eba9115feb}">
+                        <labels>
+                          <label description="Candidate type" languagecode="1033" />
+                        </labels>
+                        <control id="dov_candidatetype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="dov_candidatetype" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{32d7df5b-0ead-5370-b4d2-9572f2efae49}">
+                        <labels>
+                          <label description="Sort order" languagecode="1033" />
+                        </labels>
+                        <control id="dov_sortorder" classid="{C6D124CA-7EDA-4A60-AEA9-7FB8D318B68F}" datafieldname="dov_sortorder" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{91b07c3e-8d89-5b2f-a862-2bfb22b1b0fc}">
+                        <labels>
+                          <label description="Step kind" languagecode="1033" />
+                        </labels>
+                        <control id="dov_stepkind" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="dov_stepkind" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{0b19b0ce-143c-5e80-8043-5c6b9c04d8a4}">
+                        <labels>
+                          <label description="Application column key" languagecode="1033" />
+                        </labels>
+                        <control id="dov_appcolumnkey" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="dov_appcolumnkey" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{aa864da9-5622-5622-aa74-870b22c11741}">
+                        <labels>
+                          <label description="Category" languagecode="1033" />
+                        </labels>
+                        <control id="dov_category" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="dov_category" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{521b3fed-ed0e-5254-8b7d-9bb23e652d9f}">
+                        <labels>
+                          <label description="Input type" languagecode="1033" />
+                        </labels>
+                        <control id="dov_inputtype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="dov_inputtype" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e7d8abe9-bbbe-5646-b57f-c819c9201d15}">
+                        <labels>
+                          <label description="Options" languagecode="1033" />
+                        </labels>
+                        <control id="dov_options" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="dov_options" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{ff668bc5-0f6c-56f6-9b4a-a47e1b033e18}">
+                        <labels>
+                          <label description="Completing values" languagecode="1033" />
+                        </labels>
+                        <control id="dov_completingvalues" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="dov_completingvalues" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{18a285ba-8ce1-59b6-9abd-6603ffa62330}">
+                        <labels>
+                          <label description="Counts toward readiness" languagecode="1033" />
+                        </labels>
+                        <control id="dov_countstowardreadiness" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="dov_countstowardreadiness" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{11dab67c-cc12-5295-acb0-600ddf68dc2c}">
+                        <labels>
+                          <label description="Required" languagecode="1033" />
+                        </labels>
+                        <control id="dov_required" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="dov_required" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{64a362a0-65e6-5858-9e1c-a00777625222}">
+                        <labels>
+                          <label description="Required before stage" languagecode="1033" />
+                        </labels>
+                        <control id="dov_requiredbeforestage" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="dov_requiredbeforestage" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{abbec2eb-5b1e-51ca-abf7-c3e05d81bca7}">
+                        <labels>
+                          <label description="Show in grid" languagecode="1033" />
+                        </labels>
+                        <control id="dov_showingrid" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="dov_showingrid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{a64057d8-3a23-59a4-b108-7393e5a26e54}">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

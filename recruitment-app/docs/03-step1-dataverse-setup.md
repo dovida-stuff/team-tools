@@ -8,6 +8,12 @@ Plan on 2–3 hours. Everything is done at **make.powerapps.com** and
 Menu names in these portals change from time to time. If a label below
 doesn't match exactly, look for the nearest equivalent.
 
+> **Shortcut:** you no longer need to build the tables by hand. Import
+> `solution/RecruitmentOperations_1_0_0_0.zip` instead of doing steps 1b–1e
+> and most of 1g; see `04-importable-solution.md`. Do step 1a first, then
+> 1f and the column-security part of 1g after the import. The manual steps
+> below stay as a fallback.
+
 ## 1a. Check the blockers first (10 minutes)
 
 1. **Licence**: go to **myaccount.microsoft.com → Subscriptions**. Look for
@@ -51,13 +57,13 @@ table in spec §2.2:
    tables §2.2 lists for auditing.
 3. Save, then **+ New → Column** for each remaining column:
    - *Choice* columns → **Sync with global choice** → pick the choice from 1c.
-   - *Lookup* columns → Related table = the target. For the **Parental**
-     ones, open **Advanced options → Relationship behaviour → Parental**.
+   - *Lookup* columns → Related table = the target. For the ones marked
+     "delete cascades", open **Advanced options → Relationship behaviour →
+     Custom** and set **Delete** to *Cascade all*.
    - *Autonumber* (Application number) → Data type **Autonumber**, type
      *String prefixed number*, prefix `APP-`, minimum digits 5.
-   - *Formula* columns (Readiness, Risk, Days in stage) → Data type
-     **Formula**, then paste the formula from the spec. Create the five count
-     columns before Readiness and Risk, because the formulas refer to them.
+   - Readiness (whole number) and Risk (choice *Risk level*) are ordinary
+     columns that flow F2 fills in.
    - Stage: set **Default value** = Background checks.
 
 Create them in this order, so each lookup target already exists: Office,

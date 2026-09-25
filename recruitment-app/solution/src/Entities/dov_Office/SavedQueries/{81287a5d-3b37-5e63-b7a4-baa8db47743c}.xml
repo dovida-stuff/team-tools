@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{81287a5d-3b37-5e63-b7a4-baa8db47743c}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="dov_name" select="1" icon="1" preview="1">
+        <row name="result" id="dov_officeid">
+          <cell name="dov_name" width="300" />
+          <cell name="dov_code" width="150" />
+          <cell name="dov_region" width="150" />
+          <cell name="dov_active" width="150" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>2</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="dov_office">
+          <attribute name="dov_officeid" />
+          <attribute name="dov_name" />
+          <attribute name="dov_code" />
+          <attribute name="dov_region" />
+          <attribute name="dov_active" />
+          <order attribute="dov_name" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Office Associated View" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

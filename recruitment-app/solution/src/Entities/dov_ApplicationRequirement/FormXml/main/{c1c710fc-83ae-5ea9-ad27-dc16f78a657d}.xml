@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{c1c710fc-83ae-5ea9-ad27-dc16f78a657d}</formid>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{6e3f1a66-4aa4-5f0c-914c-3d3271a2a58d}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{a5354bc2-d91c-53dc-bc74-6e8bdcb3f2db}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{855f7a49-3b90-5ee2-96ee-ef1c05e89bf0}">
+                        <labels>
+                          <label description="Name" languagecode="1033" />
+                        </labels>
+                        <control id="dov_name" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="dov_name" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{d196f173-82de-5228-93c9-d134752690f8}">
+                        <labels>
+                          <label description="Application" languagecode="1033" />
+                        </labels>
+                        <control id="dov_application" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="dov_application" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{ba31c2eb-2772-5975-ab46-bc85f891f098}">
+                        <labels>
+                          <label description="Workflow step" languagecode="1033" />
+                        </labels>
+                        <control id="dov_workflowstep" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="dov_workflowstep" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{dbe209ba-952f-5f80-9889-e3d6af288dc9}">
+                        <labels>
+                          <label description="State" languagecode="1033" />
+                        </labels>
+                        <control id="dov_state" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="dov_state" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{b57d8aee-9d3e-50a6-8710-4f90037775c3}">
+                        <labels>
+                          <label description="Value" languagecode="1033" />
+                        </labels>
+                        <control id="dov_value" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="dov_value" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{38349554-70d8-5b0b-929c-d9d4ca102ce5}">
+                        <labels>
+                          <label description="Due date" languagecode="1033" />
+                        </labels>
+                        <control id="dov_duedate" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="dov_duedate" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{7ba01683-cf96-54a6-bae4-655f1155c40f}">
+                        <labels>
+                          <label description="Required" languagecode="1033" />
+                        </labels>
+                        <control id="dov_required" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="dov_required" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{5cbf0b4b-5f2f-5292-b968-5857e08b0e8d}">
+                        <labels>
+                          <label description="Counts toward readiness" languagecode="1033" />
+                        </labels>
+                        <control id="dov_countstowardreadiness" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="dov_countstowardreadiness" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{d3a10f30-427d-5371-b455-1a1b16fbc997}">
+                        <labels>
+                          <label description="Required before stage" languagecode="1033" />
+                        </labels>
+                        <control id="dov_requiredbeforestage" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="dov_requiredbeforestage" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{a7945c5e-d821-5e0b-8003-8d77a546c5bb}">
+                        <labels>
+                          <label description="Waiver note" languagecode="1033" />
+                        </labels>
+                        <control id="dov_waivernote" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="dov_waivernote" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{1cea4c07-b757-5b91-bdfc-580c32831a9e}">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

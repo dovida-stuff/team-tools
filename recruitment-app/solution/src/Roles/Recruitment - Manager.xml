@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Role id="{69e2e7b1-4b5f-5e53-9e4c-093b00a29532}" name="Recruitment - Manager" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <IsCustomizable>1</IsCustomizable>
+  <IsAutoAssigned>0</IsAutoAssigned>
+  <RolePrivileges>
+    <RolePrivilege name="prvAppenddov_Application" level="Global" />
+    <RolePrivilege name="prvAppenddov_ApplicationRequirement" level="Global" />
+    <RolePrivilege name="prvAppenddov_Candidate" level="Global" />
+    <RolePrivilege name="prvAppenddov_Intake" level="Global" />
+    <RolePrivilege name="prvAppenddov_Office" level="Global" />
+    <RolePrivilege name="prvAppenddov_OfficeSiteRequirement" level="Global" />
+    <RolePrivilege name="prvAppenddov_SiteRequirement" level="Global" />
+    <RolePrivilege name="prvAppenddov_WorkflowStep" level="Global" />
+    <RolePrivilege name="prvAppendTodov_Application" level="Global" />
+    <RolePrivilege name="prvAppendTodov_ApplicationRequirement" level="Global" />
+    <RolePrivilege name="prvAppendTodov_Candidate" level="Global" />
+    <RolePrivilege name="prvAppendTodov_Intake" level="Global" />
+    <RolePrivilege name="prvAppendTodov_Office" level="Global" />
+    <RolePrivilege name="prvAppendTodov_OfficeSiteRequirement" level="Global" />
+    <RolePrivilege name="prvAppendTodov_SiteRequirement" level="Global" />
+    <RolePrivilege name="prvAppendTodov_StageHistory" level="Global" />
+    <RolePrivilege name="prvAppendTodov_WorkflowStep" level="Global" />
+    <RolePrivilege name="prvAppendToUser" level="Global" />
+    <RolePrivilege name="prvAssigndov_Application" level="Global" />
+    <RolePrivilege name="prvAssigndov_ApplicationRequirement" level="Global" />
+    <RolePrivilege name="prvAssigndov_Candidate" level="Global" />
+    <RolePrivilege name="prvAssigndov_Intake" level="Global" />
+    <RolePrivilege name="prvAssigndov_Office" level="Global" />
+    <RolePrivilege name="prvAssigndov_OfficeSiteRequirement" level="Global" />
+    <RolePrivilege name="prvAssigndov_SiteRequirement" level="Global" />
+    <RolePrivilege name="prvAssigndov_WorkflowStep" level="Global" />
+    <RolePrivilege name="prvCreatedov_Application" level="Global" />
+    <RolePrivilege name="prvCreatedov_ApplicationRequirement" level="Global" />
+    <RolePrivilege name="prvCreatedov_Candidate" level="Global" />
+    <RolePrivilege name="prvCreatedov_Intake" level="Global" />
+    <RolePrivilege name="prvCreatedov_Office" level="Global" />
+    <RolePrivilege name="prvCreatedov_OfficeSiteRequirement" level="Global" />
+    <RolePrivilege name="prvCreatedov_SiteRequirement" level="Global" />
+    <RolePrivilege name="prvCreatedov_WorkflowStep" level="Global" />
+    <RolePrivilege name="prvDeletedov_Application" level="Global" />
+    <RolePrivilege name="prvDeletedov_ApplicationRequirement" level="Global" />
+    <RolePrivilege name="prvDeletedov_Candidate" level="Global" />
+    <RolePrivilege name="prvDeletedov_Intake" level="Global" />
+    <RolePrivilege name="prvDeletedov_Office" level="Global" />
+    <RolePrivilege name="prvDeletedov_OfficeSiteRequirement" level="Global" />
+    <RolePrivilege name="prvDeletedov_SiteRequirement" level="Global" />
+    <RolePrivilege name="prvDeletedov_WorkflowStep" level="Global" />
+    <RolePrivilege name="prvReaddov_Application" level="Global" />
+    <RolePrivilege name="prvReaddov_ApplicationRequirement" level="Global" />
+    <RolePrivilege name="prvReaddov_Candidate" level="Global" />
+    <RolePrivilege name="prvReaddov_Intake" level="Global" />
+    <RolePrivilege name="prvReaddov_Office" level="Global" />
+    <RolePrivilege name="prvReaddov_OfficeSiteRequirement" level="Global" />
+    <RolePrivilege name="prvReaddov_SiteRequirement" level="Global" />
+    <RolePrivilege name="prvReaddov_StageHistory" level="Global" />
+    <RolePrivilege name="prvReaddov_WorkflowStep" level="Global" />
+    <RolePrivilege name="prvSharedov_Application" level="Global" />
+    <RolePrivilege name="prvSharedov_ApplicationRequirement" level="Global" />
+    <RolePrivilege name="prvSharedov_Candidate" level="Global" />
+    <RolePrivilege name="prvSharedov_Intake" level="Global" />
+    <RolePrivilege name="prvSharedov_Office" level="Global" />
+    <RolePrivilege name="prvSharedov_OfficeSiteRequirement" level="Global" />
+    <RolePrivilege name="prvSharedov_SiteRequirement" level="Global" />
+    <RolePrivilege name="prvSharedov_WorkflowStep" level="Global" />
+    <RolePrivilege name="prvWritedov_Application" level="Global" />
+    <RolePrivilege name="prvWritedov_ApplicationRequirement" level="Global" />
+    <RolePrivilege name="prvWritedov_Candidate" level="Global" />
+    <RolePrivilege name="prvWritedov_Intake" level="Global" />
+    <RolePrivilege name="prvWritedov_Office" level="Global" />
+    <RolePrivilege name="prvWritedov_OfficeSiteRequirement" level="Global" />
+    <RolePrivilege name="prvWritedov_SiteRequirement" level="Global" />
+    <RolePrivilege name="prvWritedov_WorkflowStep" level="Global" />
+  </RolePrivileges>
+</Role>

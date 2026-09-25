@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<optionset Name="dov_stage" localizedName="Recruitment stage" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <displaynames>
+    <displayname description="Recruitment stage" languagecode="1033" />
+  </displaynames>
+  <Descriptions>
+    <Description description="" languagecode="1033" />
+  </Descriptions>
+  <options>
+    <option value="725590000" IsHidden="0">
+      <labels>
+        <label description="Background checks" languagecode="1033" />
+      </labels>
+    </option>
+    <option value="725590001" IsHidden="0">
+      <labels>
+        <label description="Offer stage" languagecode="1033" />
+      </labels>
+    </option>
+    <option value="725590002" IsHidden="0">
+      <labels>
+        <label description="Contract issued" languagecode="1033" />
+      </labels>
+    </option>
+    <option value="725590003" IsHidden="0">
+      <labels>
+        <label description="Contract signed" languagecode="1033" />
+      </labels>
+    </option>
+    <option value="725590004" IsHidden="0">
+      <labels>
+        <label description="Onboarded" languagecode="1033" />
+      </labels>
+    </option>
+    <option value="725590005" IsHidden="0">
+      <labels>
+        <label description="On hold" languagecode="1033" />
+      </labels>
+    </option>
+    <option value="725590006" IsHidden="0">
+      <labels>
+        <label description="Withdrawn" languagecode="1033" />
+      </labels>
+    </option>
+  </options>
+</optionset>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{97094812-0b20-5c66-b94a-a0de549e7c3b}</formid>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{44407281-0f4c-5e67-ac29-111b2b80a70a}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{e536856b-50bd-5823-9326-14c40a8144c6}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{36d46528-01e0-50ae-9a79-6ebb20d61e10}">
+                        <labels>
+                          <label description="Name" languagecode="1033" />
+                        </labels>
+                        <control id="dov_name" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="dov_name" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{3049cdba-6b64-50ac-b99c-4e1fb1c519c0}">
+                        <labels>
+                          <label description="Application" languagecode="1033" />
+                        </labels>
+                        <control id="dov_application" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="dov_application" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{a2c29224-7d8b-5577-90c9-ea786cd5330f}">
+                        <labels>
+                          <label description="From stage" languagecode="1033" />
+                        </labels>
+                        <control id="dov_fromstage" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="dov_fromstage" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{74b3a96c-fc57-545f-aea9-6655047ad72a}">
+                        <labels>
+                          <label description="To stage" languagecode="1033" />
+                        </labels>
+                        <control id="dov_tostage" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="dov_tostage" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{42b7f433-82cf-5922-bac0-d5a74d5af23a}">
+                        <labels>
+                          <label description="Outcome reason" languagecode="1033" />
+                        </labels>
+                        <control id="dov_outcomereason" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="dov_outcomereason" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{9b307be4-5808-5e65-af95-3a62ddc56d9c}">
+                        <labels>
+                          <label description="Changed by" languagecode="1033" />
+                        </labels>
+                        <control id="dov_changedby" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="dov_changedby" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{333d3fef-ebfb-525d-83ec-89e3c99d4fae}">
+                        <labels>
+                          <label description="Changed on" languagecode="1033" />
+                        </labels>
+                        <control id="dov_changedon" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="dov_changedon" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{a6d95629-5e12-52ed-a5fa-16f422976824}">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

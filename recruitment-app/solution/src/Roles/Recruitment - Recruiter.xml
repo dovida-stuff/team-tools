@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Role id="{109738ed-702a-504e-b87e-9c6afecb111f}" name="Recruitment - Recruiter" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <IsCustomizable>1</IsCustomizable>
+  <IsAutoAssigned>0</IsAutoAssigned>
+  <RolePrivileges>
+    <RolePrivilege name="prvAppenddov_Application" level="Global" />
+    <RolePrivilege name="prvAppenddov_ApplicationRequirement" level="Global" />
+    <RolePrivilege name="prvAppenddov_Candidate" level="Global" />
+    <RolePrivilege name="prvAppendTodov_Application" level="Global" />
+    <RolePrivilege name="prvAppendTodov_ApplicationRequirement" level="Global" />
+    <RolePrivilege name="prvAppendTodov_Candidate" level="Global" />
+    <RolePrivilege name="prvAppendTodov_Intake" level="Global" />
+    <RolePrivilege name="prvAppendTodov_Office" level="Global" />
+    <RolePrivilege name="prvAppendTodov_OfficeSiteRequirement" level="Global" />
+    <RolePrivilege name="prvAppendTodov_SiteRequirement" level="Global" />
+    <RolePrivilege name="prvAppendTodov_WorkflowStep" level="Global" />
+    <RolePrivilege name="prvAppendToUser" level="Global" />
+    <RolePrivilege name="prvCreatedov_Application" level="Global" />
+    <RolePrivilege name="prvCreatedov_Candidate" level="Global" />
+    <RolePrivilege name="prvReaddov_Application" level="Global" />
+    <RolePrivilege name="prvReaddov_ApplicationRequirement" level="Global" />
+    <RolePrivilege name="prvReaddov_Candidate" level="Global" />
+    <RolePrivilege name="prvReaddov_Intake" level="Global" />
+    <RolePrivilege name="prvReaddov_Office" level="Global" />
+    <RolePrivilege name="prvReaddov_OfficeSiteRequirement" level="Global" />
+    <RolePrivilege name="prvReaddov_SiteRequirement" level="Global" />
+    <RolePrivilege name="prvReaddov_StageHistory" level="Global" />
+    <RolePrivilege name="prvReaddov_WorkflowStep" level="Global" />
+    <RolePrivilege name="prvWritedov_Application" level="Global" />
+    <RolePrivilege name="prvWritedov_ApplicationRequirement" level="Global" />
+    <RolePrivilege name="prvWritedov_Candidate" level="Global" />
+  </RolePrivileges>
+</Role>

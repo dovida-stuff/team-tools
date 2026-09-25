@@ -15,13 +15,20 @@
 - Wrote `tools/export-seed.mjs` and generated `seed-data/*.csv` from the
   prototype's own seed constants, so nothing was retyped. Checked that every
   file parses with consistent column counts.
+- **25 Sep 2026 (later)**: Licensing confirmed (Power Apps Premium). Built
+  `solution/RecruitmentOperations_1_0_0_0.zip`, an importable unmanaged
+  Dataverse solution with 9 tables, 10 choices, 6 keys, forms, views and 3
+  security roles. It was generated from a real Dataverse export's XML,
+  checked with `solution/verify.py`, and packed and round-tripped with
+  Microsoft's `pac` CLI. See `docs/04-importable-solution.md`.
 
 ## Not done / boundaries
 - No access to a Microsoft environment from here. Nothing has been imported,
   published or run in Power Apps, Dataverse or Power Automate.
-- No native solution zip or `.msapp` was produced. A hand-written one couldn't
-  be validated without importing it, so the spec gives manual build steps
-  instead.
+- The solution zip has **not been imported anywhere yet**. Your import is
+  its first real test.
+- No canvas app (`.msapp`) or flows yet. Those come next, built in the
+  browser against the imported tables.
 - The prototype wasn't built or run (it needs Cloudflare and Vinext).
   Findings come from reading the source.
 - The prototype is kept only as a reference and hasn't been modified.
@@ -39,10 +46,10 @@
 - In site requirements, a blank office value inherits the standard text.
 
 ## Open questions (these change the design)
-1. **Licensing and environment**: does every user have Power Apps Premium (or
-   per-app / pay-as-you-go), and is there a non-Default Dataverse environment
-   you can build in? *Blocks step 1.*
-2. Publisher prefix: is `dov` OK, or does IT have a standard?
+1. ~~Licensing~~: resolved. Power Apps Premium, more licences as needed.
+   Still to confirm: a non-Default dev/test environment to import into.
+2. Publisher prefix: the solution uses `dov`. If IT needs another prefix,
+   tell me before importing; changing it afterwards means rebuilding.
 3. Stage gates: which steps must be cleared before which stage? (The
    prototype only gates leaving Background checks, but its Key Player data
    contradicts that.)
@@ -60,18 +67,12 @@
 10. Is Power BI Pro available for reporting?
 11. Reminder emails: send from a shared mailbox? Which time zone?
 
-## Choice values (fill in during step 1)
-| Recruitment stage option | Value |
-|---|---|
-| Background checks | |
-| Offer stage | |
-| Contract issued | |
-| Contract signed | |
-| Onboarded | |
-| On hold | |
-| Withdrawn | |
+## Choice values
+Fixed by the `dov` prefix: option *n* = 725590000 + *n*. Full table in
+`docs/04-importable-solution.md`.
 
 ## Next step
-Answer question 1 (and 2 if you know it). Then follow
-`docs/03-step1-dataverse-setup.md`. After that: build flows F1–F3 and test
-them against the synthetic applications in a dev environment.
+Import `solution/RecruitmentOperations_1_0_0_0.zip` into a dev/test
+environment and do the after-import steps in `docs/04-importable-solution.md`.
+If the import fails, send the log file's error text. After that: build flows
+F1–F3, then the canvas app screens.

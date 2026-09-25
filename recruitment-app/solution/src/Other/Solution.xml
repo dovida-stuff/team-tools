@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImportExportXml version="9.2.24014.198" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SolutionManifest>
+    <UniqueName>RecruitmentOperations</UniqueName>
+    <LocalizedNames>
+      <LocalizedName description="Recruitment Operations" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="Dataverse tables, choices and security roles for the recruitment tracker." languagecode="1033" />
+    </Descriptions>
+    <Version>1.0.0.0</Version>
+    <Managed>0</Managed>
+    <Publisher>
+      <UniqueName>dovida</UniqueName>
+      <LocalizedNames>
+        <LocalizedName description="Dovida" languagecode="1033" />
+      </LocalizedNames>
+      <Descriptions>
+        <Description description="Dovida" languagecode="1033" />
+      </Descriptions>
+      <EMailAddress xsi:nil="true"></EMailAddress>
+      <SupportingWebsiteUrl xsi:nil="true"></SupportingWebsiteUrl>
+      <CustomizationPrefix>dov</CustomizationPrefix>
+      <CustomizationOptionValuePrefix>72559</CustomizationOptionValuePrefix>
+      <Addresses>
+        <!-- Address of the Publisher-->
+        <Address>
+          <AddressNumber>1</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <City xsi:nil="true"></City>
+          <County xsi:nil="true"></County>
+          <Country xsi:nil="true"></Country>
+          <Fax xsi:nil="true"></Fax>
+          <FreightTermsCode xsi:nil="true"></FreightTermsCode>
+          <ImportSequenceNumber xsi:nil="true"></ImportSequenceNumber>
+          <Latitude xsi:nil="true"></Latitude>
+          <Line1 xsi:nil="true"></Line1>
+          <Line2 xsi:nil="true"></Line2>
+          <Line3 xsi:nil="true"></Line3>
+          <Longitude xsi:nil="true"></Longitude>
+          <Name xsi:nil="true"></Name>
+          <PostalCode xsi:nil="true"></PostalCode>
+          <PostOfficeBox xsi:nil="true"></PostOfficeBox>
+          <PrimaryContactName xsi:nil="true"></PrimaryContactName>
+          <ShippingMethodCode>1</ShippingMethodCode>
+          <StateOrProvince xsi:nil="true"></StateOrProvince>
+          <Telephone1 xsi:nil="true"></Telephone1>
+          <Telephone2 xsi:nil="true"></Telephone2>
+          <Telephone3 xsi:nil="true"></Telephone3>
+          <TimeZoneRuleVersionNumber xsi:nil="true"></TimeZoneRuleVersionNumber>
+          <UPSZone xsi:nil="true"></UPSZone>
+          <UTCOffset xsi:nil="true"></UTCOffset>
+          <UTCConversionTimeZoneCode xsi:nil="true"></UTCConversionTimeZoneCode>
+        </Address>
+        <Address>
+          <AddressNumber>2</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <City xsi:nil="true"></City>
+          <County xsi:nil="true"></County>
+          <Country xsi:nil="true"></Country>
+          <Fax xsi:nil="true"></Fax>
+          <FreightTermsCode xsi:nil="true"></FreightTermsCode>
+          <ImportSequenceNumber xsi:nil="true"></ImportSequenceNumber>
+          <Latitude xsi:nil="true"></Latitude>
+          <Line1 xsi:nil="true"></Line1>
+          <Line2 xsi:nil="true"></Line2>
+          <Line3 xsi:nil="true"></Line3>
+          <Longitude xsi:nil="true"></Longitude>
+          <Name xsi:nil="true"></Name>
+          <PostalCode xsi:nil="true"></PostalCode>
+          <PostOfficeBox xsi:nil="true"></PostOfficeBox>
+          <PrimaryContactName xsi:nil="true"></PrimaryContactName>
+          <ShippingMethodCode>1</ShippingMethodCode>
+          <StateOrProvince xsi:nil="true"></StateOrProvince>
+          <Telephone1 xsi:nil="true"></Telephone1>
+          <Telephone2 xsi:nil="true"></Telephone2>
+          <Telephone3 xsi:nil="true"></Telephone3>
+          <TimeZoneRuleVersionNumber xsi:nil="true"></TimeZoneRuleVersionNumber>
+          <UPSZone xsi:nil="true"></UPSZone>
+          <UTCOffset xsi:nil="true"></UTCOffset>
+          <UTCConversionTimeZoneCode xsi:nil="true"></UTCConversionTimeZoneCode>
+        </Address>
+      </Addresses>
+    </Publisher>
+    <RootComponents>
+      <RootComponent type="1" schemaName="dov_office" behavior="0" />
+      <RootComponent type="1" schemaName="dov_candidate" behavior="0" />
+      <RootComponent type="1" schemaName="dov_intake" behavior="0" />
+      <RootComponent type="1" schemaName="dov_workflowstep" behavior="0" />
+      <RootComponent type="1" schemaName="dov_siterequirement" behavior="0" />
+      <RootComponent type="1" schemaName="dov_application" behavior="0" />
+      <RootComponent type="1" schemaName="dov_applicationrequirement" behavior="0" />
+      <RootComponent type="1" schemaName="dov_officesiterequirement" behavior="0" />
+      <RootComponent type="1" schemaName="dov_stagehistory" behavior="0" />
+      <RootComponent type="9" schemaName="dov_candidatetype" behavior="0" />
+      <RootComponent type="9" schemaName="dov_stage" behavior="0" />
+      <RootComponent type="9" schemaName="dov_requirementstate" behavior="0" />
+      <RootComponent type="9" schemaName="dov_outcomereason" behavior="0" />
+      <RootComponent type="9" schemaName="dov_source" behavior="0" />
+      <RootComponent type="9" schemaName="dov_stepcategory" behavior="0" />
+      <RootComponent type="9" schemaName="dov_stepinputtype" behavior="0" />
+      <RootComponent type="9" schemaName="dov_stepkind" behavior="0" />
+      <RootComponent type="9" schemaName="dov_intakestatus" behavior="0" />
+      <RootComponent type="9" schemaName="dov_risklevel" behavior="0" />
+      <RootComponent type="20" id="{109738ed-702a-504e-b87e-9c6afecb111f}" behavior="0" />
+      <RootComponent type="20" id="{4d6cea3e-81d3-59e6-9102-069606c7fab3}" behavior="0" />
+      <RootComponent type="20" id="{69e2e7b1-4b5f-5e53-9e4c-093b00a29532}" behavior="0" />
+    </RootComponents>
+    <MissingDependencies />
+  </SolutionManifest>
+</ImportExportXml>

@@ -61,9 +61,9 @@ only the browser (Solutions → Export / Import).
 | Step kind `dov_stepkind` | Application field; Tracked step | [Proposed] separates real columns from checklist items |
 | Intake status `dov_intakestatus` | Open; Closed | [Prototype] |
 
-After you create each choice, write down the integer value Dataverse assigns
-to every option (Choice → option → *Value*). Flow F3 needs the stage values
-(§4).
+The importable solution fixes the values: option *n* (counting from 0) of
+every choice is 725590000 + *n*. The full list is in
+`04-importable-solution.md`.
 
 ### 2.2 Tables
 
@@ -117,9 +117,9 @@ rehire/transfer keeps one person across applications
 | Required open `dov_reqrequiredopen` | Whole number | Maintained by F2 |
 | Required overdue `dov_reqoverdue` | Whole number | Maintained by F2/F4 |
 | Required due soon `dov_reqduesoon` | Whole number | Maintained by F2/F4 (due within 3 days) |
-| Readiness `dov_readiness` | **Formula**, whole number | `If('Requirements counted' = 0, 0, Round('Requirements cleared' / 'Requirements counted' * 100, 0))` [Prototype] |
-| Risk `dov_risk` | **Formula**, text | `If('Required overdue' > 0, "Blocked", 'Required due soon' > 0, "Due soon", "Clear")` [Proposed] the prototype never calculates risk [Confirm thresholds] |
-| Days in stage `dov_daysinstage` | **Formula**, whole number | `DateDiff('Stage changed on', UTCNow(), TimeUnit.Days)`. If your environment rejects `UTCNow()` in formula columns, calculate it in the app instead. |
+| Readiness `dov_readiness` | Whole number 0–100, written by F2 | cleared ÷ counted × 100, rounded; 0 when nothing is counted [Prototype] |
+| Risk `dov_risk` | Choice *Risk level*, written by F2 | Blocked if any required item is overdue, else Due soon if any is due within 3 days, else Clear [Proposed; the prototype never calculates risk] [Confirm thresholds] |
+| *(Days in stage)* | not stored | Calculated in the app: `DateDiff(ThisItem.'Stage changed on', Now(), TimeUnit.Days)` |
 
 **Workflow Step** `dov_workflowstep` — [Prototype] `TrackableColumn`, with
 explicit rules instead of rules implied by category
@@ -145,7 +145,7 @@ explicit rules instead of rules implied by category
 | Column | Type | Notes |
 |---|---|---|
 | Name `dov_name` | Text 100, Req | Copy of the step label |
-| Application `dov_application` | Lookup → Application, Req, **Parental** (cascade delete/assign/share) | |
+| Application `dov_application` | Lookup → Application, Req, delete cascades | |
 | Workflow step `dov_workflowstep` | Lookup → Workflow Step, Req | Alternate key *Application + step* (no duplicate rows) |
 | State `dov_state` | Choice (requirement state), default Not started | |
 | Value `dov_value` | Text 500 | Dropdown choice or free text/evidence note |
@@ -171,15 +171,15 @@ action (§4-F1b) applies changes on purpose.
 | Column | Type | Notes |
 |---|---|---|
 | Name `dov_name` | Text 300 | "Office – Requirement", set by the app |
-| Office `dov_office` | Lookup → Office, Req, Parental | |
-| Site requirement `dov_siterequirement` | Lookup → Site Requirement, Req, Parental | Alternate key *Office + requirement* |
+| Office `dov_office` | Lookup → Office, Req, delete cascades | |
+| Site requirement `dov_siterequirement` | Lookup → Site Requirement, Req, delete restricted | Alternate key *Office + requirement* |
 | Office text `dov_officetext` | Multiline 4000 | [Proposed] **blank = inherit the standard.** A row exists only for a real variation (fixes the "Use default" copy problem). |
 
 **Stage History** `dov_stagehistory` — [Proposed] replaces the invented history tab
 | Column | Type | Notes |
 |---|---|---|
 | Name `dov_name` | Text 200 | e.g. "Background checks → Offer stage" |
-| Application `dov_application` | Lookup, Parental | |
+| Application `dov_application` | Lookup, delete cascades | |
 | From stage `dov_fromstage` / To stage `dov_tostage` | Choice (stage) | |
 | Outcome reason `dov_outcomereason` | Choice | |
 | Changed by `dov_changedby` | Lookup → User | Caller, recorded by F3 |
@@ -267,6 +267,9 @@ changes.
   open and `less(item()?['dov_duedate'], formatDateTime(utcNow(),'yyyy-MM-dd'))`);
   due soon (required open and due date ≤ `addDays(utcNow(),3,'yyyy-MM-dd')`).
 - **Update a row** *Applications*: the five count columns = `length(body('...'))`.
+  Readiness = `if(equals(length(body('Counted')),0),0,div(mul(length(body('Cleared')),100),length(body('Counted'))))`
+  (whole-number division rounds down; the prototype rounds to nearest, which differs by at most 1).
+  Risk = `if(greater(length(body('Overdue')),0),725590002,if(greater(length(body('DueSoon')),0),725590001,725590000))`.
 - Wrapper flow: **When a row is added, modified or deleted** on *Application
   Requirements*. For modify, select columns `dov_state,dov_duedate,dov_required,dov_countstowardreadiness`.
   Then run the child flow with `_dov_application_value`.
@@ -283,8 +286,8 @@ the grid status edit (`:2116`). **This is the only way Stage changes.**
   `Current = body/dov_stage@OData.Community.Display.V1.FormattedValue`.
 - **Compose** `Order`:
   `{"Background checks":1,"Offer stage":2,"Contract issued":3,"Contract signed":4,"Onboarded":5}`
-- **Compose** `StageValue` (the integers you noted in §2.1):
-  `{"Background checks":<v>,"Offer stage":<v>,"Contract issued":<v>,"Contract signed":<v>,"Onboarded":<v>,"On hold":<v>,"Withdrawn":<v>}`
+- **Compose** `StageValue`:
+  `{"Background checks":725590000,"Offer stage":725590001,"Contract issued":725590002,"Contract signed":725590003,"Onboarded":725590004,"On hold":725590005,"Withdrawn":725590006}`
 - **Switch** on `Action`, and work out `Target` and whether the move is allowed:
 
   | Action | Allowed from | Target | Extra |

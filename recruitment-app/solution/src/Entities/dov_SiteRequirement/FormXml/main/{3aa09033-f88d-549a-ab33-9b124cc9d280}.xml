@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{3aa09033-f88d-549a-ab33-9b124cc9d280}</formid>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{91cd84db-cbf2-5164-97ef-5a8a5d50445d}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{078b7efc-f920-5bee-8939-a7d7e2765d72}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{21ad39b1-aebf-59b9-935f-42e5cfd54207}">
+                        <labels>
+                          <label description="Site requirement" languagecode="1033" />
+                        </labels>
+                        <control id="dov_name" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="dov_name" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{5dec1885-9889-5bbd-a6dd-8d5fe4e61cf3}">
+                        <labels>
+                          <label description="Standard text" languagecode="1033" />
+                        </labels>
+                        <control id="dov_standardtext" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="dov_standardtext" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{47f14b08-ad33-5240-bd87-1fcd2ce6a093}">
+                        <labels>
+                          <label description="Sort order" languagecode="1033" />
+                        </labels>
+                        <control id="dov_sortorder" classid="{C6D124CA-7EDA-4A60-AEA9-7FB8D318B68F}" datafieldname="dov_sortorder" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e2e385ca-60c4-5df9-ba14-4542308bd5c5}">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>
