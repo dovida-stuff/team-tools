@@ -956,7 +956,7 @@ const zoneBaseline = new Map();  // zone object -> its state as published in thi
 const editState = {
   on: false, selected: null, dirty: new Set(), deleted: new Map(),
   undo: [], lastSnap: 0, suspend: false, newSeq: 0, drawing: null, pass: null, savePassword: null,
-  officesDirty: false, officeFormCode: null, placingPin: null, pinPick: null, officeSecondaries: [], msg: '',
+  officesDirty: false, officeFormCode: null, placingPin: null, pinPick: null, drawPick: null, officeSecondaries: [], msg: '',
   pendingDraft: null, publishedZones: '', publishedOffices: '', publishedStates: '',
 };
 
@@ -1250,39 +1250,59 @@ function moveZoneToOffice(z, newCode) {
 
 /* ---- drawing a new zone ---- */
 
+// Google withdrew DrawingManager from the Maps API (v3.65), so zones are drawn
+// by collecting clicks ourselves. Clicks on existing zones and pins count too.
 function startDrawingZone() {
   if (editState.drawing) return;
-  if (!google.maps.drawing) { setEditStatus('The Google drawing library did not load - reload the page.'); return; }
   selectZoneForEdit(null);
   document.getElementById('info-panel').classList.remove('visible');
   document.getElementById('edit-draw-bar').classList.add('visible');
-  const drawOpts = code => ({ strokeColor: '#ffffff', strokeWeight: 3, fillColor: getOfficeColor(code), fillOpacity: 0.45, zIndex: 9000 });
-  const dm = new google.maps.drawing.DrawingManager({
-    drawingMode: google.maps.drawing.OverlayType.POLYGON,
-    drawingControl: false,
-    polygonOptions: drawOpts(document.getElementById('edit-draw-office').value),
+  const officeSel = document.getElementById('edit-draw-office');
+  const corners = new google.maps.MVCArray();
+  const shape = new google.maps.Polygon({
+    map: map, paths: corners, clickable: false, zIndex: 9000,
+    strokeColor: '#ffffff', strokeWeight: 3, fillColor: getOfficeColor(officeSel.value), fillOpacity: 0.45,
   });
-  dm.setMap(map);
-  editState.drawing = dm;
-  dm.addListener('polygoncomplete', tempPoly => {
-    const coords = [];
-    tempPoly.getPath().forEach(p => coords.push([round7(p.lat()), round7(p.lng())]));
-    const office = document.getElementById('edit-draw-office').value;
-    tempPoly.setMap(null);
-    cancelDrawingZone();
-    if (coords.length < 3) { setEditStatus('A zone needs at least 3 corners - try again.'); return; }
-    coords.push(coords[0].slice());
-    finishNewZone(coords, office);
+  const start = new google.maps.Marker({
+    map: null, zIndex: 9999, cursor: 'pointer', title: 'Close the shape',
+    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 7, fillColor: '#ffffff', fillOpacity: 1, strokeColor: '#5f0505', strokeWeight: 2 },
   });
-  document.getElementById('edit-draw-office').onchange = () => {
-    dm.setOptions({ polygonOptions: drawOpts(document.getElementById('edit-draw-office').value) });
+  const draw = { corners: corners, shape: shape, start: start, listener: null };
+  editState.drawing = draw;
+  editState.drawPick = latLng => {
+    corners.push(latLng);
+    if (corners.getLength() === 1) { start.setPosition(latLng); start.setMap(map); }
   };
+  draw.listener = map.addListener('click', e => editState.drawPick && editState.drawPick(e.latLng));
+  start.addListener('click', finishDrawingZone);
+  map.setOptions({ disableDoubleClickZoom: true, draggableCursor: 'crosshair' });
+  officeSel.onchange = () => shape.setOptions({ fillColor: getOfficeColor(officeSel.value) });
   refreshEditPanel();
   setEditStatus('Click on the map to place each corner, then click the first corner again to close the shape.');
 }
 
+function finishDrawingZone() {
+  const draw = editState.drawing;
+  if (!draw) return;
+  const coords = [];
+  draw.corners.forEach(p => coords.push([round7(p.lat()), round7(p.lng())]));
+  const office = document.getElementById('edit-draw-office').value;
+  cancelDrawingZone();
+  if (coords.length < 3) { setEditStatus('A zone needs at least 3 corners - try again.'); return; }
+  coords.push(coords[0].slice());
+  finishNewZone(coords, office);
+}
+
 function cancelDrawingZone() {
-  if (editState.drawing) { editState.drawing.setMap(null); editState.drawing = null; }
+  const draw = editState.drawing;
+  if (draw) {
+    draw.shape.setMap(null);
+    draw.start.setMap(null);
+    if (draw.listener) google.maps.event.removeListener(draw.listener);
+    map.setOptions({ disableDoubleClickZoom: false, draggableCursor: null });
+    editState.drawing = null;
+  }
+  editState.drawPick = null;
   document.getElementById('edit-draw-bar').classList.remove('visible');
   refreshEditPanel();
 }
@@ -1823,6 +1843,7 @@ function applyOfficeAppearance(code) {
 }
 
 function openOfficeModal() {
+  cancelDrawingZone();
   document.getElementById('office-modal').classList.add('visible');
   renderOfficeList();
   showOfficeList();
@@ -2098,8 +2119,9 @@ function startPinPlacement(onPick) {
 
 // Returns true when the click was consumed as a pin placement.
 function takePinClick(e) {
-  if (!editState.pinPick || !e || !e.latLng) return false;
-  editState.pinPick(e.latLng);
+  const pick = editState.pinPick || editState.drawPick;
+  if (!pick || !e || !e.latLng) return false;
+  pick(e.latLng);
   if (e.stop) e.stop();
   return true;
 }
@@ -2166,6 +2188,6 @@ function refreshEditPanel() {
   renderEditNote();
 }
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjgM2rBWy-8T9_hwXrEcILWlk3q9O6cFI&libraries=drawing&callback=initMap"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjgM2rBWy-8T9_hwXrEcILWlk3q9O6cFI&callback=initMap"></script>
 </body>
 </html>
