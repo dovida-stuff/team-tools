@@ -242,6 +242,7 @@ svg.ic{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke
     </div>
     <div id="header-right">
       <span id="edit-badge">Edit mode</span>
+      <button id="edit-open" class="btn" title="Edit zones and offices (needs the editor passphrase)" hidden><svg class="ic" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>Edit map</button>
       <button id="reset-btn" class="btn" onclick="resetView()"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Reset view</button>
     </div>
   </header>
@@ -1158,6 +1159,11 @@ function initEditor() {
     }
   });
 
+  // The editor needs the map, so its button only appears once the map has loaded.
+  const openBtn = document.getElementById('edit-open');
+  openBtn.onclick = () => { if (!editState.on) unlockEditor(); };
+  openBtn.hidden = false;
+
   window.addEventListener('hashchange', () => { if (location.hash === '#edit' && !editState.on) unlockEditor(); });
   if (location.hash === '#edit') unlockEditor();
 }
@@ -1199,6 +1205,7 @@ function enterEditMode() {
   buildOfficeSelect();
   document.getElementById('edit-panel').classList.add('visible');
   document.getElementById('edit-badge').classList.add('visible');
+  document.getElementById('edit-open').hidden = true;
   // What the file held when this page loaded, so the Worker can spot a stale save.
   markPublishedState();
   offerDraft();
@@ -1216,6 +1223,7 @@ function exitEditMode() {
   editState.savePassword = null;
   document.getElementById('edit-panel').classList.remove('visible');
   document.getElementById('edit-badge').classList.remove('visible');
+  document.getElementById('edit-open').hidden = false;
   history.replaceState(null, '', location.pathname);
 }
 
