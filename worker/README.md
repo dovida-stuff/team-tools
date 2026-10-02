@@ -4,6 +4,19 @@
 this repo. It exists so the map page never carries a GitHub credential: editors
 only need the shared password.
 
+It also checks that password when someone clicks **Edit map**, so there is only
+one password for the whole editor. "Remember me" on the map stores a 30-day
+token from the Worker, not the password itself.
+
+## Updating the Worker
+
+When `save-worker.js` changes, paste the new version over the old one:
+open the Worker in Cloudflare, **Edit code**, replace everything, **Deploy**.
+The secrets stay as they are.
+
+The map keeps working with an older Worker, but "Remember me", the save note
+and the "someone else has saved" warning need the current one.
+
 The Worker can only rewrite the `ZONES`, `OFFICES` and `STATE_GROUPS` lines of
 `index.html`. It cannot commit anything else, so a leaked password means
 someone can alter map data — not push arbitrary files to the repo.
@@ -44,7 +57,8 @@ exist, never their values.
 ## Day-to-day
 
 - **Change the password** — update `EDIT_PASSWORD` in the dashboard. Everyone is
-  locked out immediately; no change to the map file is needed.
+  locked out immediately, including devices that chose "Remember me"; no change
+  to the map file is needed.
 - **Rotate the GitHub token** — update `GITHUB_TOKEN`. Nobody else notices.
 - **Turn saving off** — delete the Worker, or clear its secrets. The map itself
   keeps working; only saving stops.
@@ -53,8 +67,8 @@ exist, never their values.
 
 | Status | Meaning |
 | --- | --- |
-| 200 | Saved. Body has the commit `sha` and `url`. |
-| 401 | Wrong password. |
+| 200 | Saved (body has the commit `sha` and `url`), or for `action: "check"`, signed in (body has a `token` and any `stale` data). |
+| 401 | Wrong password, or an expired or cancelled token. |
 | 403 | Request came from an origin other than the map. |
 | 409 | The published map changed since the editor's page loaded. Nothing was written. |
 | 400 | The submitted data was missing or malformed. Nothing was written. |

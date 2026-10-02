@@ -9,6 +9,16 @@
  * arbitrary files, so a leaked password means "someone can alter map data",
  * not "someone can push anything to the repo".
  *
+ * Editors sign in with the shared password. The map can then remember them
+ * with a 30-day token signed with that password, so changing the password
+ * also cancels every remembered sign-in.
+ *
+ * Requests (all POST, JSON):
+ *   { action: 'check', password | token, basedOn? }
+ *       -> { ok, token, stale }  stale lists data that changed since basedOn
+ *   { password | token, zones, offices, states, basedOn, summary, note }
+ *       -> { ok, sha, url, token }  commits the new data
+ *
  * Secrets to set in the Cloudflare dashboard (Settings -> Variables):
  *   GITHUB_TOKEN    fine-grained PAT, this repo only, Contents: Read and write
  *   EDIT_PASSWORD   the password editors type on the map
@@ -18,6 +28,7 @@
 
 const REPO = { owner: 'dovida-stuff', repo: 'team-tools', path: 'index.html', branch: 'main' };
 const DEFAULT_ORIGIN = 'https://dovida-stuff.github.io';
+const TOKEN_DAYS = 30;
 
 // Each data structure and the shape it has to have to be accepted.
 const FIELDS = [
@@ -61,8 +72,18 @@ export default {
     let body;
     try { body = await request.json(); } catch (err) { return reply({ error: 'Body was not valid JSON.' }, 400, cors); }
 
-    if (typeof body.password !== 'string' || !(await sameSecret(body.password, env.EDIT_PASSWORD))) {
+    if (!(await signedIn(body, env))) {
       return reply({ error: 'That password is not right.' }, 401, cors);
+    }
+    const token = await makeToken(env);
+
+    // Sign-in check, and a heads-up when someone else has saved since.
+    if (body.action === 'check') {
+      let stale = [];
+      if (body.basedOn) {
+        try { stale = staleFields(await readPublishedFile(env), body.basedOn); } catch (err) { stale = []; }
+      }
+      return reply({ ok: true, token, stale }, 200, cors);
     }
 
     for (const f of FIELDS) {
@@ -74,10 +95,7 @@ export default {
 
       // Reject a save built on a version of the map that has since moved on.
       if (body.basedOn) {
-        const stale = FIELDS.filter(f => {
-          const was = body.basedOn[f.key];
-          return typeof was === 'string' && was !== canonical(source, f.name);
-        }).map(f => f.key);
+        const stale = staleFields(source, body.basedOn);
         if (stale.length) {
           return reply({
             error: 'conflict',
@@ -99,11 +117,12 @@ export default {
         throw new Error('The rebuilt file was less than half the size of the published one, so it was not committed.');
       }
 
-      const commit = await commitFile(env, out, describe(body.summary));
+      const commit = await commitFile(env, out, describe(body.summary, body.note));
       return reply({
         ok: true,
         sha: commit.sha,
         url: 'https://github.com/' + REPO.owner + '/' + REPO.repo + '/commit/' + commit.sha,
+        token,
       }, 200, cors);
     } catch (err) {
       return reply({ error: String(err.message || err) }, 502, cors);
@@ -134,6 +153,37 @@ async function sameSecret(given, expected) {
   return diff === 0;
 }
 
+async function signedIn(body, env) {
+  if (typeof body.password === 'string') return sameSecret(body.password, env.EDIT_PASSWORD);
+  if (typeof body.token === 'string') return validToken(body.token, env);
+  return false;
+}
+
+async function hmac(key, text) {
+  const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(key), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(text));
+  return [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// "<expiry seconds>.<signature>", signed with the password itself.
+async function makeToken(env) {
+  const exp = Math.floor(Date.now() / 1000) + TOKEN_DAYS * 86400;
+  return exp + '.' + (await hmac(env.EDIT_PASSWORD, 'dovida-map-edit:' + exp));
+}
+
+async function validToken(token, env) {
+  const [exp, sig] = token.split('.');
+  if (!/^\d+$/.test(exp || '') || !sig || +exp < Date.now() / 1000) return false;
+  return sameSecret(sig, await hmac(env.EDIT_PASSWORD, 'dovida-map-edit:' + exp));
+}
+
+function staleFields(source, basedOn) {
+  return FIELDS.filter(f => {
+    const was = basedOn[f.key];
+    return typeof was === 'string' && was !== canonical(source, f.name);
+  }).map(f => f.key);
+}
+
 // Re-serialised so formatting differences never read as a change.
 function canonical(source, name) {
   const m = source.match(new RegExp('^const ' + name + '=(.*);$', 'm'));
@@ -141,9 +191,12 @@ function canonical(source, name) {
   try { return JSON.stringify(JSON.parse(m[1])); } catch (err) { return null; }
 }
 
-function describe(summary) {
-  const clean = typeof summary === 'string' ? summary.replace(/[\r\n]+/g, ' ').trim().slice(0, 120) : '';
-  return 'Update ' + (clean || 'territory map') + ' from the map editor';
+// The editor's own note leads the commit message when there is one.
+function describe(summary, note) {
+  const tidy = (s, n) => (typeof s === 'string' ? s.replace(/[\r\n]+/g, ' ').trim().slice(0, n) : '');
+  const what = 'Update ' + (tidy(summary, 120) || 'territory map') + ' from the map editor';
+  const said = tidy(note, 200);
+  return said ? said + '\n\n' + what : what;
 }
 
 function github(env, path, init = {}) {

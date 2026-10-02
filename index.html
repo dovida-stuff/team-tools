@@ -73,9 +73,6 @@ svg.ic{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke
 .search-result-meta i{width:8px;height:8px;border-radius:2px;flex-shrink:0}
 .search-result-meta.outside{color:var(--slate-400)}
 #header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-#edit-badge{display:none;align-items:center;gap:6px;background:var(--teal-50);border:1px solid var(--teal-200);color:var(--teal-800);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600}
-#edit-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--teal-600)}
-#edit-badge.visible{display:inline-flex}
 
 /* ---- buttons ---- */
 .btn,.edit-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--slate-200);background:#fff;color:var(--slate-700);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;box-shadow:var(--shadow-sm);transition:background .12s,border-color .12s,color .12s}
@@ -102,113 +99,152 @@ svg.ic{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke
 #info-address{font-size:13px;color:var(--slate-700);border-top:1px solid var(--slate-100);padding-top:10px;line-height:1.5}
 #info-address strong{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--teal-700);display:block;margin-bottom:2px}
 
-/* ---- zone editor (unlocked via #edit + passphrase) ---- */
-#edit-panel{position:absolute;top:12px;left:12px;width:300px;background:#fff;border:1px solid var(--slate-200);border-radius:12px;z-index:1200;display:none;box-shadow:var(--shadow-lg);max-height:calc(100% - 24px);flex-direction:column;overflow:hidden}
-#edit-panel.visible{display:flex}
-#edit-head{padding:10px 12px 10px 16px;border-bottom:1px solid var(--slate-100);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-#edit-head span{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--slate-900)}
-#edit-head span svg{color:var(--teal-700)}
-#edit-body{padding:14px 16px;overflow-y:auto;flex:1;min-height:0}
-#edit-body::-webkit-scrollbar{width:6px}
-#edit-body::-webkit-scrollbar-thumb{background:var(--slate-200);border-radius:3px}
-#edit-empty p{font-size:13px;color:var(--slate-500);line-height:1.6;margin-bottom:12px}
-#edit-draft-bar{border:1px solid var(--amber-200);background:var(--amber-50);border-radius:10px;padding:10px 12px;margin-bottom:12px}
-#edit-draft-text{font-size:13px;color:var(--amber-800);line-height:1.5;margin-bottom:10px}
-#edit-draft-text b{color:var(--amber-900)}
-#edit-draft-bar .edit-row{margin-bottom:0}
-#edit-sel{border:1px solid var(--slate-200);border-radius:10px;padding:12px;margin-bottom:10px;background:var(--slate-50)}
-#edit-sel-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-#edit-sel-title{display:flex;align-items:center;gap:8px}
-#edit-sel-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
-#edit-sel-name{font-size:15px;font-weight:600;color:var(--slate-900);line-height:1.25}
-#edit-sel-meta{font-size:12px;color:var(--slate-500);margin-top:3px;line-height:1.5}
-#edit-fields{margin-top:12px;border-top:1px solid var(--slate-200);padding-top:12px}
-#edit-fields label,.edit-field-label,#office-form-view label,.office-form-full{display:block;font-size:12px;font-weight:500;color:var(--slate-600);margin-bottom:10px}
-.edit-field-label{margin-bottom:4px}
-#edit-fields input[type=text],#edit-fields select,#office-form-view input[type=text],#office-form-view select,#edit-pw-input,#unlock-input,#edit-draw-office{display:block;width:100%;height:34px;margin-top:4px;background:#fff;border:1px solid var(--slate-200);border-radius:8px;padding:0 10px;font-size:13px;color:var(--slate-900);outline:none;box-shadow:var(--shadow-sm);transition:border-color .15s,box-shadow .15s}
-#edit-fields input[type=text]:focus,#edit-fields select:focus,#office-form-view input[type=text]:focus,#office-form-view select:focus,#edit-pw-input:focus,#unlock-input:focus,#edit-draw-office:focus{border-color:var(--teal-600);box-shadow:0 0 0 3px rgb(204 251 241/.7)}
-#office-form-view input:disabled{background:var(--slate-100);opacity:.7;cursor:not-allowed}
-.edit-field-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-#edit-fill-row{display:flex;gap:6px;align-items:center;margin-bottom:8px}
-#edit-f-fill{width:38px;height:32px;padding:2px;border:1px solid var(--slate-200);border-radius:8px;background:#fff;cursor:pointer;flex-shrink:0}
-#edit-fill-preview{flex:1;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;min-width:0}
-#edit-fill-preview span{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.8);text-shadow:0 1px 2px rgba(0,0,0,.8)}
-#edit-f-fill-reset{flex:0 0 auto;height:32px;padding:0 10px;font-size:12px}
-#edit-fill-inuse{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+/* ---- editor workspace (Edit map) ----
+   While editing, the header becomes the toolbar, the sidebar lists zones and
+   offices, and a fixed panel on the right shows whatever is selected. */
+#ed-toolbar,#ed-nav,#ed-insp,#ed-hint{display:none}
+body.editing #search-wrap,body.editing #header-right,body.editing #state-toggles,body.editing .side-label,body.editing #office-list,body.editing #info-panel{display:none!important}
+body.editing #ed-toolbar{display:flex}
+body.editing #ed-nav{display:flex}
+body.editing #ed-insp{display:flex}
+body.editing #ed-hint{display:flex}
+body.editing #map{right:340px}
+
+#ed-toolbar{flex:1;align-items:center;gap:10px;min-width:0}
+.seg{display:inline-flex;background:var(--slate-100);border:1px solid var(--slate-200);border-radius:8px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:5px 12px;border-radius:6px;font-size:13px;font-weight:600;color:var(--slate-700);cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.seg button:hover{background:#fff}
+.seg button.on{background:var(--teal-700);color:#fff;box-shadow:var(--shadow-sm)}
+.seg button kbd{font-family:inherit;font-size:10.5px;font-weight:600;padding:0 5px;border-radius:4px;background:rgb(15 23 42/.07);color:inherit}
+.seg button.on kbd{background:rgb(255 255 255/.2)}
+.btn.ghost{border-color:transparent;box-shadow:none;background:transparent}
+.btn.ghost:hover:not(:disabled){background:var(--slate-100);border-color:transparent}
+.btn.icon{width:34px;padding:0}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.primary{background:var(--teal-700);border-color:var(--teal-700);color:#fff}
+.btn.primary:hover:not(:disabled){background:var(--teal-800);border-color:var(--teal-800);color:#fff}
+#ed-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+#ed-status{font-size:12.5px;color:var(--slate-500);white-space:nowrap}
+
+/* sidebar navigator */
+#ed-nav{flex:1;flex-direction:column;min-height:0}
+#ed-tabs{padding:2px 12px 8px}
+#ed-tabs .seg{display:flex;background:rgb(255 255 255/.06);border-color:rgb(255 255 255/.1)}
+#ed-tabs .seg button{flex:1;justify-content:center;color:var(--slate-300)}
+#ed-tabs .seg button:hover{background:rgb(255 255 255/.06);color:#fff}
+#ed-tabs .seg button.on{background:rgb(255 255 255/.14);color:#fff;box-shadow:none}
+#ed-find{margin:0 12px 6px;height:32px;border-radius:8px;background:rgb(255 255 255/.06);border:1px solid rgb(255 255 255/.12);color:#fff;font-size:13px;padding:0 10px;outline:none}
+#ed-find::placeholder{color:var(--slate-400)}
+#ed-find:focus{border-color:var(--teal-400)}
+#ed-list{flex:1;overflow-y:auto;padding:0 8px 10px}
+#ed-list::-webkit-scrollbar{width:6px}
+#ed-list::-webkit-scrollbar-thumb{background:rgb(255 255 255/.15);border-radius:3px}
+.nav-state{padding:12px 8px 4px;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--slate-400)}
+.nav-group{display:flex;align-items:center;gap:6px;padding:8px 4px 2px 8px}
+.nav-group-name{flex:1;min-width:0;border:0;background:transparent;color:#e2e8f0;font-size:12.5px;font-weight:600;text-align:left;cursor:pointer;display:flex;align-items:center;gap:8px;padding:2px 0;border-radius:6px}
+.nav-group-name:hover{color:#fff}
+.nav-group-name i,.nav-row i.dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;box-shadow:0 0 0 1px rgb(255 255 255/.2)}
+.nav-add{border:0;background:transparent;color:var(--teal-300);font-size:17px;line-height:1;width:24px;height:24px;border-radius:6px;cursor:pointer;flex-shrink:0}
+.nav-add:hover{background:rgb(45 212 191/.15);color:#fff}
+.nav-row{width:100%;border:0;background:transparent;text-align:left;display:flex;align-items:center;gap:8px;padding:5px 8px 5px 24px;border-radius:7px;color:var(--slate-300);font-size:12.5px;cursor:pointer}
+.nav-row.office{padding-left:8px}
+.nav-row:hover{background:rgb(255 255 255/.06);color:#fff}
+.nav-row.on{background:rgb(255 255 255/.12);color:#fff;box-shadow:inset 3px 0 0 var(--teal-400)}
+.nav-row .n{min-width:20px;height:18px;padding:0 4px;border-radius:5px;background:rgb(255 255 255/.08);font-size:10.5px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:#e2e8f0}
+.nav-row .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-row.gone .t{text-decoration:line-through;color:var(--slate-400)}
+.nav-empty{padding:16px 8px;color:var(--slate-400);font-size:12.5px}
+.chip{font-size:10px;font-weight:600;border-radius:999px;padding:1px 7px;border:1px solid;flex-shrink:0;white-space:nowrap}
+.chip.edited{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.chip.new{background:var(--teal-50);border-color:var(--teal-200);color:var(--teal-800)}
+.chip.deleted{background:var(--rose-50);border-color:var(--rose-200);color:var(--rose-700)}
+.chip.muted{background:rgb(255 255 255/.06);border-color:rgb(255 255 255/.12);color:var(--slate-400)}
+#ed-nav-foot{padding:10px 12px 12px;border-top:1px solid rgb(255 255 255/.08);display:grid;gap:8px}
+#ed-nav-foot p{font-size:11.5px;color:var(--slate-400);line-height:1.45}
+#ed-new-office{background:transparent;color:#e2e8f0;border-color:rgb(255 255 255/.18);box-shadow:none;width:100%}
+#ed-new-office:hover{background:rgb(255 255 255/.06);color:#fff;border-color:rgb(255 255 255/.3)}
+
+/* details panel */
+#ed-insp{position:absolute;top:0;right:0;bottom:0;width:340px;background:#fff;border-left:1px solid var(--slate-200);flex-direction:column;z-index:1100}
+.insp-head{padding:14px 16px 12px;border-bottom:1px solid var(--slate-100);display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.insp-title{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;color:var(--slate-900);line-height:1.3}
+.insp-title i{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.insp-sub{font-size:12.5px;color:var(--slate-500);margin-top:2px}
+.insp-body{flex:1;overflow-y:auto;padding:14px 16px;display:grid;gap:12px;align-content:start}
+.insp-body::-webkit-scrollbar{width:6px}
+.insp-body::-webkit-scrollbar-thumb{background:var(--slate-200);border-radius:3px}
+.insp-foot{border-top:1px solid var(--slate-100);background:var(--slate-50);padding:12px 16px;display:flex;gap:8px}
+.insp-foot .edit-btn{flex:1}
+.sec{font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--slate-500);margin-top:4px}
+.fld{display:grid;gap:5px;font-size:12px;font-weight:500;color:var(--slate-600)}
+.fld input[type=text],.fld select,.sat input[type=text],#unlock-input,#ed-note{width:100%;height:34px;background:#fff;border:1px solid var(--slate-200);border-radius:8px;padding:0 10px;font-size:13px;color:var(--slate-900);outline:none;box-shadow:var(--shadow-sm);transition:border-color .15s,box-shadow .15s}
+.fld input[type=text]:focus,.fld select:focus,.sat input[type=text]:focus,#unlock-input:focus,#ed-note:focus{border-color:var(--teal-600);box-shadow:0 0 0 3px rgb(204 251 241/.7)}
+.fld input:disabled{background:var(--slate-100);color:var(--slate-500)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fake-in{height:34px;border:1px solid var(--slate-200);border-radius:8px;background:var(--slate-50);padding:0 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--slate-500);font-weight:400}
+.linkbtn{border:0;background:transparent;color:var(--teal-700);font-weight:600;font-size:12.5px;cursor:pointer;padding:0}
+.linkbtn:hover{text-decoration:underline}
+.help{font-size:12px;color:var(--slate-500);line-height:1.5}
+.help b{color:var(--slate-900);font-weight:600}
+.err{font-size:12.5px;color:var(--rose-700)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:var(--slate-900);cursor:pointer}
+.toggle small{display:block;font-size:11.5px;color:var(--slate-500);margin-top:1px}
+.sw{appearance:none;-webkit-appearance:none;width:34px;height:20px;border-radius:999px;background:var(--slate-300);position:relative;flex-shrink:0;cursor:pointer;transition:background .15s;margin:0}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(0 0 0/.2);transition:left .15s}
+.sw:checked{background:var(--teal-700)}
+.sw:checked::after{left:16px}
+.colour-row{display:flex;gap:8px;align-items:center}
+.colour-row input[type=color]{width:40px;height:34px;padding:2px;border:1px solid var(--slate-200);border-radius:8px;background:#fff;cursor:pointer;flex-shrink:0}
+.fill-preview{flex:1;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.8);text-shadow:0 1px 2px rgba(0,0,0,.8)}
+.chips-in-use{display:flex;flex-wrap:wrap;gap:5px}
 .fill-chip{width:24px;height:20px;border-radius:5px;border:1px solid var(--slate-300);cursor:pointer;padding:0;transition:transform .1s,box-shadow .1s}
 .fill-chip:hover{transform:scale(1.1)}
 .fill-chip.on{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--teal-600)}
-#edit-fill-note{font-size:12px;color:var(--slate-500);line-height:1.5}
-#edit-fill-note b{color:var(--slate-700);font-weight:600}
-#edit-hint{margin-top:10px;border-top:1px solid var(--slate-100);padding-top:10px}
-#edit-hint summary{font-size:13px;font-weight:500;color:var(--teal-700);cursor:pointer;list-style:none}
-#edit-hint summary::-webkit-details-marker{display:none}
-#edit-hint summary::before{content:"\25B8  "}
-#edit-hint[open] summary::before{content:"\25BE  "}
-#edit-hint p{font-size:12px;color:var(--slate-600);line-height:1.65;margin-top:6px}
-#edit-hint b{color:var(--slate-900);font-weight:600}
-#edit-make-row{margin-top:2px}
-.edit-row{display:flex;gap:6px;margin-bottom:8px}
-.edit-row .edit-btn{flex:1}
-#edit-delete,#edit-discard{flex:0 0 38px;padding:0}
-#edit-foot{border-top:1px solid var(--slate-100);background:var(--slate-50);padding:12px 16px 4px;flex-shrink:0}
-#edit-note{font-size:12px;color:var(--slate-600);line-height:1.5;margin-bottom:10px;word-break:break-word}
-#edit-note b{color:var(--slate-900);font-weight:600}
-#edit-note a{color:var(--teal-700);font-weight:600}
+.sat{border:1px solid var(--slate-200);border-radius:10px;background:var(--slate-50);padding:10px;display:grid;gap:6px}
+.sat.placing{border-color:var(--teal-200);background:var(--teal-50)}
+.sat-actions{display:flex;gap:6px;align-items:center}
+.sat-actions .edit-btn{height:28px;font-size:12px;padding:0 10px}
+.sat-actions .where{flex:1;font-size:11.5px;color:var(--slate-500)}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:12.5px;color:var(--slate-600);align-items:center}
+.keys kbd{font-family:inherit;font-size:11px;font-weight:600;border:1px solid var(--slate-300);border-bottom-width:2px;border-radius:5px;padding:0 6px;background:var(--slate-50);color:var(--slate-900);justify-self:start;white-space:nowrap}
 
-/* bars shown while drawing a zone or placing a pin */
-#edit-draw-bar,#edit-pin-bar{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--slate-200);border-radius:999px;padding:8px 8px 8px 18px;z-index:1250;display:none;align-items:center;gap:10px;font-size:13px;color:var(--slate-700);box-shadow:var(--shadow-lg);white-space:nowrap}
-#edit-draw-bar.visible,#edit-pin-bar.visible{display:flex}
-#edit-draw-office{display:inline-block;width:auto;max-width:220px;margin-top:0;height:32px}
-#edit-draw-cancel,#edit-pin-cancel{border-radius:999px;height:32px}
+/* on-map messages */
+#ed-hint{position:absolute;left:calc((100% - 340px)/2);bottom:20px;transform:translateX(-50%);background:#fff;border:1px solid var(--slate-200);border-radius:999px;padding:8px 18px;z-index:1050;align-items:center;font-size:13px;color:var(--slate-700);box-shadow:var(--shadow-lg);white-space:nowrap;max-width:calc(100% - 380px);overflow:hidden;text-overflow:ellipsis}
+#ed-hint b{color:var(--slate-900)}
+#ed-hint kbd,.toast kbd{font-family:inherit;font-size:11px;font-weight:600;border:1px solid var(--slate-300);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--slate-50);color:var(--slate-900)}
+#ed-hint .sep{color:var(--slate-300);margin:0 8px}
+#ed-draft{position:absolute;top:12px;left:calc((100% - 340px)/2);transform:translateX(-50%);z-index:1060;background:#fffbeb;border:1px solid #fde68a;color:#78350f;border-radius:12px;padding:8px 8px 8px 14px;display:flex;align-items:center;gap:12px;font-size:13px;box-shadow:var(--shadow-lg);max-width:calc(100% - 380px)}
+#ed-draft .edit-btn{height:30px}
+.toast{position:absolute;left:calc((100% - 340px)/2);transform:translateX(-50%);bottom:72px;z-index:1070;background:var(--slate-900);color:#fff;border-radius:10px;padding:10px 10px 10px 14px;display:flex;align-items:center;gap:12px;font-size:13px;box-shadow:var(--shadow-lg);max-width:min(440px,calc(100% - 400px))}
+.toast.bad{background:var(--rose-700)}
+.toast button{border:0;background:rgb(255 255 255/.14);color:#fff;font-weight:600;font-size:12.5px;border-radius:6px;padding:4px 10px;cursor:pointer;white-space:nowrap}
+.toast button:hover{background:rgb(255 255 255/.24)}
+.toast .x{background:transparent;padding:4px 6px;opacity:.7}
 
 /* ---- modals ---- */
 .modal{position:fixed;inset:0;background:rgb(15 23 42/.45);backdrop-filter:blur(2px);z-index:3000;display:none;align-items:center;justify-content:center}
 .modal.visible{display:flex}
-.modal-box{background:#fff;border-radius:12px;box-shadow:var(--shadow-lg);border:1px solid var(--slate-200);width:420px;max-width:94vw}
-.modal-box h3{font-size:16px;font-weight:600;color:var(--slate-900);margin-bottom:6px}
-.modal-box p{font-size:13px;color:var(--slate-600);line-height:1.6;margin-bottom:10px}
-.modal-box .edit-modal-help{color:var(--slate-500);border-left:3px solid var(--teal-200);padding-left:10px}
-.modal-box b{color:var(--slate-900);font-weight:600}
-.modal-pad{padding:18px 20px 10px}
-.modal-foot{border-top:1px solid var(--slate-100);background:var(--slate-50);padding:12px 20px 4px;border-radius:0 0 12px 12px}
-.modal-foot .edit-row{justify-content:flex-end}
-.modal-foot .edit-row .edit-btn{flex:0 0 auto}
-#edit-pw-input,#unlock-input{margin:0 0 10px}
-#unlock-error{font-size:13px;color:var(--rose-700);min-height:18px;margin-bottom:4px}
-#edit-pw-remember-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--slate-600);margin-bottom:6px;cursor:pointer}
-#edit-pw-remember-row input{cursor:pointer;accent-color:var(--teal-700)}
-#office-modal-box{width:480px;max-height:86vh;display:flex;flex-direction:column}
-#office-modal-head{padding:12px 12px 12px 20px;border-bottom:1px solid var(--slate-100);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-#office-modal-head h3{margin:0}
-#office-list-view,#office-form-view{padding:16px 20px;overflow-y:auto}
-#office-form-view{display:none}
-#office-list-view::-webkit-scrollbar,#office-rows::-webkit-scrollbar,#office-form-view::-webkit-scrollbar{width:6px}
-#office-list-view::-webkit-scrollbar-thumb,#office-rows::-webkit-scrollbar-thumb,#office-form-view::-webkit-scrollbar-thumb{background:var(--slate-200);border-radius:3px}
-.office-modal-help{font-size:13px;color:var(--slate-500);line-height:1.55;margin-bottom:12px}
-#office-list-view .edit-row .edit-btn{flex:0 0 auto}
-#office-rows{max-height:46vh;overflow-y:auto;border:1px solid var(--slate-200);border-radius:10px;margin-bottom:10px}
-.office-row-state{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--slate-500);background:var(--slate-50);border-bottom:1px solid var(--slate-200);padding:6px 12px;position:sticky;top:0;z-index:1}
-.office-row{display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid var(--slate-100)}
-.office-row:last-child{border-bottom:none}
-.office-row:hover{background:var(--slate-50)}
-.office-row input[type=color],#office-form-view input[type=color]{width:30px;height:30px;padding:2px;border:1px solid var(--slate-200);border-radius:8px;background:#fff;cursor:pointer;flex-shrink:0}
-#office-form-view input[type=color]{display:block;width:100%;height:34px;margin-top:4px}
-.office-row-name{flex:1;min-width:0}
-.office-row-name b{display:block;font-size:13px;color:var(--slate-900);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.office-row-name span{font-size:12px;color:var(--slate-500)}
-.office-row-edit{flex:0 0 auto;height:30px}
-#office-form-view h4{font-size:15px;font-weight:600;color:var(--slate-900);margin-bottom:14px}
-.office-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-#office-f-pin{margin-top:4px;width:100%}
-#office-sec-section{border-top:1px solid var(--slate-100);padding-top:12px;margin:4px 0 12px}
-#office-sec-head{font-size:13px;font-weight:600;color:var(--slate-900);margin-bottom:8px}
-.office-sec-none{font-size:12px;color:var(--slate-500);margin-bottom:10px}
-.office-sec-row{border:1px solid var(--slate-200);border-radius:10px;background:var(--slate-50);padding:10px;margin-bottom:8px;display:grid;gap:6px}
-#office-form-view .office-sec-row input[type=text]{margin-top:0}
-.office-sec-coords{display:grid;grid-template-columns:1fr 1fr auto auto;gap:6px;align-items:center}
-.office-sec-coords .edit-btn{height:34px;padding:0 10px}
-#office-form-error{font-size:13px;color:var(--rose-700);min-height:18px;margin-bottom:8px;line-height:1.5}
+.modal-box{background:#fff;border-radius:14px;box-shadow:var(--shadow-lg);border:1px solid var(--slate-200);width:420px;max-width:94vw;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-box h3{font-size:16px;font-weight:600;color:var(--slate-900)}
+.modal-box p{font-size:13px;color:var(--slate-600);line-height:1.6}
+.modal-pad{padding:18px 20px 14px;display:grid;gap:10px}
+.modal-head{padding:14px 14px 14px 20px;border-bottom:1px solid var(--slate-100);display:flex;align-items:center;justify-content:space-between}
+.modal-foot{border-top:1px solid var(--slate-100);background:var(--slate-50);padding:12px 20px;display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.modal-foot .grow{flex:1;font-size:12.5px;color:var(--slate-500)}
+#unlock-error{font-size:13px;color:var(--rose-700);min-height:18px}
+#unlock-remember-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--slate-600);cursor:pointer}
+#unlock-remember-row input{cursor:pointer;accent-color:var(--teal-700)}
+#review-box{width:620px}
+#review-body{overflow-y:auto;padding:12px 20px;display:grid;gap:6px}
+.rv-group{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--slate-500);margin-top:6px}
+.rv-row{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--slate-100)}
+.rv-row:last-child{border-bottom:0}
+.rv-row svg{width:64px;height:44px;border-radius:6px;background:#242433;display:block}
+.rv-row b{font-size:13px;font-weight:600;color:var(--slate-900)}
+.rv-row span{display:block;font-size:12px;color:var(--slate-500)}
+.rv-row .edit-btn{height:28px;font-size:12px;padding:0 10px}
+.rv-warn{background:var(--rose-50);border:1px solid var(--rose-200);color:#9f1239;border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.5}
+#ed-note{margin-top:2px}
 
 /* Google's own pop-ups over office pins */
 .pin-iw{font-family:var(--font);padding:2px 2px 0;min-width:170px;max-width:240px}
@@ -231,6 +267,18 @@ svg.ic{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke
   <div id="state-toggles"></div>
   <div class="side-label">Offices</div>
   <div id="office-list"></div>
+  <div id="ed-nav">
+    <div id="ed-tabs"><div class="seg" role="tablist">
+      <button id="ed-tab-zones" class="on" role="tab">Zones</button>
+      <button id="ed-tab-offices" role="tab">Offices</button>
+    </div></div>
+    <input id="ed-find" type="text" placeholder="Find a zone" autocomplete="off" aria-label="Find"/>
+    <div id="ed-list"></div>
+    <div id="ed-nav-foot">
+      <button class="btn" id="ed-new-office" hidden>+ New office</button>
+      <p>Changes are kept in this browser until you save.</p>
+    </div>
+  </div>
 </aside>
 <div id="content">
   <header id="header">
@@ -240,9 +288,21 @@ svg.ic{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke
       <button id="search-clear" onclick="clearSearch()" title="Clear search" aria-label="Clear search"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
       <div id="search-results" role="listbox"></div>
     </div>
+    <div id="ed-toolbar">
+      <div class="seg" role="toolbar" aria-label="Tools">
+        <button id="ed-tool-select" class="on" title="Select and reshape (V)">Select <kbd>V</kbd></button>
+        <button id="ed-tool-draw" title="Draw a new zone (D)">Draw zone <kbd>D</kbd></button>
+      </div>
+      <button class="btn ghost icon" id="ed-undo" title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ic" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+      <button class="btn ghost icon" id="ed-redo" title="Redo (Ctrl+Shift+Z)" aria-label="Redo"><svg class="ic" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+      <div id="ed-right">
+        <span id="ed-status"></span>
+        <button class="btn primary" id="ed-review">Review &amp; save</button>
+        <button class="btn ghost" id="ed-done">Done</button>
+      </div>
+    </div>
     <div id="header-right">
-      <span id="edit-badge">Edit mode</span>
-      <button id="edit-open" class="btn" title="Edit zones and offices (needs the editor passphrase)" hidden><svg class="ic" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>Edit map</button>
+      <button id="edit-open" class="btn" title="Edit zones and offices (needs the editor password)" hidden><svg class="ic" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>Edit map</button>
       <button id="reset-btn" class="btn" onclick="resetView()"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Reset view</button>
     </div>
   </header>
@@ -258,170 +318,42 @@ svg.ic{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke
         <span id="info-addr-text"></span>
       </div>
     </div>
-    <div id="edit-draw-bar">
-      New zone for
-      <select id="edit-draw-office"></select>
-      &mdash; click the map to place corners, click the first corner to close.
-      <button id="edit-draw-cancel" class="edit-btn">Cancel</button>
+    <aside id="ed-insp" aria-label="Details"></aside>
+    <div id="ed-hint" role="status"></div>
+    <div id="ed-draft" hidden>
+      <span id="ed-draft-text"></span>
+      <button class="edit-btn primary" id="ed-draft-restore">Restore</button>
+      <button class="edit-btn" id="ed-draft-discard">Discard</button>
     </div>
-    <div id="edit-panel">
-      <div id="edit-head">
-        <span><svg class="ic" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>Zone editor</span>
-        <button id="edit-close" class="icon-x" title="Exit edit mode" aria-label="Exit edit mode"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-      </div>
-
-      <div id="edit-body">
-        <div id="edit-draft-bar" hidden>
-          <div id="edit-draft-text"></div>
-          <div class="edit-row">
-            <button class="edit-btn primary" id="edit-draft-restore">Restore them</button>
-            <button class="edit-btn danger" id="edit-draft-discard">Discard</button>
-          </div>
-        </div>
-        <div id="edit-empty">
-          <p>Click a zone on the map to edit it.</p>
-        </div>
-
-        <div id="edit-zone" hidden>
-          <div id="edit-sel">
-            <div id="edit-sel-top">
-              <div>
-                <div id="edit-sel-title"><span id="edit-sel-dot"></span><div id="edit-sel-name">&nbsp;</div></div>
-                <div id="edit-sel-meta">&nbsp;</div>
-              </div>
-              <button id="edit-deselect" class="icon-x" title="Deselect (Esc)" aria-label="Deselect"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-            </div>
-            <div id="edit-fields">
-              <label>Name<input id="edit-f-name" type="text" autocomplete="off"/></label>
-              <div class="edit-field-pair">
-                <label>Number<input id="edit-f-label" type="text" autocomplete="off"/></label>
-                <label>Office<select id="edit-f-office"></select></label>
-              </div>
-              <div class="edit-field-label">Fill</div>
-              <div id="edit-fill-row">
-                <input id="edit-f-fill" type="color" title="Pick any colour"/>
-                <div id="edit-fill-preview" title="How this fill looks on the map"><span>on map</span></div>
-                <button class="edit-btn" id="edit-f-fill-reset" title="Use this office's colour for the fill">Match office</button>
-              </div>
-              <div id="edit-fill-inuse"></div>
-              <div id="edit-fill-note">Map fills are semi&#8209;transparent, so a colour looks softer there than in the picker. Pick from <b>in use</b> to match another zone exactly.</div>
-            </div>
-          </div>
-          <div class="edit-row">
-            <button class="edit-btn" id="edit-undo" title="Ctrl+Z">&#8630; Undo</button>
-            <button class="edit-btn" id="edit-revert" title="Restore this zone to the published version">&#8635; Revert</button>
-            <button class="edit-btn danger" id="edit-delete" title="Delete this zone" aria-label="Delete this zone"><svg class="ic" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
-          </div>
-          <details id="edit-hint">
-            <summary>How to reshape this zone</summary>
-            <p>
-              <b>Drag a white dot</b> to move a corner &middot;
-              <b>drag a faded dot</b> to add a corner &middot;
-              <b>right-click a dot</b> to delete it &middot;
-              <b>drag inside</b> the zone to move the whole shape.
-            </p>
-          </details>
-        </div>
-
-        <div class="edit-row" id="edit-make-row">
-          <button class="edit-btn" id="edit-new">&#43; New zone</button>
-          <button class="edit-btn" id="edit-offices">Offices</button>
-        </div>
-      </div>
-
-      <div id="edit-foot">
-        <div id="edit-note"></div>
-        <div class="edit-row">
-          <button class="edit-btn primary" id="edit-save">Save to GitHub</button>
-          <button class="edit-btn danger" id="edit-discard" title="Throw away every unsaved change in this browser" aria-label="Discard all unsaved changes"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
-        </div>
-      </div>
-    </div>
-    <div id="edit-pin-bar">
-      Click the map to place the office pin.
-      <button id="edit-pin-cancel" class="edit-btn">Cancel</button>
-    </div>
-  </div>
-</div>
-<div id="office-modal" class="modal">
-  <div id="office-modal-box" class="modal-box">
-    <div id="office-modal-head">
-      <h3>Offices</h3>
-      <button id="office-modal-close" class="icon-x" title="Close" aria-label="Close"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-    </div>
-    <div id="office-list-view">
-      <p class="office-modal-help">Change an office colour with its swatch &mdash; the map updates as you pick. Colours and new offices are saved with everything else.</p>
-      <div class="edit-row">
-        <button class="edit-btn primary" id="office-add">&#43; New office</button>
-      </div>
-      <div id="office-rows"></div>
-    </div>
-    <div id="office-form-view">
-      <h4 id="office-form-title">New office</h4>
-      <div class="office-form-grid">
-        <label>Code<input id="office-f-code" type="text" placeholder="CNS" autocomplete="off"/></label>
-        <label>State<select id="office-f-state"></select></label>
-      </div>
-      <label class="office-form-full">Name<input id="office-f-name" type="text" placeholder="Cairns &amp; Far North" autocomplete="off"/></label>
-      <label class="office-form-full">Address<input id="office-f-address" type="text" placeholder="12 Example St, Cairns QLD" autocomplete="off"/></label>
-      <div class="office-form-grid">
-        <label>Latitude<input id="office-f-lat" type="text" autocomplete="off"/></label>
-        <label>Longitude<input id="office-f-lng" type="text" autocomplete="off"/></label>
-      </div>
-      <div class="office-form-grid">
-        <label>Colour<input id="office-f-colour" type="color"/></label>
-        <label>Pin<button class="edit-btn" id="office-f-pin">Place on map</button></label>
-      </div>
-      <div id="office-sec-section">
-        <div id="office-sec-head">Satellite locations</div>
-        <div id="office-sec-rows"></div>
-        <button class="edit-btn" id="office-sec-add">&#43; Add satellite location</button>
-      </div>
-      <div id="office-form-error"></div>
-      <div class="edit-row">
-        <button class="edit-btn primary" id="office-form-save">Save office</button>
-        <button class="edit-btn" id="office-form-cancel">Back</button>
-      </div>
-    </div>
+    <div id="ed-toast" class="toast" role="status" hidden></div>
   </div>
 </div>
 <div id="unlock-modal" class="modal">
   <div class="modal-box">
     <div class="modal-pad">
-      <h3>Edit the map</h3>
-      <p>Enter the editor passphrase to unlock the zone editor.</p>
-      <input id="unlock-input" type="password" placeholder="Passphrase" autocomplete="off"/>
-      <div id="unlock-error"></div>
+      <h3 id="unlock-title">Edit the map</h3>
+      <p id="unlock-why">Enter the editor password.</p>
+      <input id="unlock-input" type="password" placeholder="Password" autocomplete="current-password"/>
+      <label id="unlock-remember-row"><input id="unlock-remember" type="checkbox" checked/>Remember me on this device for 30 days</label>
+      <div id="unlock-error" role="alert"></div>
     </div>
     <div class="modal-foot">
-      <div class="edit-row">
-        <button class="edit-btn" id="unlock-cancel">Cancel</button>
-        <button class="edit-btn primary" id="unlock-submit">Unlock</button>
-      </div>
+      <button class="edit-btn" id="unlock-cancel">Cancel</button>
+      <button class="edit-btn primary" id="unlock-submit">Continue</button>
     </div>
   </div>
 </div>
-<div id="edit-modal" class="modal">
-  <div id="edit-modal-box" class="modal-box">
-    <div class="modal-pad">
-      <h3>Save password</h3>
-      <p id="edit-pw-why"></p>
-      <p class="edit-modal-help">
-        Ask whoever looks after the map for the shared save password. It is
-        not your GitHub password, and you do not need a GitHub account.
-      </p>
-      <input id="edit-pw-input" type="password" placeholder="Save password" autocomplete="off"/>
-      <label id="edit-pw-remember-row">
-        <input id="edit-pw-remember" type="checkbox" checked/>
-        Remember on this device (encrypted with your passphrase)
-      </label>
+<div id="review-modal" class="modal">
+  <div id="review-box" class="modal-box" role="dialog" aria-labelledby="review-title">
+    <div class="modal-head">
+      <h3 id="review-title">Review changes</h3>
+      <button class="icon-x" id="review-close" title="Keep editing" aria-label="Close"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     </div>
+    <div id="review-body"></div>
     <div class="modal-foot">
-      <div class="edit-row">
-        <button class="edit-btn danger" id="edit-pw-forget">Forget</button>
-        <button class="edit-btn" id="edit-pw-cancel">Cancel</button>
-        <button class="edit-btn primary" id="edit-pw-save">Use this password</button>
-      </div>
+      <span class="grow" id="review-foot-note">Saving updates the map for everyone in about a minute.</span>
+      <button class="edit-btn" id="review-cancel">Keep editing</button>
+      <button class="edit-btn primary" id="review-save">Save</button>
     </div>
   </div>
 </div>
@@ -550,7 +482,7 @@ function createZonePoly(z, code, highlight) {
   const color = getOfficeColor(code);
   if (!polysByOffice[code]) polysByOffice[code] = [];
   if (!labelsByOffice[code]) labelsByOffice[code] = [];
-  const path = z.coords.map(c => ({ lat: c[0], lng: c[1] }));
+  const path = polyPath(z.coords);
 
   const baseZ = zoneBaseZ(z.coords);
   const poly = new google.maps.Polygon({
@@ -567,29 +499,27 @@ function createZonePoly(z, code, highlight) {
   poly._baseZ = baseZ;
   zoneRefs.set(z, { poly: poly, lbl: null });
 
+  // The office is read from the zone each time, since the editor can move it.
   poly.addListener('mouseover', () => {
-    if (editState.on && editState.selected === poly) { showInfo(code, z.name); return; }
+    if (editState.on) {
+      if (!isSelectedPoly(poly)) poly.setOptions({ fillOpacity: 0.55, strokeOpacity: 1 });
+      return;
+    }
     poly.setOptions({ fillOpacity: 0.65, strokeOpacity: 1, strokeWeight: 3 });
-    showInfo(code, z.name);
+    showInfo(z.office, z.name);
   });
   poly.addListener('mouseout', () => {
-    if (editState.on && editState.selected === poly) return;
+    if (editState.on) { if (!isSelectedPoly(poly)) restyleZonePoly(poly); return; }
     poly.setOptions({
-      fillOpacity: activeOffice === code ? 0.5 : 0.32,
-      strokeOpacity: activeOffice === code ? 1 : 0.85,
-      strokeWeight: activeOffice === code ? 2.5 : 2,
+      fillOpacity: activeOffice === z.office ? 0.5 : 0.32,
+      strokeOpacity: activeOffice === z.office ? 1 : 0.85,
+      strokeWeight: activeOffice === z.office ? 2.5 : 2,
     });
   });
   poly.addListener('click', e => {
-    if (takePinClick(e)) return;
-    if (editState.on) {
-      selectZoneForEdit(poly);
-      showInfo(code, z.name);
-      if (e && e.stop) e.stop();
-      return;
-    }
-    setActiveOffice(code);
-    showInfo(code, z.name);
+    if (editState.on) { onZoneClick(poly, e); if (e && e.stop) e.stop(); return; }
+    setActiveOffice(z.office);
+    showInfo(z.office, z.name);
     if (e && e.stop) e.stop();
   });
   polysByOffice[code].push(poly);
@@ -693,6 +623,7 @@ function createOfficeMarker(code) {
 
     marker.addListener('click', e => {
       if (takePinClick(e)) return;
+      if (editState.on) { onOfficePinClick(code); if (e && e.stop) e.stop(); return; }
       setActiveOffice(code);
       showInfo(code, '');
       zoomToOffice(code);
@@ -719,6 +650,7 @@ function createOfficeMarker(code) {
 
         secMarker.addListener('click', e => {
           if (takePinClick(e)) return;
+          if (editState.on) { onOfficePinClick(code); if (e && e.stop) e.stop(); return; }
           setActiveOffice(code);
           showInfoForSecondary(code, sec);
           if (e && e.stop) e.stop();
@@ -790,7 +722,7 @@ function updateZoneHighlight(code, highlight) {
   const polys = polysByOffice[code] || [];
   const labels = labelsByOffice[code] || [];
   polys.forEach(poly => {
-    if (editState.on && editState.selected === poly) return;
+    if (isSelectedPoly(poly)) return;
     const baseZ = poly._baseZ;
     poly.setOptions({
       strokeOpacity: highlight ? 1 : 0.85,
@@ -1066,327 +998,671 @@ function buildSidebar() {
 }
 
 /* =========================================================================
-   ZONE EDITOR  (private)
+   MAP EDITOR
    -------------------------------------------------------------------------
-   Hidden for ordinary visitors: the UI only appears if the URL ends in #edit
-   AND the passphrase below is entered. The passphrase is checked in the
-   browser, so it only keeps the editor out of sight - it is not security.
+   Opened with the Edit map button (or #edit on the address). The shared
+   editor password is checked by the save Worker (worker/save-worker.js),
+   which also holds the GitHub token, so nothing secret lives in this page.
+   "Remember me" keeps a 30-day token from the Worker rather than the
+   password, and changing the password in Cloudflare cancels every token.
 
-   Saving goes through the Cloudflare Worker in worker/save-worker.js, which
-   holds the GitHub token and asks for a separate shared save password. That
-   password is what actually stops strangers publishing; this browser can
-   remember it, encrypted with the passphrase.
-
-   To change the passphrase: open the browser console on this page, run
-       zoneEditorHash('your new passphrase')
-   and paste the result over EDIT_PASS_HASH below.
+   Every change goes through record(), which keeps before/after snapshots, so
+   one Undo/Redo covers shapes, details, deletes and offices. What counts as
+   unsaved is worked out by comparing with the last saved version, so undoing
+   back to it leaves nothing to save.
    ========================================================================= */
 
-const EDIT_PASS_HASH = '83a81978ac1673b0ca6b531bf27387819864eb59f61d9bcf4aec398171fae7e2';
-const DRAFT_KEY = 'dovida-map-zone-draft-v2';
-const PASS_KEY = 'dovida-map-save-pass-v1';
-// Cloudflare Worker that holds the GitHub token. See worker/save-worker.js.
+// Cloudflare Worker that checks the password and commits saves.
 const SAVE_ENDPOINT = 'https://doivda-map-save.danielstwalker.workers.dev';
+const DRAFT_KEY = 'dovida-map-draft-v3';
+const OLD_DRAFT_KEY = 'dovida-map-zone-draft-v2';
+const TOKEN_KEY = 'dovida-map-edit-token-v1';
+const SNAP_PX = 12;
 
-const zoneRefs = new Map();      // zone object -> { poly, lbl }
-const zoneKey = new Map();       // zone object -> stable key used by the draft
-const zoneBaseline = new Map();  // zone object -> its state as published in this file
+const zoneRefs = new Map();   // zone object -> { poly, lbl }
+const zoneKey = new Map();    // zone object -> stable key: "z12" as loaded, "n3" drawn here
+const removedAt = new Map();  // key -> its index in ZONES when removed, so undo puts it back in place
+
 const editState = {
-  on: false, selected: null, dirty: new Set(), deleted: new Map(),
-  undo: [], lastSnap: 0, suspend: false, newSeq: 0, drawing: null, pass: null, savePassword: null,
-  officesDirty: false, officeFormCode: null, placingPin: null, pinPick: null, drawPick: null, officeSecondaries: [], msg: '',
-  pendingDraft: null, publishedZones: '', publishedOffices: '', publishedStates: '',
+  on: false, tool: 'select', sel: null, vertex: null, moveShape: false, snap: true,
+  undo: [], redo: [], suspend: false, dragging: false, newSeq: 0,
+  tab: 'zones', find: '', drawing: null, pick: null, pickLabel: '', pickTarget: null,
+  password: null, token: null, nameEdit: false, note: '', lastDrawOffice: null,
+  baseZones: new Map(), baseOffices: '{}', baseStates: '{}',
+  published: { zones: '', offices: '', states: '' },
+  pendingDraft: null, vertexMarker: null, shapeTimer: null, draftTimer: null, toastTimer: null,
+  afterUnlock: null, reviewBlocked: false,
 };
 
-async function zoneEditorHash(text) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
 function initEditor() {
-  document.getElementById('unlock-submit').onclick = submitUnlock;
-  document.getElementById('unlock-cancel').onclick = cancelUnlock;
+  ZONES.forEach((z, i) => zoneKey.set(z, 'z' + i));
+  markSaved();
+
+  const on = (id, fn) => { document.getElementById(id).onclick = fn; };
+  on('unlock-submit', submitUnlock);
+  on('unlock-cancel', cancelUnlock);
   document.getElementById('unlock-input').onkeydown = e => {
     if (e.key === 'Enter') submitUnlock();
     else if (e.key === 'Escape') cancelUnlock();
   };
-  document.getElementById('edit-close').onclick = exitEditMode;
-  document.getElementById('edit-undo').onclick = undoEdit;
-  document.getElementById('edit-new').onclick = startDrawingZone;
-  document.getElementById('edit-draw-cancel').onclick = cancelDrawingZone;
-  document.getElementById('edit-revert').onclick = revertSelectedZone;
-  const deselect = document.getElementById('edit-deselect');
-  deselect.onclick = () => selectZoneForEdit(null);
-  document.getElementById('edit-delete').onclick = deleteSelectedZone;
-  document.getElementById('edit-save').onclick = saveToGitHub;
-  document.getElementById('edit-discard').onclick = discardAllEdits;
-  document.getElementById('edit-draft-restore').onclick = restoreDraft;
-  document.getElementById('edit-draft-discard').onclick = discardPendingDraft;
-  document.getElementById('edit-pw-save').onclick = submitPassword;
-  document.getElementById('edit-pw-cancel').onclick = closePasswordModal;
-  document.getElementById('edit-pw-forget').onclick = forgetPassword;
-  document.getElementById('edit-pw-input').onkeydown = e => { if (e.key === 'Enter') submitPassword(); };
-  document.getElementById('edit-offices').onclick = openOfficeModal;
-  document.getElementById('office-modal-close').onclick = closeOfficeModal;
-  document.getElementById('office-add').onclick = () => openOfficeForm(null);
-  document.getElementById('office-form-save').onclick = submitOfficeForm;
-  document.getElementById('office-form-cancel').onclick = showOfficeList;
-  document.getElementById('office-f-pin').onclick = () => startPinPlacement();
-  document.getElementById('office-sec-add').onclick = () => {
-    readSecondaryRows();
-    editState.officeSecondaries.push({ label: '', address: '', lat: '', lng: '' });
-    renderSecondaryRows();
-  };
-  document.getElementById('edit-pin-cancel').onclick = () => {
-    cancelPinPlacement();
-    document.getElementById('office-modal').classList.add('visible');
-  };
+  on('ed-tool-select', () => { cancelDraw(); stopPick(); });
+  on('ed-tool-draw', () => startDraw());
+  on('ed-undo', undo);
+  on('ed-redo', redo);
+  on('ed-review', openReview);
+  on('ed-done', exitEditMode);
+  on('ed-tab-zones', () => setTab('zones'));
+  on('ed-tab-offices', () => setTab('offices'));
+  on('ed-new-office', () => select({ type: 'new-office' }));
+  on('ed-draft-restore', restoreDraft);
+  on('ed-draft-discard', discardDraft);
+  on('review-close', closeReview);
+  on('review-cancel', closeReview);
+  on('review-save', doSave);
+  document.getElementById('ed-find').oninput = e => { editState.find = e.target.value; renderNav(); };
 
-  document.getElementById('edit-f-name').onchange = applyZoneFields;
-  document.getElementById('edit-f-label').onchange = applyZoneFields;
-  document.getElementById('edit-f-office').onchange = applyZoneFields;
-  document.getElementById('edit-f-fill').oninput = () => applyZoneFill(document.getElementById('edit-f-fill').value);
-  document.getElementById('edit-f-fill-reset').onclick = () => applyZoneFill(null);
-
-  document.addEventListener('keydown', e => {
-    if (!editState.on || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undoEdit(); }
-    else if (e.key === 'Escape') {
-      if (editState.placingPin) { cancelPinPlacement(); document.getElementById('office-modal').classList.add('visible'); }
-      else if (document.getElementById('office-modal').classList.contains('visible')) closeOfficeModal();
-      else if (editState.drawing) cancelDrawingZone();
-      else selectZoneForEdit(null);
-    }
-  });
+  map.addListener('click', onMapClick);
+  map.addListener('dblclick', () => { if (editState.drawing) finishDraw(); });
+  map.addListener('mousemove', onMapMove);
+  document.addEventListener('keydown', onEditKey);
 
   // The editor needs the map, so its button only appears once the map has loaded.
   const openBtn = document.getElementById('edit-open');
-  openBtn.onclick = () => { if (!editState.on) unlockEditor(); };
+  openBtn.onclick = openEditor;
   openBtn.hidden = false;
 
-  window.addEventListener('hashchange', () => { if (location.hash === '#edit' && !editState.on) unlockEditor(); });
-  if (location.hash === '#edit') unlockEditor();
+  // The old editor kept an encrypted save password here; it is no longer used.
+  try { localStorage.removeItem('dovida-map-save-pass-v1'); } catch (err) {}
+
+  window.addEventListener('hashchange', () => { if (location.hash === '#edit' && !editState.on) openEditor(); });
+  if (location.hash === '#edit') openEditor();
 }
 
-function unlockEditor() {
+// The version on the live map, which the save Worker checks a save against.
+function markSaved(sent) {
+  const src = sent || { zones: ZONES, offices: OFFICES, states: STATE_GROUPS };
+  editState.published = { zones: JSON.stringify(src.zones), offices: JSON.stringify(src.offices), states: JSON.stringify(src.states) };
+  editState.baseZones = new Map(ZONES.map(z => [zoneKey.get(z), snapshotOf(z)]));
+  editState.baseOffices = editState.published.offices;
+  editState.baseStates = editState.published.states;
+}
+
+/* ---- getting in: one password, checked by the Worker ---- */
+
+function readToken() {
+  try {
+    const t = localStorage.getItem(TOKEN_KEY);
+    if (!t) return null;
+    if (!(parseInt(t.split('.')[0], 10) > Date.now() / 1000)) { localStorage.removeItem(TOKEN_KEY); return null; }
+    return t;
+  } catch (err) { return null; }
+}
+function storeToken(t) { try { localStorage.setItem(TOKEN_KEY, t); } catch (err) {} }
+function forgetToken() { try { localStorage.removeItem(TOKEN_KEY); } catch (err) {} }
+function credentials() {
+  if (editState.password) return { password: editState.password };
+  if (editState.token) return { token: editState.token };
+  return {};
+}
+
+// Asks the Worker whether a password or token is good, and whether the map
+// changed since this page loaded. An older Worker without the check answers a
+// right password with "data missing" (400) and a wrong one with 401.
+async function checkAccess(creds, basedOn) {
+  try {
+    const res = await fetch(SAVE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ action: 'check', basedOn: basedOn || null }, creds)),
+    });
+    let data = {};
+    try { data = await res.json(); } catch (err) {}
+    if (res.ok) return { ok: true, token: data.token || null, stale: data.stale || [] };
+    if (res.status === 401) return { ok: false, denied: true };
+    if (res.status === 400 && creds.password) return { ok: true, token: null, stale: [], oldWorker: true };
+    return { ok: false, error: data.error || (res.status + ' ' + res.statusText) };
+  } catch (err) {
+    return { ok: false, error: 'The save service could not be reached.' };
+  }
+}
+
+async function openEditor() {
+  if (editState.on) return;
+  const token = readToken();
+  if (token) {
+    const r = await checkAccess({ token });
+    // Offline is no reason to lock someone out; saving checks again.
+    if (r.ok || !r.denied) {
+      editState.token = r.token || token;
+      if (r.token) storeToken(r.token);
+      enterEditMode();
+      return;
+    }
+    forgetToken();
+  }
+  askPassword({ title: 'Edit the map', why: 'Enter the editor password.', then: enterEditMode });
+}
+
+function askPassword(opts) {
+  editState.afterUnlock = opts.then;
+  document.getElementById('unlock-title').textContent = opts.title;
+  document.getElementById('unlock-why').textContent = opts.why;
+  document.getElementById('unlock-error').textContent = '';
   const input = document.getElementById('unlock-input');
   input.value = '';
-  document.getElementById('unlock-error').textContent = '';
   document.getElementById('unlock-modal').classList.add('visible');
   input.focus();
 }
 
 function cancelUnlock() {
   document.getElementById('unlock-modal').classList.remove('visible');
-  history.replaceState(null, '', location.pathname);
+  editState.afterUnlock = null;
+  if (!editState.on) history.replaceState(null, '', location.pathname);
 }
 
 async function submitUnlock() {
-  const entry = document.getElementById('unlock-input').value;
-  if (!entry) return;
-  let ok = false;
-  try { ok = (await zoneEditorHash(entry)) === EDIT_PASS_HASH; } catch (err) { ok = false; }
-  if (!ok) {
-    document.getElementById('unlock-error').textContent = 'That passphrase is not right. The map stays read-only.';
-    document.getElementById('unlock-input').select();
-    return;
+  const pw = document.getElementById('unlock-input').value;
+  if (!pw) return;
+  const btn = document.getElementById('unlock-submit');
+  const err = document.getElementById('unlock-error');
+  btn.disabled = true;
+  btn.textContent = 'Checking…';
+  err.textContent = '';
+  const r = await checkAccess({ password: pw });
+  btn.disabled = false;
+  btn.textContent = 'Continue';
+  if (r.denied) { err.textContent = 'That password isn’t right.'; document.getElementById('unlock-input').select(); return; }
+  if (!r.ok) { err.textContent = r.error + ' Check your connection and try again.'; return; }
+  editState.password = pw;
+  if (document.getElementById('unlock-remember').checked) {
+    if (r.token) { editState.token = r.token; storeToken(r.token); }
+  } else {
+    forgetToken();
   }
+  const then = editState.afterUnlock;
   document.getElementById('unlock-modal').classList.remove('visible');
-  editState.pass = entry;
-  enterEditMode();
+  editState.afterUnlock = null;
+  if (then) then();
 }
 
+/* ---- entering and leaving ---- */
+
 function enterEditMode() {
+  if (editState.on) return;
   editState.on = true;
-  ZONES.forEach((z, i) => {
-    if (!zoneKey.has(z)) zoneKey.set(z, 'z' + i);
-    zoneBaseline.set(z, snapshotOf(z));
-  });
-  buildOfficeSelect();
-  document.getElementById('edit-panel').classList.add('visible');
-  document.getElementById('edit-badge').classList.add('visible');
-  document.getElementById('edit-open').hidden = true;
-  // What the file held when this page loaded, so the Worker can spot a stale save.
-  markPublishedState();
+  document.body.classList.add('editing');
+  document.querySelector('.brand-sub').textContent = 'Editing';
+  hideInfo();
+  clearSearch();
+  if (location.hash !== '#edit') history.replaceState(null, '', location.pathname + '#edit');
   offerDraft();
-  loadStoredPassword();
-  refreshEditPanel();
+  select(null);
 }
 
 function exitEditMode() {
-  if (hasUnsavedChanges() && !window.confirm(changeSummary() + ' unsaved.\n\nThey stay saved in this browser as a draft. Exit edit mode?')) return;
-  cancelDrawingZone();
-  closeOfficeModal();
-  selectZoneForEdit(null);
+  const n = listChanges().length;
+  if (n && !window.confirm('You have ' + plural(n, 'unsaved change') + '. They stay in this browser until you save or discard them.\n\nStop editing?')) return;
+  cancelDraw(true);
+  stopPick(true);
+  select(null, { quiet: true });
+  hideToast();
   editState.on = false;
-  editState.pass = null;
-  editState.savePassword = null;
-  document.getElementById('edit-panel').classList.remove('visible');
-  document.getElementById('edit-badge').classList.remove('visible');
-  document.getElementById('edit-open').hidden = false;
+  editState.password = null;
+  document.body.classList.remove('editing');
+  document.querySelector('.brand-sub').textContent = 'Dovida Recruitment';
+  document.getElementById('ed-draft').hidden = true;
   history.replaceState(null, '', location.pathname);
-}
-
-function snapshotOf(z) {
-  return {
-    name: z.name, label: z.label, office: z.office, folder: z.folder, fill: z.fill || null,
-    coords: z.coords.map(c => c.slice()),
-    labelPos: z.labelPos ? z.labelPos.slice() : null, labelSize: z.labelSize,
-  };
+  buildStateToggles();
+  buildSidebar();
 }
 
 /* ---- selection ---- */
 
-function selectZoneForEdit(poly) {
-  const prev = editState.selected;
-  if (prev && prev !== poly) {
-    prev.setOptions({ editable: false, draggable: false });
-    restyleZonePoly(prev);
-  }
-  editState.selected = poly || null;
-  editState.msg = '';
+function selZone() {
+  const s = editState.sel;
+  return s && s.type === 'zone' ? zoneForKey(s.key) : null;
+}
+function selPoly() {
+  const z = selZone();
+  const ref = z && zoneRefs.get(z);
+  return ref ? ref.poly : null;
+}
+function isSelectedPoly(poly) { return editState.on && !!poly && selPoly() === poly; }
+
+function select(sel, opts) {
+  opts = opts || {};
+  const prev = selPoly();
+  const same = sel && editState.sel && sel.type === 'zone' && editState.sel.type === 'zone' && sel.key === editState.sel.key;
+  editState.sel = sel;
+  clearVertex();
+  if (!same) { editState.moveShape = false; editState.nameEdit = false; }
+  if (prev && prev !== selPoly()) restyleZonePoly(prev);
+  const poly = selPoly();
   if (poly) {
-    poly.setOptions({
-      editable: true, draggable: true,
-      strokeColor: '#ffffff', strokeWeight: 3, strokeOpacity: 1,
-      fillColor: zoneFill(poly._zone), fillOpacity: 0.45, zIndex: 9000,
-    });
     if (!poly._editWired) wireZoneEditEvents(poly);
+    restyleZonePoly(poly);
   }
-  refreshEditPanel();
+  const z = selZone();
+  setActiveOffice(z ? z.office : sel && sel.type === 'office' ? sel.code : null);
+  if (opts.zoom) {
+    if (z) zoomToZone(z);
+    else if (sel && sel.type === 'office') panToOffice(sel.code);
+  }
+  if (sel && sel.type === 'office' && editState.tab !== 'offices' && opts.fromMap) editState.tab = 'offices';
+  if (sel && sel.type === 'zone' && editState.tab !== 'zones' && opts.fromMap) editState.tab = 'zones';
+  if (!opts.quiet) renderAll({ reveal: opts.fromMap });
+}
+
+function zoomToZone(z) {
+  if (!map) return;
+  const b = new google.maps.LatLngBounds();
+  z.coords.forEach(c => b.extend({ lat: c[0], lng: c[1] }));
+  map.fitBounds(b, { top: 80, right: 80, bottom: 80, left: 80 });
+}
+
+function panToOffice(code) {
+  const off = OFFICES[code];
+  if (!map || !off) return;
+  map.panTo({ lat: off.lat, lng: off.lng });
+  if (map.getZoom() < 10) map.setZoom(11);
 }
 
 // A zone may carry its own fill colour; the outline always identifies the office.
 function zoneFill(z) { return z.fill || getOfficeColor(z.office); }
+function setZoneFill(z, fill) { if (fill) z.fill = fill; else delete z.fill; }
 
 function restyleZonePoly(poly) {
   const z = poly._zone;
-  const highlight = activeOffice === z.office;
+  if (isSelectedPoly(poly)) {
+    poly.setOptions({
+      editable: true, draggable: editState.moveShape,
+      strokeColor: '#ffffff', strokeWeight: 3, strokeOpacity: 1,
+      fillColor: zoneFill(z), fillOpacity: 0.45, zIndex: 9000,
+    });
+    return;
+  }
+  const hl = activeOffice === z.office;
   poly.setOptions({
-    strokeColor: getOfficeColor(z.office),
-    fillColor: zoneFill(z),
-    strokeOpacity: highlight ? 1 : 0.85,
-    strokeWeight: highlight ? 2.5 : 2,
-    fillOpacity: highlight ? 0.5 : 0.32,
-    zIndex: highlight ? poly._baseZ + 5000 : poly._baseZ,
+    editable: false, draggable: false,
+    strokeColor: getOfficeColor(z.office), fillColor: zoneFill(z),
+    strokeOpacity: hl ? 1 : 0.85, strokeWeight: hl ? 2.5 : 2, fillOpacity: hl ? 0.5 : 0.32,
+    zIndex: hl ? poly._baseZ + 5000 : poly._baseZ,
+  });
+}
+
+function setZonesClickable(on) {
+  Object.values(polysByOffice).forEach(list => list.forEach(p => p.setOptions({ clickable: on })));
+}
+
+/* ---- clicks on the map ---- */
+
+function onZoneClick(poly, e) {
+  if (takePinClick(e)) return;
+  if (editState.tool !== 'select') return;
+  if (isSelectedPoly(poly)) {
+    if (e && e.vertex != null) setVertex(poly, e.vertex);
+    return;
+  }
+  select({ type: 'zone', key: zoneKey.get(poly._zone) }, { fromMap: true });
+}
+
+function onMapClick(e) {
+  if (!editState.on) return;
+  if (editState.pick) { editState.pick(e.latLng); return; }
+  if (editState.drawing) { drawClick(e); return; }
+  if (editState.sel) select(null);
+}
+
+// Office pins stay clickable while placing or drawing; their clicks count too.
+function takePinClick(e) {
+  if (!editState.on || !e || !e.latLng) return false;
+  if (editState.pick) { editState.pick(e.latLng); if (e.stop) e.stop(); return true; }
+  if (editState.drawing) { drawClick(e); if (e.stop) e.stop(); return true; }
+  return false;
+}
+
+function onOfficePinClick(code) {
+  if (editState.tool !== 'select') return;
+  select({ type: 'office', code: code }, { fromMap: true });
+}
+
+/* ---- corners ---- */
+
+function setVertex(poly, index) {
+  clearVertex();
+  const p = poly.getPath().getAt(index);
+  if (!p) return;
+  editState.vertex = { key: zoneKey.get(poly._zone), index: index };
+  editState.vertexMarker = new google.maps.Marker({
+    map: map, position: p, clickable: false, zIndex: 9990,
+    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 9, fillOpacity: 0, strokeColor: '#2dd4bf', strokeWeight: 3 },
+  });
+  renderHint();
+}
+
+function clearVertex() {
+  if (editState.vertexMarker) editState.vertexMarker.setMap(null);
+  editState.vertexMarker = null;
+  editState.vertex = null;
+}
+
+function removeCorner(poly, index) {
+  const path = poly.getPath();
+  if (path.getLength() <= 3) { toast('A zone needs at least 3 corners.'); return; }
+  const z = poly._zone;
+  record('Remove a corner', [zoneKey.get(z)], () => {
+    editState.suspend = true;
+    path.removeAt(index);
+    editState.suspend = false;
+    writePathToZone(poly, z);
   });
 }
 
 function wireZoneEditEvents(poly) {
   poly._editWired = true;
-  const path = poly.getPath();
-  const onChange = () => { if (!editState.suspend) commitZoneEdit(poly, true); };
-  path.addListener('set_at', onChange);
-  path.addListener('insert_at', onChange);
-  path.addListener('remove_at', onChange);
-  poly.addListener('dragstart', () => snapshotZone(poly._zone, true));
-  poly.addListener('dragend', () => commitZoneEdit(poly, false));
-  poly.addListener('rightclick', e => {
-    if (e.vertex == null || editState.selected !== poly) return;
-    if (path.getLength() <= 4) { setEditStatus('A zone needs at least 3 corners.'); return; }
-    snapshotZone(poly._zone, true);
-    editState.suspend = true;
-    path.removeAt(e.vertex);
-    const first = path.getAt(0), last = path.getAt(path.getLength() - 1);
-    if (!first.equals(last)) path.push(first);
-    editState.suspend = false;
-    commitZoneEdit(poly, false);
-  });
-}
-
-/* ---- name / label / office ---- */
-
-function buildOfficeSelect() {
-  const codes = [];
-  Object.entries(STATE_GROUPS).forEach(([state, list]) => list.forEach(c => codes.push([state, c])));
-  const html = codes.map(([state, c]) => '<option value="' + c + '">' + getOfficeName(c) + ' (' + state + ')</option>').join('');
-  document.getElementById('edit-f-office').innerHTML = html;
-  document.getElementById('edit-draw-office').innerHTML = html;
-}
-
-function applyZoneFields() {
-  const poly = editState.selected;
-  if (!poly) return;
-  const z = poly._zone;
-  const name = document.getElementById('edit-f-name').value.trim();
-  const label = document.getElementById('edit-f-label').value.trim();
-  const office = document.getElementById('edit-f-office').value;
-  let changed = false;
-
-  if (name && name !== z.name) { z.name = name; changed = true; }
-  if (label !== String(z.label == null ? '' : z.label)) { z.label = label; changed = true; refreshZoneLabel(z); }
-  if (office && office !== z.office) { moveZoneToOffice(z, office); refreshZoneLabel(z); changed = true; }
-  if (!changed) return;
-
-  markZoneDirty(z);
-  saveDraft();
-  refreshSidebarCounts();
-  refreshEditPanel();
-}
-
-// null clears the override so the zone follows its office again.
-function setZoneFill(z, fill) {
-  if (fill) z.fill = fill; else delete z.fill;
-}
-
-// Fills are drawn at 32% over the map's landscape colour, so the picker's
-// swatch never matches what you see. These composite it the same way.
-const MAP_GROUND = [0x24, 0x24, 0x33];
-const FILL_ALPHA = 0.32;
-
-function asMapColour(hex) {
-  const h = normaliseHex(hex);
-  const rgb = [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16));
-  const out = rgb.map((c, i) => Math.round(c * FILL_ALPHA + MAP_GROUND[i] * (1 - FILL_ALPHA)));
-  return 'rgb(' + out.join(',') + ')';
-}
-
-// Every colour already on the map, so a zone can be matched exactly rather
-// than eyedropped (which would sample the see-through version).
-function coloursInUse(z) {
-  const seen = new Map();
-  const add = (hex, label) => {
-    const key = normaliseHex(hex);
-    if (!seen.has(key)) seen.set(key, label);
+  // setPath swaps the path object, so the listeners are attached again then.
+  poly._rehookPath = () => {
+    const path = poly.getPath();
+    path.addListener('set_at', i => onPathEdit(poly, i));
+    path.addListener('insert_at', i => onPathEdit(poly, i));
+    path.addListener('remove_at', () => onPathEdit(poly, null));
   };
-  add(getOfficeColor(z.office), getOfficeName(z.office) + ' (this office)');
-  ZONES.forEach(zz => { if (zz.fill) add(zz.fill, zz.name); });
-  Object.keys(OFFICES).forEach(c => add(getOfficeColor(c), getOfficeName(c)));
-  return [...seen.entries()].slice(0, 18);
-}
-
-function renderFillControls(z) {
-  const current = normaliseHex(zoneFill(z));
-  document.getElementById('edit-f-fill').value = current;
-  const preview = document.getElementById('edit-fill-preview');
-  preview.style.background = asMapColour(current);
-  document.getElementById('edit-f-fill-reset').disabled = !z.fill;
-
-  const wrap = document.getElementById('edit-fill-inuse');
-  wrap.innerHTML = '';
-  coloursInUse(z).forEach(([hex, label]) => {
-    const chip = document.createElement('button');
-    chip.className = 'fill-chip' + (hex === current ? ' on' : '');
-    chip.style.background = asMapColour(hex);
-    chip.title = label + ' \u2014 ' + hex + ' (as it looks on the map)';
-    chip.onclick = () => applyZoneFill(hex);
-    wrap.appendChild(chip);
+  poly._rehookPath();
+  poly.addListener('dragstart', () => { editState.dragging = true; });
+  poly.addListener('dragend', () => { editState.dragging = false; commitShape(poly); });
+  poly.addListener('rightclick', e => {
+    if (e.vertex != null && isSelectedPoly(poly)) removeCorner(poly, e.vertex);
   });
 }
 
-function applyZoneFill(fill) {
-  const poly = editState.selected;
-  if (!poly) return;
+function onPathEdit(poly, index) {
+  if (editState.suspend || editState.dragging) return;
+  if (index != null && editState.snap) snapCorner(poly, index);
+  clearTimeout(editState.shapeTimer);
+  editState.shapeTimer = setTimeout(() => commitShape(poly), 0);
+}
+
+function snapCorner(poly, index) {
+  const path = poly.getPath();
+  const p = path.getAt(index);
+  if (!p) return;
+  const s = snapPoint(p, zoneKey.get(poly._zone));
+  if (s.snapped && !s.latLng.equals(p)) {
+    editState.suspend = true;
+    path.setAt(index, s.latLng);
+    editState.suspend = false;
+  }
+}
+
+function commitShape(poly) {
   const z = poly._zone;
-  if ((z.fill || null) === (fill || null)) return;
-  setZoneFill(z, fill);
-  if (editState.selected === poly) poly.setOptions({ fillColor: zoneFill(z) });
-  else restyleZonePoly(poly);
-  markZoneDirty(z);
-  saveDraft();
-  refreshEditPanel();
-  setEditStatus(fill ? 'Fill set for <b>' + escapeHtml(z.name) + '</b>. Its outline still shows ' + escapeHtml(getOfficeName(z.office)) + '.'
-                     : '<b>' + escapeHtml(z.name) + '</b> follows its office colour again.');
+  if (!zoneRefs.has(z)) return;
+  const key = zoneKey.get(z);
+  record('Reshape ' + z.name, [key], () => writePathToZone(poly, z), { coalesce: 'shape:' + key });
+}
+
+// Polygons are drawn from the open ring; the saved data keeps it closed.
+function polyPath(coords) {
+  let pts = coords;
+  const a = coords[0], b = coords[coords.length - 1];
+  if (coords.length > 3 && a[0] === b[0] && a[1] === b[1]) pts = coords.slice(0, -1);
+  return pts.map(c => ({ lat: c[0], lng: c[1] }));
+}
+
+function writePathToZone(poly, z) {
+  const pts = [];
+  poly.getPath().forEach(p => pts.push([round7(p.lat()), round7(p.lng())]));
+  if (pts.length && (pts[0][0] !== pts[pts.length - 1][0] || pts[0][1] !== pts[pts.length - 1][1])) pts.push(pts[0].slice());
+  z.coords = pts;
+  poly._baseZ = zoneBaseZ(pts);
+  refreshZoneLabel(z);
+}
+
+function round7(n) { return Math.round(n * 1e7) / 1e7; }
+
+function setZoneCoords(z, coords) {
+  z.coords = coords.map(c => c.slice());
+  const ref = zoneRefs.get(z);
+  if (ref && ref.poly) {
+    editState.suspend = true;
+    ref.poly.setPath(polyPath(z.coords));
+    if (ref.poly._rehookPath) ref.poly._rehookPath();
+    editState.suspend = false;
+    ref.poly._baseZ = zoneBaseZ(z.coords);
+  }
+}
+
+/* ---- snapping ---- */
+
+function worldPx(latLng) {
+  const p = map.getProjection().fromLatLngToPoint(latLng);
+  const s = Math.pow(2, map.getZoom());
+  return { x: p.x * s, y: p.y * s };
+}
+function fromWorldPx(pt) {
+  const s = Math.pow(2, map.getZoom());
+  return map.getProjection().fromPointToLatLng(new google.maps.Point(pt.x / s, pt.y / s));
+}
+function pxDist(a, b) {
+  const p = worldPx(a), q = worldPx(b);
+  return Math.hypot(p.x - q.x, p.y - q.y);
+}
+
+// Pulls a point onto the nearest corner of another zone, or failing that its
+// nearest edge, when either is within a few pixels on screen.
+function snapPoint(latLng, excludeKey, free) {
+  if (!editState.snap || free || !map || !map.getProjection()) return { latLng: latLng, snapped: null };
+  const P = worldPx(latLng);
+  const margin = SNAP_PX * 720 / (256 * Math.pow(2, map.getZoom()));
+  const lat = latLng.lat(), lng = latLng.lng();
+  const near = ZONES.filter(z => {
+    if (!z.coords || zoneKey.get(z) === excludeKey) return false;
+    let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+    for (const c of z.coords) {
+      if (c[0] < minLat) minLat = c[0];
+      if (c[0] > maxLat) maxLat = c[0];
+      if (c[1] < minLng) minLng = c[1];
+      if (c[1] > maxLng) maxLng = c[1];
+    }
+    return lat > minLat - margin && lat < maxLat + margin && lng > minLng - margin && lng < maxLng + margin;
+  });
+  let best = null, bestD = SNAP_PX;
+  near.forEach(z => z.coords.forEach(c => {
+    const q = worldPx(new google.maps.LatLng(c[0], c[1]));
+    const d = Math.hypot(P.x - q.x, P.y - q.y);
+    if (d < bestD) { bestD = d; best = { latLng: new google.maps.LatLng(c[0], c[1]), snapped: 'corner', zone: z }; }
+  }));
+  if (best) return best;
+  bestD = SNAP_PX * 0.8;
+  near.forEach(z => {
+    const pts = z.coords.map(c => worldPx(new google.maps.LatLng(c[0], c[1])));
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i + 1];
+      const dx = b.x - a.x, dy = b.y - a.y, len = dx * dx + dy * dy;
+      if (!len) continue;
+      const t = Math.max(0, Math.min(1, ((P.x - a.x) * dx + (P.y - a.y) * dy) / len));
+      const q = { x: a.x + t * dx, y: a.y + t * dy };
+      const d = Math.hypot(P.x - q.x, P.y - q.y);
+      if (d < bestD) { bestD = d; best = { latLng: fromWorldPx(q), snapped: 'edge', zone: z }; }
+    }
+  });
+  return best || { latLng: latLng, snapped: null };
+}
+
+/* ---- drawing a zone ---- */
+
+function drawOfficeDefault() {
+  const z = selZone();
+  if (z) return z.office;
+  if (editState.sel && editState.sel.type === 'office') return editState.sel.code;
+  if (editState.lastDrawOffice && OFFICES[editState.lastDrawOffice]) return editState.lastDrawOffice;
+  for (const codes of Object.values(STATE_GROUPS)) if (codes.length) return codes[0];
+  return Object.keys(OFFICES)[0];
+}
+
+function startDraw(code) {
+  if (!editState.on) return;
+  stopPick(true);
+  cancelDraw(true);
+  code = code || drawOfficeDefault();
+  const shape = new google.maps.Polygon({
+    map: map, paths: [], clickable: false, zIndex: 9500,
+    strokeColor: '#ffffff', strokeWeight: 3, fillColor: getOfficeColor(code), fillOpacity: 0.4,
+  });
+  const band = new google.maps.Polyline({
+    map: map, clickable: false, zIndex: 9501, strokeOpacity: 0,
+    icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#ffffff', scale: 2 }, offset: '0', repeat: '10px' }],
+  });
+  const start = new google.maps.Marker({
+    map: null, zIndex: 9999, cursor: 'pointer', title: 'Finish the zone',
+    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 7, fillColor: '#ffffff', fillOpacity: 1, strokeColor: '#0f766e', strokeWeight: 3 },
+  });
+  start.addListener('click', () => finishDraw());
+  const ring = new google.maps.Marker({
+    map: null, zIndex: 9998, clickable: false,
+    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 11, fillOpacity: 0, strokeColor: '#2dd4bf', strokeWeight: 2.5 },
+  });
+  const prev = selPoly();
+  editState.sel = { type: 'draw' };
+  clearVertex();
+  if (prev) restyleZonePoly(prev);
+  editState.drawing = { code: code, number: nextNumber(code), corners: [], shape: shape, band: band, start: start, ring: ring };
+  editState.tool = 'draw';
+  setActiveOffice(code);
+  setZonesClickable(false);
+  map.setOptions({ disableDoubleClickZoom: true, draggableCursor: 'crosshair' });
+  renderAll();
+}
+
+function drawClick(e) {
+  const d = editState.drawing;
+  if (!d || !e.latLng) return;
+  const s = snapPoint(e.latLng, null, e.domEvent && e.domEvent.altKey);
+  const last = d.corners[d.corners.length - 1];
+  if (last && pxDist(last, s.latLng) < 6) return;   // the second click of a double-click
+  if (d.corners.length >= 3 && pxDist(d.corners[0], s.latLng) < 10) { finishDraw(); return; }
+  d.corners.push(s.latLng);
+  d.shape.setPath(d.corners);
+  if (d.corners.length === 1) { d.start.setPosition(s.latLng); d.start.setMap(map); }
+  renderHint();
+  renderInspector();
+}
+
+function removeLastCorner() {
+  const d = editState.drawing;
+  if (!d || !d.corners.length) return;
+  d.corners.pop();
+  d.shape.setPath(d.corners);
+  d.band.setPath([]);
+  if (!d.corners.length) d.start.setMap(null);
+  renderHint();
+  renderInspector();
+}
+
+function onMapMove(e) {
+  const d = editState.drawing;
+  if (!d || !e.latLng) return;
+  const s = snapPoint(e.latLng, null, e.domEvent && e.domEvent.altKey);
+  if (s.snapped) { d.ring.setPosition(s.latLng); d.ring.setMap(map); } else d.ring.setMap(null);
+  const last = d.corners[d.corners.length - 1];
+  d.band.setPath(last ? [last, s.latLng] : []);
+}
+
+function finishDraw() {
+  const d = editState.drawing;
+  if (!d) return;
+  if (d.corners.length < 3) { toast('A zone needs at least 3 corners.'); return; }
+  const coords = d.corners.map(p => [round7(p.lat()), round7(p.lng())]);
+  coords.push(coords[0].slice());
+  const code = d.code;
+  const number = String(d.number || '').trim();
+  cancelDraw(true);
+  const key = 'n' + (editState.newSeq++);
+  const pole = poleOfInaccessibility(coords);
+  const name = number ? autoName(code, number) : getOfficeName(code) + ' zone';
+  record('Draw ' + name, [key], () => applyZoneSnap(key, {
+    name: name, folder: officeFolder(code), office: code, coords: coords, label: number,
+    labelPos: [round7(pole.lat), round7(pole.lng)], labelSize: round7(pole.dist), fill: null,
+  }));
+  editState.lastDrawOffice = code;
+  select({ type: 'zone', key: key });
+  toast('Added <b>' + escapeHtml(name) + '</b>.');
+}
+
+function cancelDraw(quiet) {
+  const d = editState.drawing;
+  if (!d) return;
+  [d.shape, d.band, d.start, d.ring].forEach(o => o.setMap(null));
+  editState.drawing = null;
+  editState.tool = 'select';
+  if (editState.sel && editState.sel.type === 'draw') editState.sel = null;
+  setZonesClickable(true);
+  map.setOptions({ disableDoubleClickZoom: false, draggableCursor: null });
+  if (!quiet) select(null);
+}
+
+/* ---- placing a pin ---- */
+
+function startPick(label, target, apply) {
+  cancelDraw(true);
+  editState.pick = latLng => { stopPick(true); apply(latLng); renderAll(); };
+  editState.pickLabel = label;
+  editState.pickTarget = target;
+  editState.tool = 'pin';
+  setZonesClickable(false);
+  map.setOptions({ draggableCursor: 'crosshair' });
+  renderAll();
+}
+
+function stopPick(quiet) {
+  if (!editState.pick) return;
+  editState.pick = null;
+  editState.pickTarget = null;
+  editState.tool = 'select';
+  setZonesClickable(true);
+  map.setOptions({ draggableCursor: null });
+  if (!quiet) renderAll();
+}
+
+/* ---- zone names and numbers ---- */
+
+// An office's naming pattern, e.g. "Zone {n} - GC & NR", taken from the
+// pattern most of its zones already follow.
+function namePattern(code, exclude) {
+  const counts = new Map();
+  (officeZones[code] || []).forEach(s => {
+    if (s === exclude || s.label == null || String(s.label) === '') return;
+    const nm = String(s.name).replace(/ /g, ' ');
+    const m = new RegExp('(^|\\D)' + String(s.label).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?!\\d)').exec(nm);
+    if (!m) return;
+    const at = m.index + m[1].length;
+    const t = nm.slice(0, at) + '{n}' + nm.slice(at + String(s.label).length);
+    counts.set(t, (counts.get(t) || 0) + 1);
+  });
+  let best = null, n = 0;
+  counts.forEach((v, t) => { if (v > n) { best = t; n = v; } });
+  return best || ('Zone {n} - ' + code);
+}
+
+function autoName(code, number, exclude) { return namePattern(code, exclude).replace('{n}', String(number)); }
+
+function isAutoName(z) {
+  if (z.label == null || String(z.label) === '') return false;
+  return String(z.name).replace(/ /g, ' ') === autoName(z.office, z.label, z);
+}
+
+function nextNumber(code) {
+  let next = 1;
+  (officeZones[code] || []).forEach(s => {
+    const n = parseInt(s.label, 10);
+    if (!isNaN(n) && n >= next) next = n + 1;
+  });
+  return String(next);
+}
+
+function officeFolder(code, exclude) {
+  const sib = (officeZones[code] || []).find(s => s !== exclude && s.folder);
+  return sib ? sib.folder : (getStateForOffice(code) || '');
 }
 
 function moveZoneToOffice(z, newCode) {
@@ -1406,8 +1682,7 @@ function moveZoneToOffice(z, newCode) {
   if (!labelsByOffice[newCode]) labelsByOffice[newCode] = [];
   if (ref.poly) {
     polysByOffice[newCode].push(ref.poly);
-    if (editState.selected === ref.poly) ref.poly.setOptions({ fillColor: zoneFill(z) });
-    else restyleZonePoly(ref.poly);
+    restyleZonePoly(ref.poly);
     ref.poly.setVisible(isStateVisible(newCode));
   }
   if (ref.lbl) {
@@ -1416,234 +1691,22 @@ function moveZoneToOffice(z, newCode) {
   }
 }
 
-/* ---- drawing a new zone ---- */
-
-// Google withdrew DrawingManager from the Maps API (v3.65), so zones are drawn
-// by collecting clicks ourselves. Clicks on existing zones and pins count too.
-function startDrawingZone() {
-  if (editState.drawing) return;
-  selectZoneForEdit(null);
-  document.getElementById('info-panel').classList.remove('visible');
-  document.getElementById('edit-draw-bar').classList.add('visible');
-  const officeSel = document.getElementById('edit-draw-office');
-  const corners = new google.maps.MVCArray();
-  const shape = new google.maps.Polygon({
-    map: map, paths: corners, clickable: false, zIndex: 9000,
-    strokeColor: '#ffffff', strokeWeight: 3, fillColor: getOfficeColor(officeSel.value), fillOpacity: 0.45,
-  });
-  const start = new google.maps.Marker({
-    map: null, zIndex: 9999, cursor: 'pointer', title: 'Close the shape',
-    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 7, fillColor: '#ffffff', fillOpacity: 1, strokeColor: '#0f766e', strokeWeight: 2 },
-  });
-  const draw = { corners: corners, shape: shape, start: start, listener: null };
-  editState.drawing = draw;
-  editState.drawPick = latLng => {
-    corners.push(latLng);
-    if (corners.getLength() === 1) { start.setPosition(latLng); start.setMap(map); }
-  };
-  draw.listener = map.addListener('click', e => editState.drawPick && editState.drawPick(e.latLng));
-  start.addListener('click', finishDrawingZone);
-  map.setOptions({ disableDoubleClickZoom: true, draggableCursor: 'crosshair' });
-  officeSel.onchange = () => shape.setOptions({ fillColor: getOfficeColor(officeSel.value) });
-  refreshEditPanel();
-  setEditStatus('Click on the map to place each corner, then click the first corner again to close the shape.');
-}
-
-function finishDrawingZone() {
-  const draw = editState.drawing;
-  if (!draw) return;
-  const coords = [];
-  draw.corners.forEach(p => coords.push([round7(p.lat()), round7(p.lng())]));
-  const office = document.getElementById('edit-draw-office').value;
-  cancelDrawingZone();
-  if (coords.length < 3) { setEditStatus('A zone needs at least 3 corners - try again.'); return; }
-  coords.push(coords[0].slice());
-  finishNewZone(coords, office);
-}
-
-function cancelDrawingZone() {
-  const draw = editState.drawing;
-  if (draw) {
-    draw.shape.setMap(null);
-    draw.start.setMap(null);
-    if (draw.listener) google.maps.event.removeListener(draw.listener);
-    map.setOptions({ disableDoubleClickZoom: false, draggableCursor: null });
-    editState.drawing = null;
-  }
-  editState.drawPick = null;
-  document.getElementById('edit-draw-bar').classList.remove('visible');
-  refreshEditPanel();
-}
-
-// New zones copy the naming style the office already uses, so an office
-// numbering zones "Zone 3 - MNC" gets "Zone 9 - MNC" rather than "MNC 9".
-function nextZoneNaming(code) {
-  const siblings = officeZones[code] || [];
-  let next = 1;
-  siblings.forEach(s => {
-    const n = parseInt(s.label, 10);
-    if (!isNaN(n) && n >= next) next = n + 1;
-  });
-  const label = String(next);
-  let name = code + ' ' + label;
-  const model = siblings.find(s => s.label && s.name.indexOf(String(s.label)) > -1);
-  if (model) name = model.name.replace(String(model.label), label);
-  while (siblings.some(s => s.name === name)) name = name + ' (new)';
-  const folder = siblings.length ? siblings[0].folder : (getStateForOffice(code) || '');
-  return { name: name, label: label, folder: folder };
-}
-
-function finishNewZone(coords, code) {
-  const naming = nextZoneNaming(code);
-  const z = { name: naming.name, folder: naming.folder, office: code, coords: coords, label: naming.label, labelPos: null, labelSize: 0.02 };
-  ZONES.push(z);
-  if (!officeZones[code]) officeZones[code] = [];
-  officeZones[code].push(z);
-  zoneKey.set(z, 'n' + (editState.newSeq++));
-  const ref = createZonePoly(z, code, activeOffice === code);
-  refreshZoneLabel(z);
-  markZoneDirty(z);
-  saveDraft();
-  refreshSidebarCounts();
-  if (ref && ref.poly) selectZoneForEdit(ref.poly);
-  setEditStatus('Created <b>' + z.name + '</b>. Rename it or change its office above if needed.');
-}
-
-/* ---- change tracking ---- */
-
-function markZoneDirty(z) { editState.dirty.add(zoneKey.get(z)); }
-
-function snapshotZone(z, coalesce) {
-  const now = Date.now();
-  if (coalesce && editState.undo.length && editState.undo[editState.undo.length - 1].zone === z && now - editState.lastSnap < 500) {
-    editState.lastSnap = now;
-    return;
-  }
-  editState.lastSnap = now;
-  editState.undo.push({ zone: z, coords: z.coords.map(c => c.slice()) });
-  if (editState.undo.length > 60) editState.undo.shift();
-}
-
-function commitZoneEdit(poly, coalesce) {
-  const z = poly._zone;
-  snapshotZone(z, coalesce);
-  writePathToZone(poly, z);
-  markZoneDirty(z);
-  saveDraft();
-  refreshEditPanel();
-}
-
-function writePathToZone(poly, z) {
-  const pts = [];
-  poly.getPath().forEach(p => pts.push([round7(p.lat()), round7(p.lng())]));
-  if (pts.length && (pts[0][0] !== pts[pts.length - 1][0] || pts[0][1] !== pts[pts.length - 1][1])) pts.push(pts[0].slice());
-  z.coords = pts;
-  poly._baseZ = zoneBaseZ(pts);
-  refreshZoneLabel(z);
-}
-
-function round7(n) { return Math.round(n * 1e7) / 1e7; }
-
-function applyCoordsToZone(z, coords) {
-  z.coords = coords.map(c => c.slice());
-  const ref = zoneRefs.get(z);
-  if (ref && ref.poly) {
-    editState.suspend = true;
-    ref.poly.setPath(z.coords.map(c => ({ lat: c[0], lng: c[1] })));
-    ref.poly._baseZ = zoneBaseZ(z.coords);
-    editState.suspend = false;
-    // Revert and draft-restore change the fill alongside the shape, so repaint.
-    if (editState.selected === ref.poly) ref.poly.setOptions({ fillColor: zoneFill(z) });
-    else restyleZonePoly(ref.poly);
-  }
-  refreshZoneLabel(z);
-}
-
-function zoneMatchesBaseline(z) {
-  const b = zoneBaseline.get(z);
-  return !!b && b.name === z.name && b.office === z.office
-    && (b.fill || null) === (z.fill || null)
-    && String(b.label) === String(z.label)
-    && JSON.stringify(b.coords) === JSON.stringify(z.coords);
-}
-
-function undoEdit() {
-  const step = editState.undo.pop();
-  if (!step) { setEditStatus('Nothing left to undo.'); return; }
-  applyCoordsToZone(step.zone, step.coords);
-  if (zoneMatchesBaseline(step.zone)) editState.dirty.delete(zoneKey.get(step.zone));
-  saveDraft();
-  refreshEditPanel();
-}
-
-function revertSelectedZone() {
-  const poly = editState.selected;
-  if (!poly) return;
-  const z = poly._zone;
-  const base = zoneBaseline.get(z);
-  if (!base) { setEditStatus('This zone is new - use Delete zone to remove it.'); return; }
-  snapshotZone(z, false);
-  if (base.office !== z.office) moveZoneToOffice(z, base.office);
-  z.name = base.name;
-  z.label = base.label;
-  setZoneFill(z, base.fill);
-  applyCoordsToZone(z, base.coords);
-  editState.dirty.delete(zoneKey.get(z));
-  saveDraft();
-  refreshSidebarCounts();
-  refreshEditPanel();
-  setEditStatus(z.name + ' restored to the published version.');
-}
-
-function discardAllEdits() {
-  if (!hasUnsavedChanges()) { setEditStatus('There is nothing unsaved to discard.'); return; }
-  if (!window.confirm('Throw away ' + changeSummary() + ' and reload the published map?\n\nAnything already saved to GitHub is not affected.')) return;
-  try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
-  location.reload();
-}
-
-function removeZoneFromMap(z) {
-  const ref = zoneRefs.get(z) || {};
-  if (ref.poly) ref.poly.setMap(null);
-  if (ref.lbl) ref.lbl.setMap(null);
-  zoneRefs.delete(z);
-  const i = ZONES.indexOf(z); if (i > -1) ZONES.splice(i, 1);
-  const list = officeZones[z.office] || [];
-  const j = list.indexOf(z); if (j > -1) list.splice(j, 1);
-  const arr = polysByOffice[z.office] || [];
-  const k = ref.poly ? arr.indexOf(ref.poly) : -1; if (k > -1) arr.splice(k, 1);
-  const lbls = labelsByOffice[z.office] || [];
-  const l = ref.lbl ? lbls.indexOf(ref.lbl) : -1; if (l > -1) lbls.splice(l, 1);
-}
-
-function deleteSelectedZone() {
-  const poly = editState.selected;
-  if (!poly) return;
-  const z = poly._zone;
-  if (!window.confirm('Delete the zone "' + z.name + '" from ' + getOfficeName(z.office) + '?')) return;
-  const key = zoneKey.get(z);
-  removeZoneFromMap(z);
-  editState.selected = null;
-  editState.undo = editState.undo.filter(s => s.zone !== z);
-  if (String(key).charAt(0) === 'n') editState.dirty.delete(key);
-  else { editState.dirty.add(key); editState.deleted.set(key, true); }
-  saveDraft();
-  refreshSidebarCounts();
-  refreshEditPanel();
-  setEditStatus('Deleted ' + z.name + '.');
-}
-
 /* ---- labels follow the shape ---- */
 
 function refreshZoneLabel(z) {
-  const ref = zoneRefs.get(z);
-  if (!ref || !z.coords || z.coords.length < 3) return;
+  if (!z.coords || z.coords.length < 3) return;
   const pole = poleOfInaccessibility(z.coords);
   z.labelPos = [round7(pole.lat), round7(pole.lng)];
   z.labelSize = round7(pole.dist);
+  placeZoneLabel(z);
+}
+
+// Puts the number marker where labelPos says, creating or removing it as needed.
+function placeZoneLabel(z) {
+  const ref = zoneRefs.get(z);
+  if (!ref) return;
   const hasNumber = z.label != null && String(z.label) !== '';
   if (!hasNumber) {
-    // Number cleared: take the marker off the map rather than leave it blank.
     if (ref.lbl) {
       ref.lbl.setMap(null);
       const list = labelsByOffice[z.office] || [];
@@ -1653,12 +1716,13 @@ function refreshZoneLabel(z) {
     return;
   }
   if (!ref.lbl) { createZoneLabel(z, z.office, activeOffice === z.office); return; }
-  ref.lbl.setPosition({ lat: z.labelPos[0], lng: z.labelPos[1] });
+  const hl = activeOffice === z.office;
+  ref.lbl.setPosition(z.labelPos ? { lat: z.labelPos[0], lng: z.labelPos[1] } : centroid(z.coords));
   ref.lbl.setOptions({
     label: {
       text: String(z.label),
-      color: activeOffice === z.office ? '#fff' : 'rgba(255,255,255,0.75)',
-      fontSize: getLabelFontSize(z.labelSize, activeOffice === z.office),
+      color: hl ? '#fff' : 'rgba(255,255,255,0.75)',
+      fontSize: getLabelFontSize(z.labelSize, hl),
       fontWeight: 'bold',
       fontFamily: LABEL_FONT,
     },
@@ -1719,24 +1783,14 @@ function poleOfInaccessibility(coords) {
   return { lat: bestY, lng: bestX, dist: Math.max(0.003, bestD) };
 }
 
-/* ---- draft persistence (this browser only) ---- */
+/* ---- history: one Undo/Redo for every change ---- */
 
-function saveDraft() {
-  try {
-    const zones = {};
-    ZONES.forEach(z => {
-      const key = zoneKey.get(z);
-      if (!editState.dirty.has(key)) return;
-      const snap = snapshotOf(z);
-      snap.isNew = String(key).charAt(0) === 'n';
-      const base = zoneBaseline.get(z);
-      snap.baseName = base ? base.name : null;
-      zones[key] = snap;
-    });
-    const draft = { at: Date.now(), zones: zones, deleted: [...editState.deleted.keys()] };
-    if (editState.officesDirty) { const s = officesSnapshot(); draft.offices = s.offices; draft.states = s.states; }
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-  } catch (err) { setEditStatus('Draft could not be saved to this browser.'); }
+function snapshotOf(z) {
+  return {
+    name: z.name, label: z.label, office: z.office, folder: z.folder, fill: z.fill || null,
+    coords: z.coords.map(c => c.slice()),
+    labelPos: z.labelPos ? z.labelPos.slice() : null, labelSize: z.labelSize,
+  };
 }
 
 function zoneForKey(key) {
@@ -1744,343 +1798,571 @@ function zoneForKey(key) {
   return null;
 }
 
-// Offers the draft in the panel rather than interrupting with a dialog. The
-// map stays on the published version until the offer is accepted.
-function offerDraft() {
-  let draft = null;
-  try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (err) { draft = null; }
-  if (!draft) return;
-  const count = Object.keys(draft.zones || {}).length + (draft.deleted || []).length + (draft.offices ? 1 : 0);
-  if (!count) return;
-  editState.pendingDraft = draft;
-  const when = new Date(draft.at).toLocaleString([], { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
-  document.getElementById('edit-draft-text').innerHTML =
-    'You left <b>' + count + ' unsaved change' + (count === 1 ? '' : 's') + '</b> in this browser on ' + escapeHtml(when) +
-    '. The map below is the published version until you restore them.';
-  document.getElementById('edit-draft-bar').hidden = false;
+function zoneSnapByKey(key) {
+  const z = zoneForKey(key);
+  return z ? snapshotOf(z) : null;
 }
-
-function dismissDraftOffer() {
-  editState.pendingDraft = null;
-  document.getElementById('edit-draft-bar').hidden = true;
-}
-
-function discardPendingDraft() {
-  try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
-  dismissDraftOffer();
-  setEditStatus('Those unsaved changes were discarded.');
-}
-
-function restoreDraft() {
-  const draft = editState.pendingDraft;
-  if (!draft) return;
-  dismissDraftOffer();
-  let skipped = 0;
-
-  if (draft.offices && draft.states) {
-    Object.keys(OFFICES).forEach(c => delete OFFICES[c]);
-    Object.assign(OFFICES, draft.offices);
-    Object.keys(STATE_GROUPS).forEach(s => delete STATE_GROUPS[s]);
-    Object.assign(STATE_GROUPS, draft.states);
-    Object.keys(OFFICES).forEach(c => {
-      if (!officeZones[c]) officeZones[c] = [];
-      if (!polysByOffice[c]) polysByOffice[c] = [];
-      if (!labelsByOffice[c]) labelsByOffice[c] = [];
-      removeOfficeMarkers(c);
-      createOfficeMarker(c);
-    });
-    Object.keys(markersByOffice).forEach(k => {
-      const c = k.replace(/_secondary$/, '');
-      if (!OFFICES[c]) removeOfficeMarkers(c);
-    });
-    editState.officesDirty = true;
-    buildStateToggles();
-    buildSidebar();
-    buildOfficeSelect();
-    Object.values(polysByOffice).forEach(list => list.forEach(restyleZonePoly));
-  }
-
-  (draft.deleted || []).forEach(key => {
-    const z = zoneForKey(key);
-    if (!z) return;
-    removeZoneFromMap(z);
-    editState.dirty.add(key);
-    editState.deleted.set(key, true);
-  });
-
-  Object.entries(draft.zones || {}).forEach(([key, snap]) => {
-    if (snap.isNew) {
-      const z = { name: snap.name, folder: snap.folder, office: snap.office, coords: snap.coords, label: snap.label, labelPos: snap.labelPos, labelSize: snap.labelSize };
-      if (snap.fill) z.fill = snap.fill;
-      ZONES.push(z);
-      if (!officeZones[z.office]) officeZones[z.office] = [];
-      officeZones[z.office].push(z);
-      zoneKey.set(z, key);
-      const n = parseInt(String(key).slice(1), 10);
-      if (!isNaN(n) && n >= editState.newSeq) editState.newSeq = n + 1;
-      createZonePoly(z, z.office, activeOffice === z.office);
-      editState.dirty.add(key);
-      return;
-    }
-    const z = zoneForKey(key);
-    const base = z ? zoneBaseline.get(z) : null;
-    // The published file changed under this draft - don't guess which zone it meant.
-    if (!z || (snap.baseName && base && base.name !== snap.baseName)) { skipped++; return; }
-    if (snap.office && snap.office !== z.office) moveZoneToOffice(z, snap.office);
-    z.name = snap.name;
-    z.label = snap.label;
-    setZoneFill(z, snap.fill);
-    applyCoordsToZone(z, snap.coords);
-    editState.dirty.add(key);
-  });
-
-  refreshSidebarCounts();
-  refreshEditPanel();
-  setEditStatus(skipped
-    ? '<b>' + skipped + ' change(s) skipped</b> &middot; those zones changed in the published map since you drafted them.'
-    : 'Your unsaved changes are back. Save when you are ready.');
-}
-
-/* ---- building the updated file ---- */
-
-function zonesToJson() {
-  return JSON.stringify(ZONES, (key, value) => (typeof value === 'number' ? round7(value) : value));
-}
-
-function hasUnsavedChanges() { return editState.dirty.size > 0 || editState.officesDirty; }
-
-function changeSummary() {
-  const bits = [];
-  if (editState.dirty.size) bits.push(editState.dirty.size + ' zone' + (editState.dirty.size === 1 ? '' : 's'));
-  if (editState.officesDirty) bits.push('office settings');
-  return bits.join(' and ');
-}
-
-/* ---- saving, via the Worker that holds the GitHub token ---- */
-
-async function saveToGitHub() {
-  if (!hasUnsavedChanges()) { setEditStatus('Nothing to save.'); return; }
-  if (!editState.savePassword) { openPasswordModal(true); return; }
-
-  const btn = document.getElementById('edit-save');
-  btn.disabled = true;
-  setEditStatus('Saving&hellip;');
-  // Captured once so the fingerprint kept afterwards is exactly what the
-  // Worker committed, whatever rounding the payload applied.
-  const sending = { zones: JSON.parse(zonesToJson()), offices: OFFICES, states: STATE_GROUPS };
-  try {
-    const res = await fetch(SAVE_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        password: editState.savePassword,
-        zones: sending.zones,
-        offices: sending.offices,
-        states: sending.states,
-        // What this page loaded, so the Worker can refuse a stale save.
-        basedOn: {
-          zones: editState.publishedZones,
-          offices: editState.publishedOffices,
-          states: editState.publishedStates,
-        },
-        summary: changeSummary(),
-      }),
-    });
-
-    let data = {};
-    try { data = await res.json(); } catch (err) {}
-
-    if (res.status === 401) {
-      editState.savePassword = null;
-      try { localStorage.removeItem(PASS_KEY); } catch (err) {}
-      setEditStatus('<b>That password was refused.</b> Enter the current one &mdash; your changes are safe.');
-      openPasswordModal(true);
-      return;
-    }
-    if (res.status === 409) {
-      setEditStatus('<b>' + escapeHtml(data.message || 'The published map changed since this page loaded. Nothing was saved.')
-        + '</b> Reload the page &mdash; your changes are kept and offered back &mdash; then redo anything that clashes.');
-      return;
-    }
-    if (!res.ok) throw new Error(data.error || data.message || (res.status + ' ' + res.statusText));
-
-    // Published, so this page is the current version again.
-    editState.dirty.clear();
-    editState.deleted.clear();
-    editState.officesDirty = false;
-    editState.publishedZones = JSON.stringify(sending.zones);
-    editState.publishedOffices = JSON.stringify(sending.offices);
-    editState.publishedStates = JSON.stringify(sending.states);
-    ZONES.forEach(z => zoneBaseline.set(z, snapshotOf(z)));
-    try { localStorage.removeItem(DRAFT_KEY); } catch (err) {}
-    refreshEditPanel();
-    setEditStatus('<b>Saved.</b> <a href="' + escapeHtml(data.url || '#') + '" target="_blank" rel="noopener">Commit '
-      + escapeHtml(String(data.sha || '').slice(0, 7)) + '</a> &middot; the live map updates in about a minute.');
-  } catch (err) {
-    setEditStatus('<b>Save failed:</b> ' + escapeHtml(String(err.message || err))
-      + ' &middot; your changes are still here.');
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-// The zones, offices and states exactly as the published file holds them.
-function markPublishedState() {
-  editState.publishedZones = JSON.stringify(ZONES);
-  editState.publishedOffices = JSON.stringify(OFFICES);
-  editState.publishedStates = JSON.stringify(STATE_GROUPS);
-}
-
-/* ---- the save password, encrypted with the editor passphrase ---- */
-
-async function passKey(pass, salt) {
-  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt: salt, iterations: 150000, hash: 'SHA-256' },
-    base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
-}
-const toB64 = a => btoa(String.fromCharCode(...new Uint8Array(a)));
-const fromB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-
-async function encryptSecret(text, pass) {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const key = await passKey(pass, salt);
-  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(text));
-  return JSON.stringify({ s: toB64(salt), i: toB64(iv), c: toB64(ct) });
-}
-
-async function decryptSecret(blob, pass) {
-  const o = JSON.parse(blob);
-  const key = await passKey(pass, fromB64(o.s));
-  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(o.i) }, key, fromB64(o.c));
-  return new TextDecoder().decode(pt);
-}
-
-async function loadStoredPassword() {
-  let blob = null;
-  try { blob = localStorage.getItem(PASS_KEY); } catch (err) {}
-  if (!blob) return;
-  try { editState.savePassword = await decryptSecret(blob, editState.pass); } catch (err) { editState.savePassword = null; }
-  refreshEditPanel();
-}
-
-function openPasswordModal(becauseSaving) {
-  document.getElementById('edit-modal').classList.add('visible');
-  document.getElementById('edit-pw-input').value = '';
-  document.getElementById('edit-pw-why').textContent = becauseSaving
-    ? 'Saving needs the shared save password.'
-    : 'The save password lets this browser publish changes.';
-  document.getElementById('edit-pw-input').focus();
-}
-
-function closePasswordModal() { document.getElementById('edit-modal').classList.remove('visible'); }
-
-async function submitPassword() {
-  const pw = document.getElementById('edit-pw-input').value;
-  if (!pw) return;
-  editState.savePassword = pw;
-  if (document.getElementById('edit-pw-remember').checked) {
-    try { localStorage.setItem(PASS_KEY, await encryptSecret(pw, editState.pass)); } catch (err) {}
-  } else {
-    try { localStorage.removeItem(PASS_KEY); } catch (err) {}
-  }
-  closePasswordModal();
-  refreshEditPanel();
-  setEditStatus('Password set. Press <b>Save to GitHub</b> to publish.');
-}
-
-function forgetPassword() {
-  editState.savePassword = null;
-  try { localStorage.removeItem(PASS_KEY); } catch (err) {}
-  closePasswordModal();
-  refreshEditPanel();
-  setEditStatus('The save password was forgotten on this device.');
-}
-
-/* ---- offices: colours, details, and adding new ones ---- */
 
 function officesSnapshot() {
   return { offices: JSON.parse(JSON.stringify(OFFICES)), states: JSON.parse(JSON.stringify(STATE_GROUPS)) };
 }
 
-function markOfficesDirty() {
-  editState.officesDirty = true;
-  saveDraft();
-  refreshEditPanel();
+// Runs a change and keeps what the touched zones (and offices) looked like
+// before and after it. Rapid repeats of one kind (dragging, picking a colour)
+// fold into a single step.
+function record(label, keys, fn, opts) {
+  opts = opts || {};
+  const before = keys.map(k => zoneSnapByKey(k));
+  const offBefore = opts.offices ? officesSnapshot() : null;
+  fn();
+  const step = {
+    label: label,
+    zones: keys.map((k, i) => ({ key: k, before: before[i], after: zoneSnapByKey(k) })),
+    offices: opts.offices ? { before: offBefore, after: officesSnapshot() } : null,
+    coalesce: opts.coalesce || null,
+    at: Date.now(),
+  };
+  const last = editState.undo[editState.undo.length - 1];
+  if (opts.coalesce && last && last.coalesce === opts.coalesce && step.at - last.at < 1500) {
+    last.zones.forEach(e => { const s = step.zones.find(x => x.key === e.key); if (s) e.after = s.after; });
+    if (last.offices && step.offices) last.offices.after = step.offices.after;
+    last.at = step.at;
+  } else {
+    editState.undo.push(step);
+    if (editState.undo.length > 200) editState.undo.shift();
+  }
+  editState.redo = [];
+  changed(opts);
 }
 
-// Repaints everything that carries an office's colour.
-function applyOfficeAppearance(code) {
-  (polysByOffice[code] || []).forEach(poly => {
-    if (editState.selected === poly) return;   // keep the white editing outline
-    restyleZonePoly(poly);
+function applyStep(step, which) {
+  if (step.offices) applyOfficesSnapshot(step.offices[which]);
+  step.zones.forEach(e => applyZoneSnap(e.key, e[which]));
+}
+
+function undo() {
+  if (editState.drawing) { removeLastCorner(); return; }
+  const step = editState.undo.pop();
+  if (!step) { toast('Nothing to undo.'); return; }
+  applyStep(step, 'before');
+  editState.redo.push(step);
+  if (editState.sel && editState.sel.type === 'zone' && !selZone()) editState.sel = null;
+  changed();
+  toast('Undone: ' + escapeHtml(step.label));
+}
+
+function redo() {
+  const step = editState.redo.pop();
+  if (!step) { toast('Nothing to redo.'); return; }
+  applyStep(step, 'after');
+  editState.undo.push(step);
+  if (editState.sel && editState.sel.type === 'zone' && !selZone()) editState.sel = null;
+  changed();
+  toast('Redone: ' + escapeHtml(step.label));
+}
+
+// Makes the zone with this key look like the snapshot: creates it, updates it,
+// or (for null) removes it.
+function applyZoneSnap(key, snap) {
+  let z = zoneForKey(key);
+  if (!snap) {
+    if (!z) return;
+    if (editState.sel && editState.sel.type === 'zone' && editState.sel.key === key) { editState.sel = null; clearVertex(); }
+    removedAt.set(key, ZONES.indexOf(z));
+    removeZoneFromMap(z);
+    return;
+  }
+  if (!z) {
+    z = {
+      name: snap.name, folder: snap.folder, office: snap.office, coords: snap.coords.map(c => c.slice()),
+      label: snap.label, labelPos: snap.labelPos ? snap.labelPos.slice() : null, labelSize: snap.labelSize,
+    };
+    if (snap.fill) z.fill = snap.fill;
+    const at = removedAt.has(key) ? Math.min(removedAt.get(key), ZONES.length) : ZONES.length;
+    ZONES.splice(at, 0, z);
+    if (!officeZones[z.office]) officeZones[z.office] = [];
+    officeZones[z.office].push(z);
+    zoneKey.set(z, key);
+    const ref = createZonePoly(z, z.office, activeOffice === z.office);
+    if (ref && ref.poly) {
+      ref.poly.setVisible(isStateVisible(z.office));
+      if (editState.drawing || editState.pick) ref.poly.setOptions({ clickable: false });
+    }
+    return;
+  }
+  if (snap.office !== z.office) moveZoneToOffice(z, snap.office);
+  z.name = snap.name;
+  z.label = snap.label;
+  z.folder = snap.folder;
+  setZoneFill(z, snap.fill);
+  setZoneCoords(z, snap.coords);
+  z.labelPos = snap.labelPos ? snap.labelPos.slice() : null;
+  z.labelSize = snap.labelSize;
+  placeZoneLabel(z);
+  const ref = zoneRefs.get(z);
+  if (ref && ref.poly) restyleZonePoly(ref.poly);
+}
+
+function removeZoneFromMap(z) {
+  const ref = zoneRefs.get(z) || {};
+  if (ref.poly) ref.poly.setMap(null);
+  if (ref.lbl) ref.lbl.setMap(null);
+  zoneRefs.delete(z);
+  const i = ZONES.indexOf(z); if (i > -1) ZONES.splice(i, 1);
+  const list = officeZones[z.office] || [];
+  const j = list.indexOf(z); if (j > -1) list.splice(j, 1);
+  const arr = polysByOffice[z.office] || [];
+  const k = ref.poly ? arr.indexOf(ref.poly) : -1; if (k > -1) arr.splice(k, 1);
+  const lbls = labelsByOffice[z.office] || [];
+  const l = ref.lbl ? lbls.indexOf(ref.lbl) : -1; if (l > -1) lbls.splice(l, 1);
+}
+
+function applyOfficesSnapshot(s) {
+  const had = Object.keys(OFFICES);
+  Object.keys(OFFICES).forEach(c => delete OFFICES[c]);
+  Object.assign(OFFICES, JSON.parse(JSON.stringify(s.offices)));
+  Object.keys(STATE_GROUPS).forEach(k => delete STATE_GROUPS[k]);
+  Object.assign(STATE_GROUPS, JSON.parse(JSON.stringify(s.states)));
+  new Set(had.concat(Object.keys(OFFICES))).forEach(c => removeOfficeMarkers(c));
+  Object.keys(OFFICES).forEach(c => {
+    if (!officeZones[c]) officeZones[c] = [];
+    if (!polysByOffice[c]) polysByOffice[c] = [];
+    if (!labelsByOffice[c]) labelsByOffice[c] = [];
+    createOfficeMarker(c);
   });
+  Object.keys(STATE_GROUPS).forEach(st => { if (stateVisible[st] === undefined) stateVisible[st] = true; });
+  Object.values(polysByOffice).forEach(list => list.forEach(restyleZonePoly));
+  buildStateToggles();
+  buildSidebar();
+  if (editState.sel && editState.sel.type === 'office' && !OFFICES[editState.sel.code]) editState.sel = null;
+}
+
+// Repaints everything that carries an office's colour or position.
+function applyOfficeAppearance(code) {
+  (polysByOffice[code] || []).forEach(restyleZonePoly);
   removeOfficeMarkers(code);
   createOfficeMarker(code);
   buildSidebar();
-  buildOfficeSelect();
-  if (activeOffice) setActiveOffice(activeOffice);
 }
 
-function openOfficeModal() {
-  cancelDrawingZone();
-  document.getElementById('office-modal').classList.add('visible');
-  renderOfficeList();
-  showOfficeList();
+function changed(opts) {
+  opts = opts || {};
+  clearVertex();
+  clearTimeout(editState.draftTimer);
+  editState.draftTimer = setTimeout(saveDraft, 300);
+  if (opts.keepPanel) { renderToolbar(); renderNav(); renderHint(); }
+  else renderAll();
 }
 
-function closeOfficeModal() {
-  document.getElementById('office-modal').classList.remove('visible');
-  cancelPinPlacement();
+/* ---- what's unsaved ---- */
+
+function sameZone(a, b) {
+  if (!a || !b) return a === b;
+  return a.name === b.name && a.office === b.office && (a.fill || null) === (b.fill || null)
+    && String(a.label == null ? '' : a.label) === String(b.label == null ? '' : b.label)
+    && (a.folder || '') === (b.folder || '')
+    && JSON.stringify(a.coords) === JSON.stringify(b.coords);
 }
 
-function showOfficeList() {
-  document.getElementById('office-list-view').style.display = 'block';
-  document.getElementById('office-form-view').style.display = 'none';
+function stateOf(states, code) {
+  for (const [s, list] of Object.entries(states)) {
+    const i = list.indexOf(code);
+    if (i > -1) return { state: s, index: i };
+  }
+  return { state: null, index: -1 };
 }
 
-function renderOfficeList() {
-  const wrap = document.getElementById('office-rows');
-  wrap.innerHTML = '';
-  Object.entries(STATE_GROUPS).forEach(([state, codes]) => {
-    const head = document.createElement('div');
-    head.className = 'office-row-state';
-    head.textContent = state;
-    wrap.appendChild(head);
-    codes.forEach(code => {
-      const off = OFFICES[code];
-      if (!off) return;
-      const row = document.createElement('div');
-      row.className = 'office-row';
-
-      const swatch = document.createElement('input');
-      swatch.type = 'color';
-      swatch.value = normaliseHex(off.color);
-      swatch.title = 'Colour for ' + off.name;
-      swatch.oninput = () => {
-        OFFICES[code].color = swatch.value;
-        applyOfficeAppearance(code);
-        markOfficesDirty();
-        renderOfficeList();
-      };
-
-      const label = document.createElement('div');
-      label.className = 'office-row-name';
-      label.innerHTML = '<b>' + escapeHtml(off.name) + '</b><span>' + escapeHtml(code) + ' &middot; ' +
-        (officeZones[code] || []).length + ' zones &middot; ' + escapeHtml(off.color) + '</span>';
-
-      const edit = document.createElement('button');
-      edit.className = 'edit-btn office-row-edit';
-      edit.textContent = 'Details';
-      edit.onclick = () => openOfficeForm(code);
-
-      row.appendChild(swatch);
-      row.appendChild(label);
-      row.appendChild(edit);
-      wrap.appendChild(row);
+function listChanges() {
+  const out = [];
+  const keys = new Set(editState.baseZones.keys());
+  ZONES.forEach(z => keys.add(zoneKey.get(z)));
+  keys.forEach(key => {
+    const base = editState.baseZones.get(key) || null;
+    const z = zoneForKey(key);
+    const cur = z ? snapshotOf(z) : null;
+    if (sameZone(base, cur)) return;
+    out.push({
+      type: 'zone', key: key, kind: !base ? 'added' : !cur ? 'deleted' : 'edited',
+      base: base, cur: cur, name: (cur || base).name, office: (cur || base).office,
+      detail: describeZoneChange(base, cur),
     });
   });
+  const bo = JSON.parse(editState.baseOffices), bs = JSON.parse(editState.baseStates);
+  new Set(Object.keys(bo).concat(Object.keys(OFFICES))).forEach(code => {
+    const b = bo[code] ? Object.assign({ office: bo[code] }, stateOf(bs, code)) : null;
+    const c = OFFICES[code] ? Object.assign({ office: OFFICES[code] }, stateOf(STATE_GROUPS, code)) : null;
+    if (b && c && JSON.stringify(b.office) === JSON.stringify(c.office) && b.state === c.state) return;
+    out.push({
+      type: 'office', code: code, kind: !b ? 'added' : !c ? 'deleted' : 'edited',
+      base: b, cur: c, name: (c || b).office.name, detail: describeOfficeChange(b, c),
+    });
+  });
+  return out;
+}
+
+function describeZoneChange(base, cur) {
+  if (!base) return 'New zone · ' + (cur.coords.length - 1) + ' corners';
+  if (!cur) return 'Deleted';
+  const bits = [];
+  if (JSON.stringify(base.coords) !== JSON.stringify(cur.coords)) bits.push('Reshaped · ' + (base.coords.length - 1) + ' → ' + (cur.coords.length - 1) + ' corners');
+  if (base.office !== cur.office) bits.push('Moved to ' + getOfficeName(cur.office));
+  if (String(base.label == null ? '' : base.label) !== String(cur.label == null ? '' : cur.label)) bits.push('Number ' + (base.label || '–') + ' → ' + (cur.label || '–'));
+  if (base.name !== cur.name) bits.push('Renamed from ' + base.name);
+  if ((base.fill || null) !== (cur.fill || null)) bits.push(cur.fill ? 'Custom colour' : 'Office colour again');
+  return bits.join(' · ') || 'Changed';
+}
+
+function describeOfficeChange(b, c) {
+  if (!b) return 'New office';
+  if (!c) return 'Removed';
+  const o = b.office, n = c.office, bits = [];
+  if (o.name !== n.name) bits.push('Renamed');
+  if (o.color !== n.color) bits.push('Colour');
+  if (o.address !== n.address) bits.push('Address');
+  if (o.lat !== n.lat || o.lng !== n.lng) bits.push('Pin moved');
+  if (JSON.stringify(o.secondaryLocations || []) !== JSON.stringify(n.secondaryLocations || [])) bits.push('Satellite locations');
+  if (b.state !== c.state) bits.push('Moved to ' + c.state);
+  return bits.join(' · ') || 'Changed';
+}
+
+function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+
+function changeSummary(changes) {
+  const z = changes.filter(c => c.type === 'zone').length;
+  const o = changes.filter(c => c.type === 'office').length;
+  const bits = [];
+  if (z) bits.push(plural(z, 'zone'));
+  if (o) bits.push(plural(o, 'office'));
+  return bits.join(' and ');
+}
+
+function revertChange(c) {
+  if (c.type === 'zone') {
+    record('Revert ' + c.name, [c.key], () => applyZoneSnap(c.key, c.base));
+    return;
+  }
+  if (!c.base && (officeZones[c.code] || []).length) { toast('Move or delete this office’s zones first.'); return; }
+  record('Revert ' + c.name, [], () => {
+    const s = officesSnapshot();
+    if (c.base) s.offices[c.code] = JSON.parse(JSON.stringify(c.base.office));
+    else delete s.offices[c.code];
+    Object.keys(s.states).forEach(st => { s.states[st] = s.states[st].filter(x => x !== c.code); });
+    if (c.base && c.base.state) {
+      const list = s.states[c.base.state] = s.states[c.base.state] || [];
+      list.splice(Math.min(c.base.index, list.length), 0, c.code);
+    }
+    applyOfficesSnapshot(s);
+  }, { offices: true });
+}
+
+/* ---- drafts kept in this browser ---- */
+
+function saveDraft() {
+  try {
+    const changes = listChanges();
+    if (!changes.length) { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(OLD_DRAFT_KEY); return; }
+    const zones = {};
+    changes.filter(c => c.type === 'zone').forEach(c => {
+      zones[c.key] = c.cur
+        ? Object.assign({ baseName: c.base ? c.base.name : null }, c.cur)
+        : { deleted: true, baseName: c.base.name };
+    });
+    const draft = { v: 3, at: Date.now(), zones: zones };
+    if (changes.some(c => c.type === 'office')) { draft.offices = OFFICES; draft.states = STATE_GROUPS; }
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  } catch (err) {}
+}
+
+function readDraft() {
+  let draft = null;
+  try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (err) {}
+  if (draft) return draft;
+  // Drafts left by the previous editor.
+  try { draft = JSON.parse(localStorage.getItem(OLD_DRAFT_KEY) || 'null'); } catch (err) {}
+  if (!draft) return null;
+  const zones = {};
+  Object.entries(draft.zones || {}).forEach(([k, s]) => { zones[k] = s; });
+  (draft.deleted || []).forEach(k => { zones[k] = { deleted: true, baseName: null }; });
+  return { v: 2, at: draft.at, zones: zones, offices: draft.offices, states: draft.states };
+}
+
+function offerDraft() {
+  if (listChanges().length) return;   // already applied in this page
+  const draft = readDraft();
+  if (!draft) return;
+  const count = Object.keys(draft.zones || {}).length + (draft.offices ? 1 : 0);
+  if (!count) return;
+  editState.pendingDraft = draft;
+  const when = new Date(draft.at).toLocaleString([], { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+  document.getElementById('ed-draft-text').innerHTML = 'You have <b>' + plural(count, 'unsaved change') + '</b> from ' + escapeHtml(when) + '.';
+  document.getElementById('ed-draft').hidden = false;
+}
+
+function restoreDraft() {
+  const d = editState.pendingDraft;
+  document.getElementById('ed-draft').hidden = true;
+  editState.pendingDraft = null;
+  if (!d) return;
+  const keys = Object.keys(d.zones || {});
+  let skipped = 0;
+  record('Restore unsaved changes', keys, () => {
+    if (d.offices && d.states) applyOfficesSnapshot({ offices: d.offices, states: d.states });
+    keys.forEach(key => {
+      const s = d.zones[key];
+      const base = editState.baseZones.get(key);
+      // The saved map changed under this draft - don't guess which zone it meant.
+      if (key.charAt(0) !== 'n' && (!base || (s.baseName && base.name !== s.baseName))) { skipped++; return; }
+      if (key.charAt(0) === 'n') {
+        const n = parseInt(key.slice(1), 10);
+        if (!isNaN(n) && n >= editState.newSeq) editState.newSeq = n + 1;
+      }
+      applyZoneSnap(key, s.deleted ? null : s);
+    });
+  }, { offices: !!d.offices });
+  toast(skipped
+    ? 'Restored, except ' + plural(skipped, 'zone') + ' that changed on the live map since.'
+    : 'Your unsaved changes are back.');
+}
+
+function discardDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(OLD_DRAFT_KEY); } catch (err) {}
+  editState.pendingDraft = null;
+  document.getElementById('ed-draft').hidden = true;
+  toast('Those unsaved changes were discarded.');
+}
+
+/* ---- review and save ---- */
+
+function zonesToJson() {
+  return JSON.stringify(ZONES, (key, value) => (typeof value === 'number' ? round7(value) : value));
+}
+
+async function openReview() {
+  const changes = listChanges();
+  if (!changes.length) { toast('There’s nothing to save.'); return; }
+  cancelDraw(true);
+  stopPick(true);
+  renderAll();
+  editState.reviewBlocked = false;
+  renderReview();
+  document.getElementById('review-modal').classList.add('visible');
+  const r = await checkAccess(credentials(), editState.published);
+  if (r.ok && r.stale && r.stale.length) {
+    editState.reviewBlocked = true;
+    renderReview('Someone else saved the map after you opened this page, so this save would be refused. Reload the page to pick up their changes. Yours stay in this browser and are offered back when you start editing.');
+  }
+}
+
+function closeReview() {
+  editState.note = (document.getElementById('ed-note') || {}).value || editState.note;
+  document.getElementById('review-modal').classList.remove('visible');
+}
+
+function renderReview(warning) {
+  const noteEl = document.getElementById('ed-note');
+  if (noteEl) editState.note = noteEl.value;
+  const changes = listChanges();
+  if (!changes.length) { closeReview(); return; }
+  document.getElementById('review-title').textContent = 'Review ' + plural(changes.length, 'change');
+  const groups = [
+    ['Edited', changes.filter(c => c.type === 'zone' && c.kind === 'edited')],
+    ['Added', changes.filter(c => c.type === 'zone' && c.kind === 'added')],
+    ['Deleted', changes.filter(c => c.type === 'zone' && c.kind === 'deleted')],
+    ['Offices', changes.filter(c => c.type === 'office')],
+  ];
+  let html = warning ? '<div class="rv-warn">' + escapeHtml(warning) + '</div>' : '';
+  groups.forEach(([title, list]) => {
+    if (!list.length) return;
+    html += '<div class="rv-group">' + title + '</div>';
+    list.forEach(c => {
+      html += '<div class="rv-row">' + changeThumb(c) +
+        '<div><b>' + escapeHtml(c.name) + '</b><span>' + escapeHtml(c.detail) + '</span></div>' +
+        '<button class="edit-btn" data-revert="' + changes.indexOf(c) + '">Revert</button></div>';
+    });
+  });
+  html += '<label class="fld" style="margin-top:8px">What changed? (optional, shown in the change history)' +
+    '<input id="ed-note" type="text" maxlength="200" placeholder="e.g. Moved the Redlands / Gold Coast border to Logan Rd" autocomplete="off"/></label>';
+  const body = document.getElementById('review-body');
+  body.innerHTML = html;
+  document.getElementById('ed-note').value = editState.note;
+  body.querySelectorAll('[data-revert]').forEach(btn => {
+    btn.onclick = () => { revertChange(changes[+btn.dataset.revert]); renderReview(warning); };
+  });
+  const save = document.getElementById('review-save');
+  save.textContent = 'Save ' + plural(changes.length, 'change');
+  save.disabled = editState.reviewBlocked;
+}
+
+// A small before/after outline: dashed grey for the saved shape, filled for now.
+function changeThumb(c) {
+  const svg = inner => '<svg viewBox="0 0 64 44" aria-hidden="true">' + inner + '</svg>';
+  if (c.type === 'office') {
+    const col = escapeHtml(normaliseHex((c.cur || c.base).office.color));
+    return svg('<path d="M32 8c-5 0-9 4-9 9 0 7 9 17 9 17s9-10 9-17c0-5-4-9-9-9z" fill="' + col + '" stroke="#fff" stroke-width="1.5"/><circle cx="32" cy="17" r="3.2" fill="#fff"/>');
+  }
+  const shapes = [c.base, c.cur].filter(Boolean).map(s => s.coords);
+  let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+  shapes.forEach(cs => cs.forEach(p => {
+    if (p[0] < minLat) minLat = p[0];
+    if (p[0] > maxLat) maxLat = p[0];
+    if (p[1] < minLng) minLng = p[1];
+    if (p[1] > maxLng) maxLng = p[1];
+  }));
+  const k = Math.min(54 / ((maxLng - minLng) || 1e-9), 34 / ((maxLat - minLat) || 1e-9));
+  const ox = (64 - (maxLng - minLng) * k) / 2, oy = (44 - (maxLat - minLat) * k) / 2;
+  const pts = cs => cs.map(p => ((p[1] - minLng) * k + ox).toFixed(1) + ',' + ((maxLat - p[0]) * k + oy).toFixed(1)).join(' ');
+  const col = escapeHtml(normaliseHex(getOfficeColor(c.office)));
+  let inner = '';
+  if (c.base && c.cur) inner += '<polygon points="' + pts(c.base.coords) + '" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3 2"/>';
+  if (c.cur) inner += '<polygon points="' + pts(c.cur.coords) + '" fill="' + col + '" fill-opacity=".4" stroke="#2dd4bf" stroke-width="1.6"/>';
+  else inner += '<polygon points="' + pts(c.base.coords) + '" fill="none" stroke="#fb7185" stroke-width="1.4" stroke-dasharray="3 2"/>';
+  return svg(inner);
+}
+
+async function doSave() {
+  const changes = listChanges();
+  if (!changes.length) { closeReview(); return; }
+  const noteEl = document.getElementById('ed-note');
+  if (noteEl) editState.note = noteEl.value;
+  const creds = credentials();
+  if (!creds.password && !creds.token) {
+    askPassword({ title: 'Password needed', why: 'Enter the editor password to save.', then: doSave });
+    return;
+  }
+  const btn = document.getElementById('review-save');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  // Captured once so what is kept as "saved" is exactly what the Worker wrote.
+  const sending = { zones: JSON.parse(zonesToJson()), offices: officesSnapshot().offices, states: officesSnapshot().states };
+  try {
+    const res = await fetch(SAVE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({
+        zones: sending.zones, offices: sending.offices, states: sending.states,
+        basedOn: editState.published, summary: changeSummary(changes), note: editState.note.trim(),
+      }, creds)),
+    });
+    let data = {};
+    try { data = await res.json(); } catch (err) {}
+
+    if (res.status === 401) {
+      editState.password = null;
+      editState.token = null;
+      forgetToken();
+      document.getElementById('review-modal').classList.remove('visible');
+      askPassword({ title: 'Password needed', why: 'The editor password has changed. Enter the current one to save. Your changes are safe.', then: doSave });
+      return;
+    }
+    if (res.status === 409) {
+      editState.reviewBlocked = true;
+      renderReview('Someone else saved the map after you opened this page, so nothing was saved. Reload the page to pick up their changes. Yours stay in this browser and are offered back when you start editing.');
+      return;
+    }
+    if (!res.ok) throw new Error(data.error || data.message || (res.status + ' ' + res.statusText));
+
+    if (data.token && readToken()) { editState.token = data.token; storeToken(data.token); }
+    markSaved(sending);
+    editState.note = '';
+    try { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(OLD_DRAFT_KEY); } catch (err) {}
+    document.getElementById('review-modal').classList.remove('visible');
+    changed();
+    toast('Saved. Everyone sees the update in about a minute.');
+  } catch (err) {
+    renderReview('Saving didn’t work: ' + String(err.message || err) + '. Your changes are still here, so you can try again.');
+  } finally {
+    if (document.getElementById('review-modal').classList.contains('visible')) {
+      btn.disabled = editState.reviewBlocked;
+      btn.textContent = 'Save ' + plural(listChanges().length, 'change');
+    }
+  }
+}
+
+/* ---- keyboard ---- */
+
+function onEditKey(e) {
+  if (!editState.on) return;
+  if (document.querySelector('.modal.visible')) {
+    if (e.key === 'Escape') {
+      if (document.getElementById('review-modal').classList.contains('visible')) closeReview();
+    }
+    return;
+  }
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) {
+    if (e.key === 'Escape') t.blur();
+    return;
+  }
+  const k = e.key, mod = e.ctrlKey || e.metaKey;
+  if (mod && k.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
+  if (mod && k.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
+  if (mod || e.altKey) return;
+  if (k === 'v' || k === 'V') { cancelDraw(); stopPick(); return; }
+  if (k === 'd' || k === 'D') { startDraw(); return; }
+  if (editState.drawing) {
+    if (k === 'Backspace') { e.preventDefault(); removeLastCorner(); }
+    else if (k === 'Enter') { e.preventDefault(); finishDraw(); }
+    else if (k === 'Escape') cancelDraw();
+    return;
+  }
+  if (editState.pick) { if (k === 'Escape') stopPick(); return; }
+  if (k === 'Delete' || k === 'Backspace') {
+    const poly = selPoly();
+    if (editState.vertex && poly) { e.preventDefault(); removeCorner(poly, editState.vertex.index); }
+    else if (k === 'Delete' && selZone()) { e.preventDefault(); deleteSelectedZone(); }
+    return;
+  }
+  if (k === 'Escape') {
+    if (editState.vertex) { clearVertex(); renderHint(); }
+    else if (editState.sel) select(null);
+  }
+}
+
+/* ---- zone actions ---- */
+
+function deleteSelectedZone() {
+  const z = selZone();
+  if (!z) return;
+  const key = zoneKey.get(z), name = z.name;
+  record('Delete ' + name, [key], () => applyZoneSnap(key, null));
+  toast('Deleted <b>' + escapeHtml(name) + '</b>.', { action: { label: 'Undo', fn: undo } });
+}
+
+function editZone(label, fn, opts) {
+  const z = selZone();
+  if (!z) return;
+  record(label, [zoneKey.get(z)], () => fn(z), opts);
+}
+
+function editOffice(code, label, mutate, opts) {
+  record(label, [], () => {
+    mutate(OFFICES[code]);
+    applyOfficeAppearance(code);
+  }, Object.assign({ offices: true }, opts || {}));
+}
+
+/* ---- colours ---- */
+
+// Fills are drawn at 32% over the map's landscape colour, so the picker's
+// swatch never matches what you see. These composite it the same way.
+const MAP_GROUND = [0x24, 0x24, 0x33];
+const FILL_ALPHA = 0.32;
+
+function asMapColour(hex) {
+  const h = normaliseHex(hex);
+  const rgb = [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16));
+  const out = rgb.map((c, i) => Math.round(c * FILL_ALPHA + MAP_GROUND[i] * (1 - FILL_ALPHA)));
+  return 'rgb(' + out.join(',') + ')';
+}
+
+// Every colour already on the map, so a zone can be matched exactly.
+function coloursInUse(z) {
+  const seen = new Map();
+  const add = (hex, label) => { const key = normaliseHex(hex); if (!seen.has(key)) seen.set(key, label); };
+  add(getOfficeColor(z.office), getOfficeName(z.office) + ' (this office)');
+  ZONES.forEach(zz => { if (zz.fill) add(zz.fill, zz.name); });
+  Object.keys(OFFICES).forEach(c => add(getOfficeColor(c), getOfficeName(c)));
+  return [...seen.entries()].slice(0, 18);
 }
 
 // <input type="color"> only accepts #rrggbb.
@@ -2095,40 +2377,6 @@ function normaliseHex(c) {
 function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-
-/* ---- add / edit one office ---- */
-
-function openOfficeForm(code) {
-  editState.officeFormCode = code || null;
-  const isNew = !code;
-  const off = code ? OFFICES[code] : null;
-  // Never let a map hiccup leave the form half-built and unopenable.
-  let centre = null;
-  if (isNew && map) { try { centre = map.getCenter(); } catch (err) { centre = null; } }
-
-  document.getElementById('office-form-title').textContent = isNew ? 'New office' : 'Edit ' + off.name;
-  const codeInput = document.getElementById('office-f-code');
-  codeInput.value = code || '';
-  codeInput.disabled = !isNew;
-  codeInput.title = isNew ? '' : 'The code is referenced by this office’s zones and cannot be changed.';
-  document.getElementById('office-f-name').value = off ? off.name : '';
-  document.getElementById('office-f-colour').value = normaliseHex(off ? off.color : suggestOfficeColour());
-  document.getElementById('office-f-address').value = off ? (off.address || '') : '';
-  document.getElementById('office-f-lat').value = off ? off.lat : (centre ? round7(centre.lat()) : '');
-  document.getElementById('office-f-lng').value = off ? off.lng : (centre ? round7(centre.lng()) : '');
-
-  const stateSel = document.getElementById('office-f-state');
-  stateSel.innerHTML = Object.keys(STATE_GROUPS).map(s => '<option value="' + s + '">' + s + '</option>').join('');
-  stateSel.value = (code && getStateForOffice(code)) || Object.keys(STATE_GROUPS)[0];
-
-  editState.officeSecondaries = (off && off.secondaryLocations ? off.secondaryLocations : [])
-    .map(s => ({ label: s.label || '', address: s.address || '', lat: s.lat, lng: s.lng }));
-  renderSecondaryRows();
-
-  document.getElementById('office-form-error').textContent = '';
-  document.getElementById('office-list-view').style.display = 'none';
-  document.getElementById('office-form-view').style.display = 'block';
 }
 
 // Pick a hue that is not already close to an existing office colour.
@@ -2155,221 +2403,478 @@ function colourDistance(a, b) {
   return Math.sqrt(pa.reduce((sum, v, i) => sum + (v - pb[i]) * (v - pb[i]), 0));
 }
 
-function submitOfficeForm() {
-  const isNew = !editState.officeFormCode;
-  const err = msg => { document.getElementById('office-form-error').textContent = msg; return false; };
-  const code = document.getElementById('office-f-code').value.trim();
-  const name = document.getElementById('office-f-name').value.trim();
-  const colour = document.getElementById('office-f-colour').value;
-  const address = document.getElementById('office-f-address').value.trim();
-  const state = document.getElementById('office-f-state').value;
-  const lat = parseFloat(document.getElementById('office-f-lat').value);
-  const lng = parseFloat(document.getElementById('office-f-lng').value);
+/* ---- rendering the workspace ---- */
 
-  if (!code) return err('Give the office a short code, e.g. CNS.');
-  if (!/^[A-Za-z0-9_-]+$/.test(code)) return err('The code can only use letters, numbers, hyphen or underscore.');
-  if (isNew && OFFICES[code]) return err('An office with the code "' + code + '" already exists.');
-  if (!name) return err('Give the office a name.');
-  if (isNaN(lat) || lat < -90 || lat > 90) return err('Latitude must be between -90 and 90.');
-  if (isNaN(lng) || lng < -180 || lng > 180) return err('Longitude must be between -180 and 180.');
+function renderAll(opts) {
+  if (!editState.on) return;
+  renderToolbar();
+  renderNav(opts && opts.reveal);
+  renderInspector();
+  renderHint();
+}
 
-  readSecondaryRows();
-  const secondaries = [];
-  for (const s of editState.officeSecondaries) {
-    if (!s.label && !s.address && s.lat === '' && s.lng === '') continue;
-    const sLat = parseFloat(s.lat), sLng = parseFloat(s.lng);
-    const who = s.label || s.address || 'a satellite location';
-    if (isNaN(sLat) || sLat < -90 || sLat > 90) return err('Latitude for ' + who + ' must be between -90 and 90.');
-    if (isNaN(sLng) || sLng < -180 || sLng > 180) return err('Longitude for ' + who + ' must be between -180 and 180.');
-    secondaries.push({ lat: round7(sLat), lng: round7(sLng), address: s.address, label: s.label });
+function renderToolbar() {
+  const n = listChanges().length;
+  document.getElementById('ed-tool-select').classList.toggle('on', editState.tool !== 'draw');
+  document.getElementById('ed-tool-draw').classList.toggle('on', editState.tool === 'draw');
+  document.getElementById('ed-undo').disabled = !editState.undo.length && !editState.drawing;
+  document.getElementById('ed-redo').disabled = !editState.redo.length;
+  document.getElementById('ed-status').textContent = n ? plural(n, 'unsaved change') : 'Everything is saved';
+  const review = document.getElementById('ed-review');
+  review.disabled = !n;
+  review.textContent = n ? 'Review & save (' + n + ')' : 'Review & save';
+}
+
+function setTab(tab) {
+  editState.tab = tab;
+  editState.find = '';
+  document.getElementById('ed-find').value = '';
+  renderNav();
+}
+
+function changeStatus(changes) {
+  const zones = new Map(), offices = new Map();
+  changes.forEach(c => { if (c.type === 'zone') zones.set(c.key, c); else offices.set(c.code, c); });
+  return { zones: zones, offices: offices };
+}
+
+const CHIP = { edited: '<span class="chip edited">Edited</span>', added: '<span class="chip new">New</span>', deleted: '<span class="chip deleted">Deleted</span>' };
+
+function renderNav(reveal) {
+  const tab = editState.tab;
+  document.getElementById('ed-tab-zones').classList.toggle('on', tab === 'zones');
+  document.getElementById('ed-tab-offices').classList.toggle('on', tab === 'offices');
+  document.getElementById('ed-find').placeholder = tab === 'zones' ? 'Find a zone' : 'Find an office';
+  document.getElementById('ed-new-office').hidden = tab !== 'offices';
+  const status = changeStatus(listChanges());
+  const q = editState.find.trim().toLowerCase();
+  const list = document.getElementById('ed-list');
+  const sel = editState.sel || {};
+  let html = '';
+
+  if (tab === 'zones') {
+    const deletedByOffice = {};
+    status.zones.forEach(c => { if (c.kind === 'deleted') (deletedByOffice[c.office] = deletedByOffice[c.office] || []).push(c); });
+    Object.values(STATE_GROUPS).forEach(codes => codes.forEach(code => {
+      const officeName = getOfficeName(code);
+      const officeHit = !q || officeName.toLowerCase().includes(q) || code.toLowerCase().includes(q);
+      const rows = (officeZones[code] || []).map(z => ({ z: z, key: zoneKey.get(z), name: z.name, label: z.label }))
+        .concat((deletedByOffice[code] || []).map(c => ({ z: null, key: c.key, name: c.base.name, label: c.base.label })))
+        .filter(r => officeHit || r.name.toLowerCase().includes(q) || String(r.label == null ? '' : r.label) === q)
+        .sort((a, b) => (parseInt(a.label, 10) || 9999) - (parseInt(b.label, 10) || 9999) || a.name.localeCompare(b.name));
+      if (q && !rows.length) return;
+      html += '<div class="nav-group"><button class="nav-group-name" data-office="' + escapeHtml(code) + '" title="Select this office">' +
+        '<i style="background:' + escapeHtml(normaliseHex(getOfficeColor(code))) + '"></i><span>' + escapeHtml(officeName) + '</span></button>' +
+        '<button class="nav-add" data-draw="' + escapeHtml(code) + '" title="Draw a zone for ' + escapeHtml(officeName) + '" aria-label="Draw a zone for ' + escapeHtml(officeName) + '">+</button></div>';
+      rows.forEach(r => {
+        const c = status.zones.get(r.key);
+        const on = sel.type === 'zone' && sel.key === r.key;
+        html += '<button class="nav-row' + (on ? ' on' : '') + (r.z ? '' : ' gone') + '" data-zone="' + escapeHtml(r.key) + '"' +
+          (r.z ? '' : ' title="Deleted. Click to restore it."') + '>' +
+          '<span class="n">' + escapeHtml(r.label == null || r.label === '' ? '–' : r.label) + '</span><span class="t">' + escapeHtml(r.name) + '</span>' +
+          (c ? CHIP[c.kind] : '') + '</button>';
+      });
+    }));
+  } else {
+    Object.entries(STATE_GROUPS).forEach(([state, codes]) => {
+      const rows = codes.filter(code => !q || getOfficeName(code).toLowerCase().includes(q) || code.toLowerCase().includes(q));
+      if (!rows.length) return;
+      html += '<div class="nav-state">' + escapeHtml(state) + '</div>';
+      rows.forEach(code => {
+        const c = status.offices.get(code);
+        const on = sel.type === 'office' && sel.code === code;
+        const none = !(officeZones[code] || []).length;
+        html += '<button class="nav-row office' + (on ? ' on' : '') + '" data-office="' + escapeHtml(code) + '">' +
+          '<i class="dot" style="background:' + escapeHtml(normaliseHex(getOfficeColor(code))) + '"></i><span class="t">' + escapeHtml(getOfficeName(code)) + '</span>' +
+          (c ? CHIP[c.kind] : none ? '<span class="chip muted">No zones</span>' : '') + '</button>';
+      });
+    });
   }
+  list.innerHTML = html || '<div class="nav-empty">Nothing matches “' + escapeHtml(editState.find) + '”.</div>';
 
-  const target = isNew ? code : editState.officeFormCode;
-  const existing = OFFICES[target] || {};
-  OFFICES[target] = Object.assign({}, existing, {
-    name: name, color: colour, lat: round7(lat), lng: round7(lng), address: address,
+  list.querySelectorAll('[data-zone]').forEach(el => {
+    el.onclick = () => {
+      const key = el.dataset.zone;
+      if (zoneForKey(key)) { select({ type: 'zone', key: key }, { zoom: true }); return; }
+      const c = status.zones.get(key);
+      if (c) { revertChange(c); toast('Restored <b>' + escapeHtml(c.name) + '</b>.'); }
+    };
   });
-  if (secondaries.length) OFFICES[target].secondaryLocations = secondaries;
-  else delete OFFICES[target].secondaryLocations;
-
-  const oldState = isNew ? null : getStateForOffice(target);
-  if (oldState !== state) {
-    if (oldState) {
-      const list = STATE_GROUPS[oldState];
-      const i = list.indexOf(target);
-      if (i > -1) list.splice(i, 1);
-    }
-    if (!STATE_GROUPS[state]) STATE_GROUPS[state] = [];
-    if (STATE_GROUPS[state].indexOf(target) === -1) STATE_GROUPS[state].push(target);
+  list.querySelectorAll('[data-office]').forEach(el => {
+    el.onclick = () => select({ type: 'office', code: el.dataset.office }, { zoom: true });
+  });
+  list.querySelectorAll('[data-draw]').forEach(el => { el.onclick = () => startDraw(el.dataset.draw); });
+  if (reveal) {
+    const on = list.querySelector('.nav-row.on');
+    if (on) on.scrollIntoView({ block: 'nearest' });
   }
-
-  if (isNew) {
-    if (!officeZones[target]) officeZones[target] = [];
-    if (!polysByOffice[target]) polysByOffice[target] = [];
-    if (!labelsByOffice[target]) labelsByOffice[target] = [];
-    createOfficeMarker(target);
-  }
-
-  buildStateToggles();
-  applyOfficeAppearance(target);
-  markOfficesDirty();
-  renderOfficeList();
-  showOfficeList();
-  setEditStatus(isNew
-    ? 'Added <b>' + escapeHtml(name) + '</b>. Draw zones for it with <b>+ New zone</b>, then save.'
-    : 'Updated <b>' + escapeHtml(name) + '</b>.');
-  return true;
 }
 
-/* ---- satellite locations ---- */
-
-// DOM is the source of truth while the form is open; sync before re-rendering
-// so anything half-typed survives adding or removing a row.
-function readSecondaryRows() {
-  const rows = document.querySelectorAll('#office-sec-rows .office-sec-row');
-  editState.officeSecondaries = [...rows].map(row => ({
-    label: row.querySelector('.sec-label').value.trim(),
-    address: row.querySelector('.sec-address').value.trim(),
-    lat: row.querySelector('.sec-lat').value.trim(),
-    lng: row.querySelector('.sec-lng').value.trim(),
-  }));
+function officeOptions(selected) {
+  let html = '';
+  Object.entries(STATE_GROUPS).forEach(([state, codes]) => {
+    html += '<optgroup label="' + escapeHtml(state) + '">';
+    codes.forEach(c => {
+      html += '<option value="' + escapeHtml(c) + '"' + (c === selected ? ' selected' : '') + '>' + escapeHtml(getOfficeName(c)) + '</option>';
+    });
+    html += '</optgroup>';
+  });
+  return html;
 }
 
-function renderSecondaryRows() {
-  const wrap = document.getElementById('office-sec-rows');
-  wrap.innerHTML = '';
-  const list = editState.officeSecondaries || [];
-  if (!list.length) {
-    const none = document.createElement('div');
-    none.className = 'office-sec-none';
-    none.textContent = 'No satellite locations.';
-    wrap.appendChild(none);
+function stateOptions(selected) {
+  return Object.keys(STATE_GROUPS).map(s => '<option' + (s === selected ? ' selected' : '') + '>' + escapeHtml(s) + '</option>').join('');
+}
+
+function inspHead(colour, title, sub, chipHtml) {
+  return '<div class="insp-head"><div style="min-width:0"><div class="insp-title">' +
+    (colour ? '<i style="background:' + escapeHtml(normaliseHex(colour)) + '"></i>' : '') + '<span>' + escapeHtml(title) + '</span></div>' +
+    '<div class="insp-sub">' + sub + '</div></div>' + (chipHtml || '') + '</div>';
+}
+
+function snapToggle(note) {
+  return '<label class="toggle"><span>Snap to nearby zones<small>' + note + '</small></span>' +
+    '<input type="checkbox" class="sw" id="ins-snap"' + (editState.snap ? ' checked' : '') + '/></label>';
+}
+
+function renderInspector() {
+  const el = document.getElementById('ed-insp');
+  const sel = editState.sel;
+  const status = changeStatus(listChanges());
+  let html = '';
+
+  if (sel && sel.type === 'draw' && editState.drawing) {
+    const d = editState.drawing;
+    const n = d.corners.length;
+    html = inspHead(getOfficeColor(d.code), 'New zone', 'Drawing · ' + plural(n, 'corner') + ' so far', CHIP.added) +
+      '<div class="insp-body">' +
+      '<label class="fld">Office<select id="ins-draw-office">' + officeOptions(d.code) + '</select></label>' +
+      '<div class="two"><label class="fld">Number<input type="text" id="ins-draw-number" value="' + escapeHtml(d.number) + '" autocomplete="off"/></label>' +
+      '<div class="fld">Name<div class="fake-in">Automatic</div></div></div>' +
+      '<p class="help">Will show as <b>' + escapeHtml(d.number ? autoName(d.code, d.number) : getOfficeName(d.code) + ' zone') + '</b>.</p>' +
+      '<div class="sec">Snapping</div>' + snapToggle('Hold <b>Alt</b> to place a corner freely') +
+      '</div><div class="insp-foot"><button class="edit-btn" id="ins-draw-cancel">Cancel</button>' +
+      '<button class="edit-btn primary" id="ins-draw-finish"' + (n < 3 ? ' disabled' : '') + '>Finish zone</button></div>';
+  } else if (sel && sel.type === 'zone' && selZone()) {
+    const z = selZone();
+    const key = sel.key;
+    const c = status.zones.get(key);
+    const auto = isAutoName(z) && !editState.nameEdit;
+    const hasNumber = z.label != null && String(z.label) !== '';
+    const custom = !!z.fill;
+    html = inspHead(getOfficeColor(z.office), z.name, escapeHtml(getOfficeName(z.office)) + ' · ' + plural(z.coords.length - 1, 'corner'), c ? CHIP[c.kind] : '') +
+      '<div class="insp-body">' +
+      '<div class="sec">Details</div>' +
+      '<label class="fld">Office<select id="ins-office">' + officeOptions(z.office) + '</select></label>' +
+      '<div class="two"><label class="fld">Number<input type="text" id="ins-number" value="' + escapeHtml(z.label == null ? '' : z.label) + '" autocomplete="off"/></label>' +
+      (auto
+        ? '<div class="fld">Name<div class="fake-in">Automatic <button class="linkbtn" id="ins-name-custom">Customise</button></div></div></div>' +
+          '<p class="help">Shows as <b>' + escapeHtml(z.name) + '</b>, following this office’s pattern.</p>'
+        : '<label class="fld">Name<input type="text" id="ins-name" value="' + escapeHtml(z.name) + '" autocomplete="off"/></label></div>' +
+          (hasNumber ? '<p class="help">A custom name. <button class="linkbtn" id="ins-name-auto">Use “' + escapeHtml(autoName(z.office, z.label, z)) + '”</button></p>' : '')) +
+      '<div class="sec">Colour</div>' +
+      '<div class="seg" style="justify-self:start"><button id="ins-fill-office"' + (custom ? '' : ' class="on"') + '>Office colour</button><button id="ins-fill-custom"' + (custom ? ' class="on"' : '') + '>Custom</button></div>' +
+      (custom
+        ? '<div class="colour-row"><input type="color" id="ins-fill" value="' + normaliseHex(z.fill) + '" title="Pick any colour"/>' +
+          '<div class="fill-preview" id="ins-fill-preview" style="background:' + asMapColour(z.fill) + '">on map</div></div>' +
+          '<div class="chips-in-use" id="ins-fill-chips"></div>' +
+          '<p class="help">Fills are see-through on the map, so they look softer than in the picker. The outline always shows the office colour.</p>'
+        : '') +
+      '<div class="sec">Shape</div>' +
+      '<label class="toggle"><span>Move the whole shape<small>' + (editState.moveShape ? 'Drag inside the zone to move it' : 'Off, so dragging inside the zone can’t shift it') + '</small></span>' +
+      '<input type="checkbox" class="sw" id="ins-move"' + (editState.moveShape ? ' checked' : '') + '/></label>' +
+      snapToggle('Corners you drag line up with neighbouring zones') +
+      '</div><div class="insp-foot">' +
+      '<button class="edit-btn" id="ins-revert"' + (c && c.base ? '' : ' disabled') + ' title="Go back to the saved version of this zone">Revert zone</button>' +
+      '<button class="edit-btn danger" id="ins-delete">Delete zone</button></div>';
+  } else if (sel && sel.type === 'office' && OFFICES[sel.code]) {
+    const code = sel.code, off = OFFICES[code];
+    const c = status.offices.get(code);
+    const zonesN = (officeZones[code] || []).length;
+    const placing = editState.pickTarget;
+    html = inspHead(off.color, off.name, plural(zonesN, 'zone') + ' · ' + escapeHtml(getStateForOffice(code) || ''), c ? CHIP[c.kind] : '') +
+      '<div class="insp-body">' +
+      '<div class="two"><label class="fld">Code<input type="text" value="' + escapeHtml(code) + '" disabled title="Zones refer to this code, so it can’t change"/></label>' +
+      '<label class="fld">State<select id="ins-o-state">' + stateOptions(getStateForOffice(code)) + '</select></label></div>' +
+      '<label class="fld">Name<input type="text" id="ins-o-name" value="' + escapeHtml(off.name) + '" autocomplete="off"/></label>' +
+      '<label class="fld">Address<input type="text" id="ins-o-address" value="' + escapeHtml(off.address || '') + '" autocomplete="off"/></label>' +
+      '<div class="two"><div class="fld">Colour<div class="colour-row"><input type="color" id="ins-o-colour" value="' + normaliseHex(off.color) + '"/>' +
+      '<span class="help" id="ins-o-hex">' + escapeHtml(normaliseHex(off.color)) + '</span></div></div>' +
+      '<div class="fld">Main pin<div class="fake-in">' + (placing === 'pin' ? 'Placing…' : 'Placed') + ' <button class="linkbtn" id="ins-o-pin">Move</button></div></div></div>' +
+      '<div class="sec">Satellite locations</div>' +
+      (off.secondaryLocations || []).map((s, i) =>
+        '<div class="sat' + (placing === 'sat' + i ? ' placing' : '') + '">' +
+        '<input type="text" class="sat-label" data-i="' + i + '" placeholder="Name, e.g. Springwood" value="' + escapeHtml(s.label || '') + '" autocomplete="off" aria-label="Satellite name"/>' +
+        '<input type="text" class="sat-address" data-i="' + i + '" placeholder="Address" value="' + escapeHtml(s.address || '') + '" autocomplete="off" aria-label="Satellite address"/>' +
+        '<div class="sat-actions"><span class="where">' + (placing === 'sat' + i ? 'Click the map to place it' : 'Pin placed') + '</span>' +
+        '<button class="edit-btn sat-move" data-i="' + i + '">Move</button><button class="edit-btn danger sat-remove" data-i="' + i + '">Remove</button></div></div>'
+      ).join('') +
+      '<button class="edit-btn" id="ins-sat-add" style="justify-self:start">+ Add satellite location</button>' +
+      '</div><div class="insp-foot">' +
+      '<button class="edit-btn" id="ins-o-revert"' + (c && c.base ? '' : ' disabled') + '>Revert office</button>' +
+      '<button class="edit-btn" id="ins-o-zones">Show its zones</button></div>';
+  } else if (sel && sel.type === 'new-office') {
+    const states = Object.keys(STATE_GROUPS);
+    html = inspHead(null, 'New office', 'You’ll place its pin next') +
+      '<div class="insp-body">' +
+      '<div class="two"><label class="fld">Code<input type="text" id="new-o-code" placeholder="CNS" autocomplete="off"/></label>' +
+      '<label class="fld">State<select id="new-o-state">' + stateOptions(states[0]) + '</select></label></div>' +
+      '<label class="fld">Name<input type="text" id="new-o-name" placeholder="Cairns &amp; Far North" autocomplete="off"/></label>' +
+      '<label class="fld">Address<input type="text" id="new-o-address" placeholder="12 Example St, Cairns QLD" autocomplete="off"/></label>' +
+      '<div class="fld">Colour<div class="colour-row"><input type="color" id="new-o-colour" value="' + suggestOfficeColour() + '"/></div></div>' +
+      '<p class="err" id="new-o-error" role="alert"></p>' +
+      '</div><div class="insp-foot"><button class="edit-btn" id="new-o-cancel">Cancel</button><button class="edit-btn primary" id="new-o-add">Add office</button></div>';
+  } else {
+    html = inspHead(null, 'Nothing selected', plural(ZONES.length, 'zone') + ' · ' + plural(Object.keys(OFFICES).length, 'office')) +
+      '<div class="insp-body">' +
+      '<p class="help">Click a zone or an office pin on the map, or pick one from the list, to edit it. To add a zone, use <b>+</b> next to an office or press <b>D</b>.</p>' +
+      '<div class="sec">Shortcuts</div><div class="keys">' +
+      '<kbd>V</kbd><span>Select and reshape</span><kbd>D</kbd><span>Draw a zone</span>' +
+      '<kbd>Delete</kbd><span>Remove the selected corner or zone</span>' +
+      '<kbd>Ctrl Z</kbd><span>Undo any change</span><kbd>Ctrl Shift Z</kbd><span>Redo</span>' +
+      '<kbd>Esc</kbd><span>Cancel or deselect</span></div>' +
+      '<div class="sec">Snapping</div>' + snapToggle('Corners you place or drag line up with neighbouring zones') +
+      '</div>';
+  }
+  el.innerHTML = html;
+  wireInspector();
+}
+
+function wireInspector() {
+  const $ = id => document.getElementById(id);
+  const sel = editState.sel || {};
+  if ($('ins-snap')) $('ins-snap').onchange = e => { editState.snap = e.target.checked; };
+
+  if (sel.type === 'draw' && editState.drawing) {
+    const d = editState.drawing;
+    $('ins-draw-office').onchange = e => {
+      d.code = e.target.value;
+      d.number = nextNumber(d.code);
+      d.shape.setOptions({ fillColor: getOfficeColor(d.code) });
+      setActiveOffice(d.code);
+      renderInspector();
+    };
+    $('ins-draw-number').onchange = e => { d.number = e.target.value.trim(); renderInspector(); };
+    $('ins-draw-cancel').onclick = () => cancelDraw();
+    $('ins-draw-finish').onclick = finishDraw;
     return;
   }
-  list.forEach((sec, i) => {
-    const row = document.createElement('div');
-    row.className = 'office-sec-row';
-    row.innerHTML =
-      '<input class="sec-label" type="text" placeholder="Label, e.g. Coffs Harbour" autocomplete="off"/>' +
-      '<input class="sec-address" type="text" placeholder="Address" autocomplete="off"/>' +
-      '<div class="office-sec-coords">' +
-        '<input class="sec-lat" type="text" placeholder="Latitude" autocomplete="off"/>' +
-        '<input class="sec-lng" type="text" placeholder="Longitude" autocomplete="off"/>' +
-        '<button class="edit-btn sec-pin" type="button">Place</button>' +
-        '<button class="edit-btn danger sec-remove" type="button">Remove</button>' +
-      '</div>';
-    row.querySelector('.sec-label').value = sec.label || '';
-    row.querySelector('.sec-address').value = sec.address || '';
-    row.querySelector('.sec-lat').value = sec.lat == null ? '' : sec.lat;
-    row.querySelector('.sec-lng').value = sec.lng == null ? '' : sec.lng;
-    row.querySelector('.sec-pin').onclick = () => startPinPlacement((lat, lng) => {
-      row.querySelector('.sec-lat').value = lat;
-      row.querySelector('.sec-lng').value = lng;
-    });
-    row.querySelector('.sec-remove').onclick = () => {
-      readSecondaryRows();
-      editState.officeSecondaries.splice(i, 1);
-      renderSecondaryRows();
+
+  if (sel.type === 'zone' && selZone()) {
+    const z = selZone();
+    $('ins-office').onchange = e => {
+      const code = e.target.value;
+      editZone('Move ' + z.name + ' to ' + getOfficeName(code), zz => {
+        const wasAuto = isAutoName(zz);
+        moveZoneToOffice(zz, code);
+        zz.folder = officeFolder(code, zz);
+        if (wasAuto) {
+          if ((officeZones[code] || []).some(s => s !== zz && String(s.label) === String(zz.label))) zz.label = nextNumber(code);
+          zz.name = autoName(code, zz.label, zz);
+        }
+        setActiveOffice(code);
+        placeZoneLabel(zz);
+      });
     };
-    wrap.appendChild(row);
-  });
-}
-
-/* ---- click the map to place an office pin ---- */
-
-function startPinPlacement(onPick) {
-  if (!map) return;
-  const apply = typeof onPick === 'function' ? onPick : (lat, lng) => {
-    document.getElementById('office-f-lat').value = lat;
-    document.getElementById('office-f-lng').value = lng;
-  };
-  // Offices usually sit inside their own territory, so most useful clicks land
-  // on a polygon - which consumes the event before the map ever sees it.
-  // Anything clickable checks pinPick first while placement is running.
-  editState.pinPick = latLng => {
-    if (!latLng) return;
-    apply(round7(latLng.lat()), round7(latLng.lng()));
-    cancelPinPlacement();
-    document.getElementById('office-modal').classList.add('visible');
-    document.getElementById('office-form-error').textContent = '';
-  };
-  editState.placingPin = map.addListener('click', e => editState.pinPick && editState.pinPick(e.latLng));
-  document.getElementById('office-modal').classList.remove('visible');
-  document.getElementById('edit-pin-bar').classList.add('visible');
-}
-
-// Returns true when the click was consumed as a pin placement.
-function takePinClick(e) {
-  const pick = editState.pinPick || editState.drawPick;
-  if (!pick || !e || !e.latLng) return false;
-  pick(e.latLng);
-  if (e.stop) e.stop();
-  return true;
-}
-
-function cancelPinPlacement() {
-  if (editState.placingPin) {
-    if (editState.placingPin.remove) editState.placingPin.remove();
-    else if (google.maps.event) google.maps.event.removeListener(editState.placingPin);
-    editState.placingPin = null;
+    $('ins-number').onchange = e => {
+      const v = e.target.value.trim();
+      editZone('Change the number of ' + z.name, zz => {
+        const wasAuto = isAutoName(zz);
+        zz.label = v;
+        if (wasAuto && v) zz.name = autoName(zz.office, v, zz);
+        placeZoneLabel(zz);
+      });
+    };
+    if ($('ins-name')) $('ins-name').onchange = e => {
+      const v = e.target.value.trim();
+      if (!v) { toast('A zone needs a name.'); renderInspector(); return; }
+      editZone('Rename ' + z.name, zz => { zz.name = v; });
+    };
+    if ($('ins-name-custom')) $('ins-name-custom').onclick = () => { editState.nameEdit = true; renderInspector(); $('ins-name') && $('ins-name').focus(); };
+    if ($('ins-name-auto')) $('ins-name-auto').onclick = () => { editState.nameEdit = false; editZone('Use the automatic name', zz => { zz.name = autoName(zz.office, zz.label, zz); }); };
+    $('ins-fill-office').onclick = () => { if (z.fill) editZone('Use the office colour for ' + z.name, zz => { setZoneFill(zz, null); restyleZonePoly(zoneRefs.get(zz).poly); }); };
+    $('ins-fill-custom').onclick = () => { if (!z.fill) editZone('Give ' + z.name + ' its own colour', zz => { setZoneFill(zz, normaliseHex(getOfficeColor(zz.office))); restyleZonePoly(zoneRefs.get(zz).poly); }); };
+    if ($('ins-fill')) {
+      const applyFill = (hex, keepPanel) => {
+        const key = zoneKey.get(z);
+        record('Change the colour of ' + z.name, [key], () => {
+          setZoneFill(z, normaliseHex(hex));
+          restyleZonePoly(zoneRefs.get(z).poly);
+        }, { coalesce: 'fill:' + key, keepPanel: keepPanel });
+        if (keepPanel) { $('ins-fill-preview').style.background = asMapColour(hex); renderFillChips(z, pick); }
+      };
+      const pick = hex => applyFill(hex, false);
+      $('ins-fill').oninput = e => applyFill(e.target.value, true);
+      renderFillChips(z, pick);
+    }
+    $('ins-move').onchange = e => {
+      editState.moveShape = e.target.checked;
+      const poly = selPoly();
+      if (poly) restyleZonePoly(poly);
+      renderInspector();
+      renderHint();
+    };
+    $('ins-revert').onclick = () => { const c = changeStatus(listChanges()).zones.get(sel.key); if (c) revertChange(c); };
+    $('ins-delete').onclick = deleteSelectedZone;
+    return;
   }
-  editState.pinPick = null;
-  document.getElementById('edit-pin-bar').classList.remove('visible');
+
+  if (sel.type === 'office' && OFFICES[sel.code]) {
+    const code = sel.code;
+    $('ins-o-state').onchange = e => {
+      const state = e.target.value;
+      editOffice(code, 'Move ' + getOfficeName(code) + ' to ' + state, () => {
+        Object.keys(STATE_GROUPS).forEach(s => { STATE_GROUPS[s] = STATE_GROUPS[s].filter(c => c !== code); });
+        (STATE_GROUPS[state] = STATE_GROUPS[state] || []).push(code);
+        buildStateToggles();
+      });
+    };
+    $('ins-o-name').onchange = e => {
+      const v = e.target.value.trim();
+      if (!v) { toast('An office needs a name.'); renderInspector(); return; }
+      editOffice(code, 'Rename ' + getOfficeName(code), o => { o.name = v; });
+    };
+    $('ins-o-address').onchange = e => { const v = e.target.value.trim(); editOffice(code, 'Change the address of ' + getOfficeName(code), o => { o.address = v; }); };
+    $('ins-o-colour').oninput = e => {
+      const v = e.target.value;
+      editOffice(code, 'Change the colour of ' + getOfficeName(code), o => { o.color = v; }, { coalesce: 'ocolour:' + code, keepPanel: true });
+      $('ins-o-hex').textContent = v;
+    };
+    $('ins-o-pin').onclick = () => startPick(getOfficeName(code) + '’s pin', 'pin', ll => {
+      editOffice(code, 'Move the pin for ' + getOfficeName(code), o => { o.lat = round7(ll.lat()); o.lng = round7(ll.lng()); });
+    });
+    document.querySelectorAll('.sat-label').forEach(inp => {
+      inp.onchange = () => editOffice(code, 'Rename a satellite location', o => { o.secondaryLocations[+inp.dataset.i].label = inp.value.trim(); });
+    });
+    document.querySelectorAll('.sat-address').forEach(inp => {
+      inp.onchange = () => editOffice(code, 'Change a satellite address', o => { o.secondaryLocations[+inp.dataset.i].address = inp.value.trim(); });
+    });
+    document.querySelectorAll('.sat-move').forEach(btn => {
+      const i = +btn.dataset.i;
+      const s = OFFICES[code].secondaryLocations[i];
+      btn.onclick = () => startPick(s.label || 'the satellite location', 'sat' + i, ll => {
+        editOffice(code, 'Move a satellite pin', o => { o.secondaryLocations[i].lat = round7(ll.lat()); o.secondaryLocations[i].lng = round7(ll.lng()); });
+      });
+    });
+    document.querySelectorAll('.sat-remove').forEach(btn => {
+      btn.onclick = () => editOffice(code, 'Remove a satellite location', o => {
+        o.secondaryLocations.splice(+btn.dataset.i, 1);
+        if (!o.secondaryLocations.length) delete o.secondaryLocations;
+      });
+    });
+    $('ins-sat-add').onclick = () => {
+      const i = (OFFICES[code].secondaryLocations || []).length;
+      startPick('the new satellite location', 'sat' + i, ll => {
+        editOffice(code, 'Add a satellite location', o => {
+          (o.secondaryLocations = o.secondaryLocations || []).push({ lat: round7(ll.lat()), lng: round7(ll.lng()), address: '', label: '' });
+        });
+        const inputs = document.querySelectorAll('.sat-label');
+        if (inputs.length) inputs[inputs.length - 1].focus();
+      });
+    };
+    $('ins-o-revert').onclick = () => { const c = changeStatus(listChanges()).offices.get(code); if (c) revertChange(c); };
+    $('ins-o-zones').onclick = () => {
+      editState.tab = 'zones';
+      editState.find = getOfficeName(code);
+      document.getElementById('ed-find').value = editState.find;
+      renderNav();
+      zoomToOffice(code);
+    };
+    return;
+  }
+
+  if (sel.type === 'new-office') {
+    $('new-o-cancel').onclick = () => select(null);
+    $('new-o-add').onclick = addOffice;
+  }
 }
 
-/* ---- panel ---- */
-
-// A single line carries either the latest message or the unsaved count.
-function setEditStatus(html) {
-  editState.msg = html;
-  renderEditNote();
-}
-
-function renderEditNote() {
-  const el = document.getElementById('edit-note');
-  if (!el) return;
-  if (editState.msg) { el.innerHTML = editState.msg; return; }
-  el.innerHTML = hasUnsavedChanges()
-    ? '<b>' + changeSummary() + ' changed</b> &middot; drafted in this browser until you save.'
-    : 'No unsaved changes.';
-}
-
-function refreshSidebarCounts() {
-  document.querySelectorAll('.office-item').forEach(el => {
-    const c = el.querySelector('.zone-count');
-    if (!c) return;
-    const count = (officeZones[el.dataset.code] || []).length;
-    c.textContent = count;
-    c.classList.toggle('none', !count);
+function renderFillChips(z, onPick) {
+  const wrap = document.getElementById('ins-fill-chips');
+  if (!wrap) return;
+  const current = normaliseHex(zoneFill(z));
+  wrap.innerHTML = '';
+  coloursInUse(z).forEach(([hex, label]) => {
+    const chip = document.createElement('button');
+    chip.className = 'fill-chip' + (hex === current ? ' on' : '');
+    chip.style.background = asMapColour(hex);
+    chip.title = label + ' — ' + hex + ' (as it looks on the map)';
+    chip.onclick = () => onPick(hex);
+    wrap.appendChild(chip);
   });
 }
 
-function refreshEditPanel() {
+function addOffice() {
+  const $ = id => document.getElementById(id);
+  const err = msg => { $('new-o-error').textContent = msg; };
+  const code = $('new-o-code').value.trim();
+  const name = $('new-o-name').value.trim();
+  const state = $('new-o-state').value;
+  const address = $('new-o-address').value.trim();
+  const colour = $('new-o-colour').value;
+  if (!code) return err('Give the office a short code, e.g. CNS.');
+  if (!/^[A-Za-z0-9_-]+$/.test(code)) return err('The code can only use letters, numbers, hyphens or underscores.');
+  if (OFFICES[code]) return err('An office with the code “' + code + '” already exists.');
+  if (!name) return err('Give the office a name.');
+  const centre = map.getCenter();
+  record('Add the office ' + name, [], () => {
+    OFFICES[code] = { name: name, color: colour, lat: round7(centre.lat()), lng: round7(centre.lng()), address: address };
+    (STATE_GROUPS[state] = STATE_GROUPS[state] || []).push(code);
+    if (!officeZones[code]) officeZones[code] = [];
+    if (!polysByOffice[code]) polysByOffice[code] = [];
+    if (!labelsByOffice[code]) labelsByOffice[code] = [];
+    createOfficeMarker(code);
+    buildStateToggles();
+    buildSidebar();
+  }, { offices: true });
+  editState.tab = 'offices';
+  select({ type: 'office', code: code });
+  startPick(name + '’s pin', 'pin', ll => {
+    editOffice(code, 'Place the pin for ' + name, o => { o.lat = round7(ll.lat()); o.lng = round7(ll.lng()); });
+  });
+}
+
+function renderHint() {
+  const el = document.getElementById('ed-hint');
   if (!editState.on) return;
-  const poly = editState.selected;
-  const z = poly ? poly._zone : null;
-
-  // The panel shows one of two states, so nothing sits around disabled.
-  document.getElementById('edit-empty').hidden = !!z;
-  document.getElementById('edit-zone').hidden = !z;
-  document.getElementById('edit-new').disabled = !!editState.drawing;
-
-  if (z) {
-    document.getElementById('edit-undo').disabled = !editState.undo.length;
-    document.getElementById('edit-revert').disabled = !zoneBaseline.has(z);
-    document.getElementById('edit-sel-name').textContent = z.name;
-    document.getElementById('edit-sel-dot').style.background = getOfficeColor(z.office);
-    document.getElementById('edit-sel-meta').textContent =
-      getOfficeName(z.office) + ' \u00b7 ' + Math.max(0, z.coords.length - 1) + ' corners';
-    document.getElementById('edit-f-name').value = z.name;
-    document.getElementById('edit-f-label').value = z.label == null ? '' : z.label;
-    document.getElementById('edit-f-office').value = z.office;
-    renderFillControls(z);
+  const sep = '<span class="sep">·</span>';
+  let html;
+  if (editState.pick) {
+    html = 'Click the map to place <b>' + escapeHtml(editState.pickLabel) + '</b>' + sep + '<kbd>Esc</kbd> cancels';
+  } else if (editState.drawing) {
+    const n = editState.drawing.corners.length;
+    html = '<b>' + plural(n, 'corner') + '</b>' + sep + 'Click to add' + sep + '<kbd>Backspace</kbd> removes the last' + sep +
+      (n >= 3 ? '<kbd>Enter</kbd> finishes' : 'At least 3 corners') + sep + '<kbd>Esc</kbd> cancels';
+  } else if (editState.vertex) {
+    html = 'Corner selected' + sep + '<kbd>Delete</kbd> removes it' + sep + '<kbd>Esc</kbd> keeps it';
+  } else if (selZone()) {
+    html = 'Drag a corner to move it' + sep + 'Drag a faded dot to add one' + sep + 'Click a corner, then <kbd>Delete</kbd>' +
+      (editState.moveShape ? sep + 'Drag inside to move the zone' : '');
+  } else if (editState.sel && editState.sel.type === 'office') {
+    html = 'Use <b>Move</b> in the panel to reposition a pin';
+  } else {
+    html = 'Click a zone or office to edit it' + sep + '<kbd>D</kbd> draws a new zone';
   }
+  el.innerHTML = '<span>' + html + '</span>';
+}
 
-  document.getElementById('edit-save').disabled = !hasUnsavedChanges();
-  document.getElementById('edit-discard').disabled = !hasUnsavedChanges();
-  renderEditNote();
+function toast(html, opts) {
+  opts = opts || {};
+  const el = document.getElementById('ed-toast');
+  el.className = 'toast' + (opts.bad ? ' bad' : '');
+  el.innerHTML = '<span>' + html + '</span>' +
+    (opts.action ? '<button id="ed-toast-act">' + escapeHtml(opts.action.label) + '</button>' : '') +
+    '<button class="x" id="ed-toast-x" aria-label="Dismiss">✕</button>';
+  el.hidden = false;
+  if (opts.action) document.getElementById('ed-toast-act').onclick = () => { hideToast(); opts.action.fn(); };
+  document.getElementById('ed-toast-x').onclick = hideToast;
+  clearTimeout(editState.toastTimer);
+  editState.toastTimer = setTimeout(hideToast, opts.action ? 8000 : 5000);
+}
+
+function hideToast() {
+  clearTimeout(editState.toastTimer);
+  document.getElementById('ed-toast').hidden = true;
 }
 
 initUi();
